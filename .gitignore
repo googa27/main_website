@@ -1,0 +1,14 @@
+# --- Python / Django ---
+__pycache__/
+*.py[cod]
+db.sqlite3
+
+# Virtual env
+.venv/
+
+# If you create a React frontend later:
+node_modules/
+build/
+
+# Secrets
+.env

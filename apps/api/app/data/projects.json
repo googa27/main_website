@@ -1,0 +1,26 @@
+[
+  {
+    "id": "1",
+    "title": "Personal Portfolio Website",
+    "description": "A personal portfolio website built with FastAPI and React",
+    "technologies": ["Python", "FastAPI", "React", "TypeScript"],
+    "image_url": "https://example.com/portfolio-screenshot.jpg",
+    "project_url": "https://yourportfolio.com",
+    "github_url": "https://github.com/yourusername/portfolio",
+    "is_featured": true,
+    "created_at": "2025-01-01T00:00:00",
+    "updated_at": "2025-01-01T00:00:00"
+  },
+  {
+    "id": "2",
+    "title": "E-commerce Platform",
+    "description": "A full-stack e-commerce platform with payment integration",
+    "technologies": ["Python", "Django", "PostgreSQL", "Stripe"],
+    "image_url": "https://example.com/ecommerce-screenshot.jpg",
+    "project_url": "https://ecommerce.example.com",
+    "github_url": "https://github.com/yourusername/ecommerce",
+    "is_featured": true,
+    "created_at": "2024-06-15T00:00:00",
+    "updated_at": "2024-12-15T00:00:00"
+  }
+]

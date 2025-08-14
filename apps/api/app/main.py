@@ -20,8 +20,10 @@ app.add_middleware(
 # Import and include routers
 from .routers import projects, contact
 
-app.include_router(projects.router, prefix="/api/projects", tags=["projects"])
-app.include_router(contact.router, prefix="/api/contact", tags=["contact"])
+# Use the configured API prefix from settings to avoid hard-coded paths
+api_prefix = settings.API_V1_STR
+app.include_router(projects.router, prefix=f"{api_prefix}/projects", tags=["projects"])
+app.include_router(contact.router, prefix=f"{api_prefix}/contact", tags=["contact"])
 
 @app.get("/")
 async def root():

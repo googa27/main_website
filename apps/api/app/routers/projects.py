@@ -1,11 +1,10 @@
 from fastapi import APIRouter, HTTPException, Depends
-from typing import List
 import json
 from sqlalchemy.orm import Session
 from app.models.project import Project, ProjectList, ShowcaseResponse
 from app.core.database import get_db
 from app.services.github_service import GitHubService
-from app.services.database_service import DatabaseService
+from app.services.project_service import ProjectService
 from app.services.scoring import scoring_service
 from app.services.showcase_service import showcase_service
 
@@ -16,7 +15,7 @@ github_service = GitHubService()
 async def get_projects(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """Get all projects from database with intelligent ordering"""
     try:
-        projects = DatabaseService.get_all_projects(db, skip, limit)
+        projects = ProjectService.get_all_projects(db, skip, limit)
         
         # Sort projects by intelligent scoring algorithm
         sorted_projects = scoring_service.sort_projects_by_score(projects)
@@ -108,7 +107,7 @@ async def get_featured_projects(limit: int = 6, db: Session = Depends(get_db)):
 async def get_project(project_id: int, db: Session = Depends(get_db)):
     """Get a specific project by ID"""
     try:
-        project = DatabaseService.get_project_by_github_id(db, project_id)
+        project = ProjectService.get_project_by_github_id(db, project_id)
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
         
@@ -148,7 +147,7 @@ async def sync_projects(db: Session = Depends(get_db)):
 async def get_project_score(project_id: int, db: Session = Depends(get_db)):
     """Get detailed scoring breakdown for a specific project"""
     try:
-        project = DatabaseService.get_project_by_id(db, project_id)
+        project = ProjectService.get_project_by_id(db, project_id)
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
         

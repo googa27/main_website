@@ -1,0 +1,19 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "FastAPI backend for Cristobal Portfolio",
+  "scripts": {
+    "dev": "uvicorn app.main:app --reload --host 0.0.0.0 --port 8000",
+    "start": "uvicorn app.main:app --host 0.0.0.0 --port 8000",
+    "test": "pytest",
+    "lint": "ruff check .",
+    "format": "black .",
+    "db:setup": "python scripts/init_db.py",
+    "db:migrate": "alembic upgrade head",
+    "db:revision": "alembic revision --autogenerate -m",
+    "build": "echo 'FastAPI app built successfully'"
+  },
+  "engines": {
+    "python": ">=3.12.0"
+  }
+}

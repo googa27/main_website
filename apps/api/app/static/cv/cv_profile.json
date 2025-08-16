@@ -1,0 +1,315 @@
+{
+  "personal_info": {
+    "first_name": "Cristobal",
+    "last_name": "Cortinez Duhalde",
+    "email": "cristobal@example.com",
+    "phone": "+56 9 XXXX XXXX",
+    "location": "Santiago, Chile",
+    "linkedin_url": "https://linkedin.com/in/cristobal-cortinez-duhalde",
+    "github_url": "https://github.com/googa27",
+    "website_url": "https://cristobalcortinez.com",
+    "summary": "Data Scientist and ML Engineer with expertise in quantitative finance, machine learning, and mathematical modeling. Specialized in finite difference methods, optimization algorithms, and MLOps pipelines.",
+    "profile_picture_url": null
+  },
+  "experience": [
+    {
+      "company": "Quantitative Finance Solutions",
+      "position": "Senior Data Scientist",
+      "location": "Santiago, Chile",
+      "start_date": "2023-01-01T00:00:00",
+      "end_date": null,
+      "description": "Leading quantitative finance projects using advanced mathematical methods including finite difference schemes, Monte Carlo simulations, and optimization algorithms.",
+      "achievements": [
+        "Developed finite difference option pricing library with PDE methods",
+        "Implemented optimization algorithms for portfolio management",
+        "Built ML pipelines for financial risk assessment"
+      ],
+      "technologies": ["Python", "NumPy", "SciPy", "Pandas", "Scikit-learn", "TensorFlow", "Docker", "MLflow"],
+      "is_current": true
+    },
+    {
+      "company": "Machine Learning Consulting",
+      "position": "ML Engineer",
+      "location": "Remote",
+      "start_date": "2022-06-01T00:00:00",
+      "end_date": "2022-12-31T00:00:00",
+      "description": "Developed machine learning solutions and MLOps pipelines for various clients across finance and technology sectors.",
+      "achievements": [
+        "Implemented MLflow for experiment tracking and model versioning",
+        "Built automated ML pipelines with CI/CD integration",
+        "Optimized model performance for production deployment"
+      ],
+      "technologies": ["Python", "MLflow", "Kubernetes", "Docker", "AWS", "TensorFlow", "PyTorch", "Scikit-learn"],
+      "is_current": false
+    },
+    {
+      "company": "Financial Technology Startup",
+      "position": "Quantitative Developer",
+      "location": "Santiago, Chile",
+      "start_date": "2021-03-01T00:00:00",
+      "end_date": "2022-05-31T00:00:00",
+      "description": "Developed quantitative models and algorithms for financial derivatives pricing and risk management.",
+      "achievements": [
+        "Implemented finite element methods for complex derivative pricing",
+        "Built real-time risk calculation engines",
+        "Developed optimization algorithms for trading strategies"
+      ],
+      "technologies": ["Python", "C++", "NumPy", "SciPy", "Pandas", "PostgreSQL", "Redis", "Docker"],
+      "is_current": false
+    }
+  ],
+  "education": [
+    {
+      "institution": "Universidad de Chile",
+      "degree": "Master of Science in Applied Mathematics",
+      "field_of_study": "Applied Mathematics with focus on Financial Mathematics",
+      "start_date": "2019-03-01T00:00:00",
+      "end_date": "2021-12-31T00:00:00",
+      "gpa": 3.8,
+      "honors": "Distinction",
+      "description": "Specialized in partial differential equations, numerical methods, and their applications in quantitative finance."
+    },
+    {
+      "institution": "Universidad de Chile",
+      "degree": "Bachelor of Science in Mathematics",
+      "field_of_study": "Mathematics",
+      "start_date": "2015-03-01T00:00:00",
+      "end_date": "2019-12-31T00:00:00",
+      "gpa": 3.7,
+      "honors": "Honors",
+      "description": "Comprehensive mathematics education with focus on analysis, algebra, and mathematical modeling."
+    }
+  ],
+  "skills": {
+    "programming_languages": [
+      {
+        "name": "Python",
+        "level": "expert",
+        "category": "Programming",
+        "years_experience": 5,
+        "description": "Primary language for data science, ML, and quantitative finance"
+      },
+      {
+        "name": "C++",
+        "level": "advanced",
+        "category": "Programming",
+        "years_experience": 3,
+        "description": "High-performance computing for numerical methods"
+      },
+      {
+        "name": "JavaScript/TypeScript",
+        "level": "intermediate",
+        "category": "Programming",
+        "years_experience": 2,
+        "description": "Web development and frontend applications"
+      }
+    ],
+    "frameworks_libraries": [
+      {
+        "name": "NumPy",
+        "level": "expert",
+        "category": "Frameworks",
+        "years_experience": 5,
+        "description": "Numerical computing and array operations"
+      },
+      {
+        "name": "SciPy",
+        "level": "expert",
+        "category": "Frameworks",
+        "years_experience": 5,
+        "description": "Scientific computing and optimization"
+      },
+      {
+        "name": "Pandas",
+        "level": "expert",
+        "category": "Frameworks",
+        "years_experience": 5,
+        "description": "Data manipulation and analysis"
+      },
+      {
+        "name": "Django",
+        "level": "intermediate",
+        "category": "Frameworks",
+        "years_experience": 2,
+        "description": "Web framework for optimization applications"
+      }
+    ],
+    "machine_learning": [
+      {
+        "name": "Scikit-learn",
+        "level": "expert",
+        "category": "ML",
+        "years_experience": 4,
+        "description": "Machine learning algorithms and pipelines"
+      },
+      {
+        "name": "TensorFlow",
+        "level": "advanced",
+        "category": "ML",
+        "years_experience": 3,
+        "description": "Deep learning and neural networks"
+      },
+      {
+        "name": "MLflow",
+        "level": "advanced",
+        "category": "ML",
+        "years_experience": 2,
+        "description": "ML lifecycle management and experiment tracking"
+      },
+      {
+        "name": "PyTorch",
+        "level": "intermediate",
+        "category": "ML",
+        "years_experience": 2,
+        "description": "Deep learning framework"
+      }
+    ],
+    "databases": [
+      {
+        "name": "PostgreSQL",
+        "level": "advanced",
+        "category": "Databases",
+        "years_experience": 3,
+        "description": "Relational database management"
+      },
+      {
+        "name": "Redis",
+        "level": "intermediate",
+        "category": "Databases",
+        "years_experience": 2,
+        "description": "In-memory data structure store"
+      }
+    ],
+    "cloud_platforms": [
+      {
+        "name": "AWS",
+        "level": "intermediate",
+        "category": "Cloud",
+        "years_experience": 2,
+        "description": "Cloud computing and services"
+      },
+      {
+        "name": "Docker",
+        "level": "advanced",
+        "category": "Cloud",
+        "years_experience": 3,
+        "description": "Containerization and deployment"
+      }
+    ],
+    "devops_tools": [
+      {
+        "name": "Git",
+        "level": "expert",
+        "category": "DevOps",
+        "years_experience": 5,
+        "description": "Version control and collaboration"
+      },
+      {
+        "name": "Docker",
+        "level": "advanced",
+        "category": "DevOps",
+        "years_experience": 3,
+        "description": "Containerization and deployment"
+      },
+      {
+        "name": "CI/CD",
+        "level": "intermediate",
+        "category": "DevOps",
+        "years_experience": 2,
+        "description": "Continuous integration and deployment"
+      }
+    ],
+    "mathematical": [
+      {
+        "name": "Partial Differential Equations",
+        "level": "expert",
+        "category": "Mathematics",
+        "years_experience": 5,
+        "description": "PDE methods for financial derivatives"
+      },
+      {
+        "name": "Numerical Methods",
+        "level": "expert",
+        "category": "Mathematics",
+        "years_experience": 5,
+        "description": "Finite difference, finite element methods"
+      },
+      {
+        "name": "Optimization",
+        "level": "advanced",
+        "category": "Mathematics",
+        "years_experience": 4,
+        "description": "Linear and nonlinear optimization algorithms"
+      },
+      {
+        "name": "Stochastic Processes",
+        "level": "advanced",
+        "category": "Mathematics",
+        "years_experience": 4,
+        "description": "Brownian motion, Ito calculus for finance"
+      }
+    ],
+    "soft_skills": [
+      {
+        "name": "Problem Solving",
+        "level": "expert",
+        "category": "Soft Skills",
+        "years_experience": 5,
+        "description": "Complex mathematical and technical problem solving"
+      },
+      {
+        "name": "Communication",
+        "level": "advanced",
+        "category": "Soft Skills",
+        "years_experience": 4,
+        "description": "Technical and non-technical communication"
+      },
+      {
+        "name": "Project Management",
+        "level": "intermediate",
+        "category": "Soft Skills",
+        "years_experience": 3,
+        "description": "Leading technical projects and teams"
+      }
+    ]
+  },
+  "certifications": [
+    {
+      "name": "AWS Certified Developer - Associate",
+      "issuing_organization": "Amazon Web Services",
+      "issue_date": "2023-06-01T00:00:00",
+      "expiry_date": "2026-06-01T00:00:00",
+      "credential_id": "AWS-DEV-12345",
+      "credential_url": "https://aws.amazon.com/verification",
+      "description": "AWS cloud development and deployment"
+    },
+    {
+      "name": "TensorFlow Developer Certificate",
+      "issuing_organization": "Google",
+      "issue_date": "2022-09-01T00:00:00",
+      "expiry_date": null,
+      "credential_id": "TF-DEV-67890",
+      "credential_url": "https://developers.google.com/certification",
+      "description": "TensorFlow machine learning development"
+    }
+  ],
+  "languages": [
+    {
+      "name": "Spanish",
+      "proficiency": "Native",
+      "reading": "Native",
+      "writing": "Native",
+      "speaking": "Native"
+    },
+    {
+      "name": "English",
+      "proficiency": "Fluent",
+      "reading": "Fluent",
+      "writing": "Fluent",
+      "speaking": "Fluent"
+    }
+  ],
+  "last_updated": "2025-01-27T12:00:00",
+  "linkedin_url": "https://linkedin.com/in/cristobal-cortinez-duhalde",
+  "version": "1.0"
+}

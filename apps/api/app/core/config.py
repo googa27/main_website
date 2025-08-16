@@ -1,33 +1,48 @@
 from pydantic_settings import BaseSettings
-from typing import List, Optional
+from typing import List
+import os
 
 class Settings(BaseSettings):
-    # Project
-    PROJECT_NAME: str = "Portfolio API"
-    DEBUG: bool = True
-    
-    # API
-    API_V1_STR: str = "/api/v1"
-    SECRET_KEY: str = "your-secret-key-here"  # Change this in production
+    # API Configuration
+    API_V1_STR: str = "/api"
+    PROJECT_NAME: str = "Cristobal Portfolio API"
     
     # CORS
-    BACKEND_CORS_ORIGINS: List[str] = [
-        "http://localhost:3000",  # Next.js dev server
+    ALLOWED_ORIGINS: List[str] = [
+        "http://localhost:3000",
         "http://127.0.0.1:3000",
-        "https://your-domain.vercel.app",  # Replace with your Vercel domain
+        "http://localhost:3003",
+        "http://127.0.0.1:3003",
+        "https://cristobalcortinez.com",
+        "https://*.vercel.app"
     ]
     
-    # Email settings (for contact form)
-    SMTP_TLS: bool = True
-    SMTP_PORT: int = 587
-    SMTP_HOST: str = "smtp.gmail.com"
-    SMTP_USER: str = "your-email@gmail.com"
-    SMTP_PASSWORD: str = "your-email-password"
-    EMAILS_FROM_EMAIL: str = "your-email@gmail.com"
-    EMAILS_TO_EMAIL: str = "your-personal-email@gmail.com"
+    # Database
+    DATABASE_URL: str = os.getenv(
+        "DATABASE_URL", 
+        "postgresql://portfolio_user:portfolio_password@localhost:5432/portfolio_db"
+    )
+    
+    # Security
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8  # 8 days
+    
+    # AI/OpenAI
+    OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
+    OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-3.5-turbo")
+    
+    # Email
+    SMTP_HOST: str = os.getenv("SMTP_HOST", "smtp.gmail.com")
+    SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
+    SMTP_USER: str = os.getenv("SMTP_USER", "")
+    SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
+    SMTP_TLS: bool = os.getenv("SMTP_TLS", "true").lower() == "true"
+    
+    # GitHub
+    GITHUB_USERNAME: str = "googa27"
+    GITHUB_API_URL: str = "https://api.github.com"
     
     class Config:
-        case_sensitive = True
         env_file = ".env"
 
 settings = Settings()

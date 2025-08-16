@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends, Request
-from app.models.contact import ContactCreate, ContactResponse
+from app.schemas.contact import ContactCreate, ContactResponse
 from app.services.email_service import send_contact_email
 from app.services.contact_service import ContactService
 from app.core.database import get_db

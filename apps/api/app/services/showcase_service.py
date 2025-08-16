@@ -11,7 +11,7 @@ This service manages showcase information for key projects:
 import logging
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
-from app.models.project import (
+from app.schemas.project import (
     ProjectShowcase, ShowcaseProject, ProjectType, 
     ProjectStatus, ShowcaseResponse
 )

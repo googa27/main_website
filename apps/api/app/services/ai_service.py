@@ -8,11 +8,10 @@ This service provides:
 """
 
 import asyncio
-import json
 import logging
 import aiohttp
 from typing import List, Optional, Dict, Any
-from app.models.ai import ChatMessage, ChatResponse, PredictionResponse, VisualizationResponse
+from app.schemas.ai import ChatMessage, ChatResponse, PredictionResponse, VisualizationResponse
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)

@@ -8,21 +8,17 @@ This service handles:
 - CV versioning and updates
 """
 
-import os
 import json
 import logging
 from datetime import datetime, timezone
-from typing import Dict, List, Optional, Any
+from typing import Dict, Optional, Any
 from pathlib import Path
-import tempfile
-import shutil
 
-from app.models.cv import (
+from app.schemas.cv import (
     CVProfile, CVExportRequest, CVExportResponse, 
     LinkedInSyncRequest, LinkedInSyncResponse
 )
 from app.services.linkedin import linkedin_service
-from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 

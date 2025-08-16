@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from app.models.ai import (
+from app.schemas.ai import (
     ChatRequest, ChatResponse, 
     PredictionRequest, PredictionResponse,
     VisualizationRequest, VisualizationResponse

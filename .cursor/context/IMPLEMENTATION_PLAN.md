@@ -11,9 +11,10 @@
 - Responsive design and a11y checks.
 
 ## Week 2 — Backend & Wiring
-- FastAPI: `/api/projects` (reads JSON), `/api/contact` (send email).  
-- Add CORS.  
+- FastAPI: `/api/projects` (reads JSON), `/api/contact` (send email).
+- Add CORS.
 - Connect FE to BE; handle loading/error states; user‑visible success message.
+- Initialize backend packaging with `pyproject.toml` and ensure CI installs the app in editable mode.
 
 ## Week 3 — Hardening & Deploy
 - Tests (pytest; minimal FE tests).  

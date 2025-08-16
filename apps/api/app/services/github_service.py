@@ -1,8 +1,7 @@
 import httpx
-import asyncio
 from typing import List, Dict, Any
 from app.core.config import settings
-from app.services.database_service import DatabaseService
+from app.services.project_service import ProjectService
 from sqlalchemy.orm import Session
 import json
 
@@ -102,15 +101,15 @@ class GitHubService:
                     project_data = self.transform_repo_data(repo, topics)
                     
                     # Check if project already exists
-                    existing_project = DatabaseService.get_project_by_github_id(db, repo["id"])
+                    existing_project = ProjectService.get_project_by_github_id(db, repo["id"])
                     
                     if existing_project:
                         # Update existing project
-                        DatabaseService.create_or_update_project(db, project_data)
+                        ProjectService.create_or_update_project(db, project_data)
                         updated_count += 1
                     else:
                         # Create new project
-                        DatabaseService.create_or_update_project(db, project_data)
+                        ProjectService.create_or_update_project(db, project_data)
                         created_count += 1
                         
                 except Exception as e:
@@ -129,7 +128,7 @@ class GitHubService:
     
     async def get_featured_projects(self, db: Session, limit: int = 6) -> List[Dict[str, Any]]:
         """Get featured projects from database"""
-        projects = DatabaseService.get_featured_projects(db, limit)
+        projects = ProjectService.get_featured_projects(db, limit)
         return [
             {
                 "id": p.id,

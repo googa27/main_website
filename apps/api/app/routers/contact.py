@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends, Request
 from app.models.contact import ContactCreate, ContactResponse
 from app.services.email_service import send_contact_email
-from app.services.database_service import DatabaseService
+from app.services.contact_service import ContactService
 from app.core.database import get_db
 from sqlalchemy.orm import Session
 
@@ -24,7 +24,7 @@ async def submit_contact(contact: ContactCreate, request: Request, db: Session =
             "user_agent": user_agent
         }
         
-        db_contact = DatabaseService.create_contact(db, contact_data)
+        ContactService.create_contact(db, contact_data)
         
         # Send email
         success = await send_contact_email(contact)
@@ -51,7 +51,7 @@ async def submit_contact(contact: ContactCreate, request: Request, db: Session =
 async def get_contact(contact_id: int, db: Session = Depends(get_db)):
     """Get a specific contact (admin only)"""
     try:
-        contact = DatabaseService.get_contact_by_id(db, contact_id)
+        contact = ContactService.get_contact_by_id(db, contact_id)
         if not contact:
             raise HTTPException(status_code=404, detail="Contact not found")
         
@@ -73,7 +73,7 @@ async def get_contact(contact_id: int, db: Session = Depends(get_db)):
 async def mark_contact_read(contact_id: int, db: Session = Depends(get_db)):
     """Mark a contact as read (admin only)"""
     try:
-        success = DatabaseService.mark_contact_as_read(db, contact_id)
+        success = ContactService.mark_contact_as_read(db, contact_id)
         if success:
             return {"message": "Contact marked as read"}
         else:

@@ -10,8 +10,6 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from app.core.database import engine, SessionLocal
 from app.models.database import Base
 from app.services.github_service import GitHubService
-from app.services.database_service import DatabaseService
-from app.core.config import settings
 
 def init_database():
     """Initialize the database with tables"""

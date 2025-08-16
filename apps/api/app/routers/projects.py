@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 import json
 from sqlalchemy.orm import Session
-from app.models.project import Project, ProjectList, ShowcaseResponse
+from app.schemas.project import Project, ProjectList, ShowcaseResponse
 from app.core.database import get_db
 from app.services.github_service import GitHubService
 from app.services.project_service import ProjectService
@@ -74,7 +74,7 @@ async def get_showcase_stats():
 async def get_showcase_project_by_type(project_type: str):
     """Get a specific showcase project by type"""
     try:
-        from app.models.project import ProjectType
+        from app.schemas.project import ProjectType
         
         # Convert string to enum
         try:

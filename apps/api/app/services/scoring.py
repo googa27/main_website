@@ -8,9 +8,8 @@ This service implements a sophisticated scoring algorithm that considers:
 """
 
 from datetime import datetime, timezone
-from typing import Dict, List, Optional
+from typing import Dict, List
 from app.models.database import Project as DBProject
-from app.models.project import Project
 
 
 class ProjectScoringService:

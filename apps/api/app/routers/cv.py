@@ -8,9 +8,8 @@ This router provides endpoints for:
 - CV sync status and monitoring
 """
 
-from fastapi import APIRouter, HTTPException, Depends, Query
-from typing import Optional
-from app.models.cv import (
+from fastapi import APIRouter, HTTPException, Query
+from app.schemas.cv import (
     CVProfile, CVExportRequest, CVExportResponse,
     LinkedInSyncRequest, LinkedInSyncResponse
 )

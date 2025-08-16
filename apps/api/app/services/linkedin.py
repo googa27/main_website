@@ -13,11 +13,10 @@ import logging
 from datetime import datetime, timezone, timedelta
 from typing import Dict, List, Optional, Any
 import requests
-from app.models.cv import (
+from app.schemas.cv import (
     CVProfile, PersonalInfo, WorkExperience, Education, 
     Skills, Skill, SkillLevel, Certification, Language
 )
-from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -205,7 +204,6 @@ class LinkedInService:
         """Extract personal information from LinkedIn data."""
         try:
             # Basic profile information
-            profile = data.get('localizedFirstName', '') + ' ' + data.get('localizedLastName', '')
             first_name = data.get('localizedFirstName', '')
             last_name = data.get('localizedLastName', '')
             
@@ -526,7 +524,7 @@ class LinkedInService:
                         level = "Intermediate"
                     
                     # Check if language already exists
-                    existing_lang = next((l for l in languages if l.name.lower() == name.lower()), None)
+                    existing_lang = next((lang for lang in languages if lang.name.lower() == name.lower()), None)
                     if existing_lang:
                         existing_lang.proficiency = level
                         existing_lang.reading = level

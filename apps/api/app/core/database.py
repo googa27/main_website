@@ -1,7 +1,8 @@
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from app.core.config import settings
+from app.models.database import Base  # noqa: F401
+import app.models.database  # noqa: F401
 
 engine = create_engine(
     settings.DATABASE_URL,
@@ -10,9 +11,6 @@ engine = create_engine(
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Import all models to ensure they're registered with SQLAlchemy
-from app.models.database import Base, Project, Contact, ChatSession, ChatMessage, CVDownload
 
 def get_db():
     db = SessionLocal()

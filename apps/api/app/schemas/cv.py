@@ -10,7 +10,7 @@ These models define the structure for CV data that can be:
 
 from datetime import datetime
 from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, HttpUrl, Field, validator
+from pydantic import BaseModel, HttpUrl, Field, field_validator, ConfigDict
 from enum import Enum
 
 
@@ -57,7 +57,7 @@ class WorkExperience(BaseModel):
     )
     is_current: bool = Field(False, description="Whether this is the current position")
 
-    @validator("is_current", pre=True, always=True)
+    @field_validator("is_current", mode="before")
     def set_is_current(cls, v, values):
         """Automatically set is_current based on end_date."""
         if "end_date" in values and values["end_date"] is None:
@@ -188,8 +188,9 @@ class CVProfile(BaseModel):
     linkedin_url: HttpUrl = Field(..., description="LinkedIn profile URL")
     version: str = Field(default="1.0", description="CV version")
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_schema_extra={
             "example": {
                 "personal_info": {
                     "first_name": "Cristobal",
@@ -201,7 +202,8 @@ class CVProfile(BaseModel):
                 },
                 "version": "1.0",
             }
-        }
+        },
+    )
 
 
 class CVExportRequest(BaseModel):

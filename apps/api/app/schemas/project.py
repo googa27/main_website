@@ -1,4 +1,4 @@
-from pydantic import BaseModel, HttpUrl, Field
+from pydantic import BaseModel, HttpUrl, Field, ConfigDict
 from typing import List, Optional
 from datetime import datetime
 from enum import Enum
@@ -62,8 +62,9 @@ class ProjectShowcase(BaseModel):
     forks: int = 0
     last_updated: datetime
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_schema_extra={
             "example": {
                 "project_id": 1,
                 "name": "Finite Difference Options Pricing",
@@ -84,7 +85,8 @@ class ProjectShowcase(BaseModel):
                     "Risk analysis",
                 ],
             }
-        }
+        },
+    )
 
 
 class ProjectBase(BaseModel):
@@ -105,8 +107,7 @@ class ProjectCreate(ProjectBase):
 class Project(ProjectBase):
     id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ProjectList(BaseModel):

@@ -176,6 +176,9 @@ pnpm --filter web format    # Prettier
 pnpm --filter web typecheck # TypeScript compiler
 ```
 
+### Automated Dependency Updates
+Dependabot monitors the npm workspaces in `apps/web` and `packages/ui` as well as Python dependencies in `apps/api`. It runs weekly and opens pull requests that trigger the full CI pipeline to test and lint updates automatically.
+
 ## 🚀 Deployment
 
 ### Frontend (Vercel)

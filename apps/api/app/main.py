@@ -31,10 +31,7 @@ app.include_router(contact.router, prefix="/api", tags=["contact"])
 app.include_router(ai.router, prefix="/api", tags=["ai"])
 app.include_router(cv.router, prefix="/api", tags=["cv"])
 
+
 @app.get("/")
 async def root():
-    return {
-        "message": "Cristobal Portfolio API",
-        "version": "1.0.0",
-        "docs": "/docs"
-    }
+    return {"message": "Cristobal Portfolio API", "version": "1.0.0", "docs": "/docs"}

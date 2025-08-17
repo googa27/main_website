@@ -4,3 +4,4 @@ pytest-asyncio==1.1.0
 httpx==0.28.1
 black==25.1.0
 ruff==0.12.9
+types-requests==2.32.4.20250809

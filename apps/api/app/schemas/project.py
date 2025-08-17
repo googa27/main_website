@@ -3,55 +3,65 @@ from typing import List, Optional
 from datetime import datetime
 from enum import Enum
 
+
 class ProjectType(str, Enum):
     """Types of projects for showcase."""
+
     FINITE_DIFFERENCE_OPTIONS = "finite_difference_options"
     DJANGO_OPTIMIZATION = "django_optimization"
     FINITE_ELEMENT_OPTIONS = "finite_element_options"
     ML_MLFLOW = "ml_mlflow"
     OTHER = "other"
 
+
 class ProjectStatus(str, Enum):
     """Project development status."""
+
     ACTIVE = "active"
     COMPLETED = "completed"
     IN_PROGRESS = "in_progress"
     PLANNED = "planned"
 
+
 class ProjectShowcase(BaseModel):
     """Enhanced project showcase information."""
+
     project_id: int
     name: str
     description: str
     long_description: Optional[str] = None
     project_type: ProjectType
     status: ProjectStatus
-    showcase_priority: int = Field(..., ge=1, le=10, description="Priority for showcase (1-10)")
-    
+    showcase_priority: int = Field(
+        ..., ge=1, le=10, description="Priority for showcase (1-10)"
+    )
+
     # Technical details
     technologies: List[str] = Field(default_factory=list)
     complexity_score: float = Field(..., ge=0, le=10)
     mathematical_complexity: Optional[str] = None
-    
+
     # Demo information
     has_live_demo: bool = False
     demo_url: Optional[HttpUrl] = None
     demo_type: Optional[str] = None  # "streamlit", "web", "api", etc.
-    
+
     # Project outputs
-    outputs: List[str] = Field(default_factory=list)  # ["pricing_models", "optimization_solver", "risk_metrics"]
+    outputs: List[str] = Field(
+        default_factory=list
+    )  # ["pricing_models", "optimization_solver", "risk_metrics"]
     key_features: List[str] = Field(default_factory=list)
-    
+
     # Links
     github_url: HttpUrl
     documentation_url: Optional[HttpUrl] = None
     paper_url: Optional[HttpUrl] = None
-    
+
     # Metrics
     stars: int = 0
     forks: int = 0
     last_updated: datetime
-    
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -68,9 +78,14 @@ class ProjectShowcase(BaseModel):
                 "demo_url": "https://streamlit-app.example.com",
                 "demo_type": "streamlit",
                 "outputs": ["option_prices", "greeks", "risk_metrics"],
-                "key_features": ["Real-time pricing", "Multiple models", "Risk analysis"]
+                "key_features": [
+                    "Real-time pricing",
+                    "Multiple models",
+                    "Risk analysis",
+                ],
             }
         }
+
 
 class ProjectBase(BaseModel):
     name: str
@@ -82,21 +97,26 @@ class ProjectBase(BaseModel):
     topics: List[str] = []
     updated_at: datetime
 
+
 class ProjectCreate(ProjectBase):
     pass
 
+
 class Project(ProjectBase):
     id: int
-    
+
     class Config:
         from_attributes = True
+
 
 class ProjectList(BaseModel):
     projects: List[Project]
     total: int
 
+
 class ShowcaseProject(BaseModel):
     """Project specifically formatted for showcase display."""
+
     id: int
     name: str
     description: str
@@ -114,13 +134,19 @@ class ShowcaseProject(BaseModel):
     stars: int
     forks: int
     last_updated: datetime
-    
+
     # Computed fields
-    is_featured: bool = Field(default=False, description="Whether this project is featured in showcase")
-    demo_status: str = Field(default="not_available", description="Demo availability status")
+    is_featured: bool = Field(
+        default=False, description="Whether this project is featured in showcase"
+    )
+    demo_status: str = Field(
+        default="not_available", description="Demo availability status"
+    )
+
 
 class ShowcaseResponse(BaseModel):
     """Response for project showcase."""
+
     featured_projects: List[ShowcaseProject]
     all_projects: List[ShowcaseProject]
     total_featured: int

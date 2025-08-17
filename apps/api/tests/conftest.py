@@ -15,7 +15,9 @@ from app.models.database import (
 
 # Test database configuration
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
@@ -59,4 +61,3 @@ def sample_contact_data():
         "ip_address": "127.0.0.1",
         "user_agent": "Test Browser",
     }
-

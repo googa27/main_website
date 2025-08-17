@@ -9,13 +9,17 @@ class TestServiceModules:
 
     def test_create_or_update_project(self, db_session, sample_project_data):
         """Test project creation and update."""
-        project = ProjectService.create_or_update_project(db_session, sample_project_data)
+        project = ProjectService.create_or_update_project(
+            db_session, sample_project_data
+        )
         assert project.id is not None
 
         updated_data = sample_project_data.copy()
         updated_data["stars"] = 20
         updated_data["forks"] = 10
-        updated_project = ProjectService.create_or_update_project(db_session, updated_data)
+        updated_project = ProjectService.create_or_update_project(
+            db_session, updated_data
+        )
         assert updated_project.stars == 20
         assert updated_project.forks == 10
         assert updated_project.id == project.id
@@ -55,9 +59,7 @@ class TestServiceModules:
         )
         assert session.id is not None
 
-        message = ChatService.add_chat_message(
-            db_session, session.id, "user", "Hello!"
-        )
+        message = ChatService.add_chat_message(db_session, session.id, "user", "Hello!")
         assert message.id is not None
         assert message.content == "Hello!"
 
@@ -73,4 +75,3 @@ class TestServiceModules:
         assert download.id is not None
         assert download.ip_address == "127.0.0.1"
         assert download.referrer == "https://example.com"
-

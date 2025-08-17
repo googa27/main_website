@@ -11,7 +11,10 @@ class ChatService:
 
     @staticmethod
     def create_chat_session(
-        db: Session, session_id: str, ip_address: str | None = None, user_agent: str | None = None
+        db: Session,
+        session_id: str,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
     ) -> ChatSession:
         """Create a new chat session."""
         new_session = ChatSession(
@@ -25,7 +28,9 @@ class ChatService:
         return new_session
 
     @staticmethod
-    def add_chat_message(db: Session, session_id: int, role: str, content: str) -> ChatMessage:
+    def add_chat_message(
+        db: Session, session_id: int, role: str, content: str
+    ) -> ChatMessage:
         """Add a message to an existing session."""
         new_message = ChatMessage(session_id=session_id, role=role, content=content)
         db.add(new_message)
@@ -34,7 +39,9 @@ class ChatService:
         return new_message
 
     @staticmethod
-    def get_chat_history(db: Session, session_id: int, limit: int = 10) -> List[ChatMessage]:
+    def get_chat_history(
+        db: Session, session_id: int, limit: int = 10
+    ) -> List[ChatMessage]:
         """Retrieve chat history for a session."""
         return (
             db.query(ChatMessage)

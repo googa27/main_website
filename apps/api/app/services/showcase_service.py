@@ -12,20 +12,24 @@ import logging
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 from app.schemas.project import (
-    ProjectShowcase, ShowcaseProject, ProjectType, 
-    ProjectStatus, ShowcaseResponse
+    ProjectShowcase,
+    ShowcaseProject,
+    ProjectType,
+    ProjectStatus,
+    ShowcaseResponse,
 )
 
 logger = logging.getLogger(__name__)
 
+
 class ShowcaseService:
     """Service for managing project showcase information."""
-    
+
     def __init__(self):
         """Initialize the showcase service with key projects."""
         self.showcase_projects = self._initialize_showcase_projects()
         self.last_updated = datetime.now(timezone.utc)
-    
+
     def _initialize_showcase_projects(self) -> List[ProjectShowcase]:
         """Initialize showcase projects with detailed information."""
         return [
@@ -48,29 +52,40 @@ class ShowcaseService:
                 project_type=ProjectType.FINITE_DIFFERENCE_OPTIONS,
                 status=ProjectStatus.ACTIVE,
                 showcase_priority=1,
-                technologies=["Python", "NumPy", "SciPy", "Streamlit", "Matplotlib", "Pandas"],
+                technologies=[
+                    "Python",
+                    "NumPy",
+                    "SciPy",
+                    "Streamlit",
+                    "Matplotlib",
+                    "Pandas",
+                ],
                 complexity_score=9.5,
                 mathematical_complexity="Advanced PDE methods, finite difference schemes, numerical analysis",
                 has_live_demo=True,
                 demo_url="https://finite-diff-options.streamlit.app",
                 demo_type="streamlit",
-                outputs=["option_prices", "greeks", "risk_metrics", "convergence_analysis"],
+                outputs=[
+                    "option_prices",
+                    "greeks",
+                    "risk_metrics",
+                    "convergence_analysis",
+                ],
                 key_features=[
                     "Real-time options pricing",
                     "Multiple PDE schemes",
                     "Greeks calculation",
                     "Risk analysis dashboard",
                     "Convergence studies",
-                    "Interactive parameter adjustment"
+                    "Interactive parameter adjustment",
                 ],
                 github_url="https://github.com/googa27/finite-difference-options",
                 documentation_url="https://finite-diff-options.readthedocs.io",
                 paper_url=None,
                 stars=15,
                 forks=3,
-                last_updated=datetime(2024, 12, 15, tzinfo=timezone.utc)
+                last_updated=datetime(2024, 12, 15, tzinfo=timezone.utc),
             ),
-            
             ProjectShowcase(
                 project_id=2,
                 name="Django Optimization App",
@@ -90,29 +105,39 @@ class ShowcaseService:
                 project_type=ProjectType.DJANGO_OPTIMIZATION,
                 status=ProjectStatus.ACTIVE,
                 showcase_priority=2,
-                technologies=["Python", "Django", "NumPy", "SciPy", "Bootstrap", "Chart.js"],
+                technologies=[
+                    "Python",
+                    "Django",
+                    "NumPy",
+                    "SciPy",
+                    "Bootstrap",
+                    "Chart.js",
+                ],
                 complexity_score=7.5,
                 mathematical_complexity="Linear programming, optimization algorithms, constraint handling",
                 has_live_demo=True,
                 demo_url="https://django-optimization.herokuapp.com",
                 demo_type="web",
-                outputs=["optimization_solutions", "feasibility_reports", "visualization_charts"],
+                outputs=[
+                    "optimization_solutions",
+                    "feasibility_reports",
+                    "visualization_charts",
+                ],
                 key_features=[
                     "Linear programming solver",
                     "Interactive problem input",
                     "Solution visualization",
                     "Feasibility analysis",
                     "Result export (CSV, PDF)",
-                    "User authentication"
+                    "User authentication",
                 ],
                 github_url="https://github.com/googa27/django-optimization",
                 documentation_url="https://django-optimization.readthedocs.io",
                 paper_url=None,
                 stars=8,
                 forks=2,
-                last_updated=datetime(2024, 11, 20, tzinfo=timezone.utc)
+                last_updated=datetime(2024, 11, 20, tzinfo=timezone.utc),
             ),
-            
             ProjectShowcase(
                 project_id=3,
                 name="Finite Element Options Pricing",
@@ -138,23 +163,26 @@ class ShowcaseService:
                 has_live_demo=False,
                 demo_url=None,
                 demo_type=None,
-                outputs=["finite_element_solutions", "mesh_visualizations", "convergence_analysis"],
+                outputs=[
+                    "finite_element_solutions",
+                    "mesh_visualizations",
+                    "convergence_analysis",
+                ],
                 key_features=[
                     "Finite element discretization",
                     "Adaptive mesh refinement",
                     "Complex geometry handling",
                     "Multi-dimensional problems",
                     "Advanced boundary conditions",
-                    "Performance optimization"
+                    "Performance optimization",
                 ],
                 github_url="https://github.com/googa27/finite-element-options",
                 documentation_url=None,
                 paper_url=None,
                 stars=5,
                 forks=1,
-                last_updated=datetime(2024, 12, 10, tzinfo=timezone.utc)
+                last_updated=datetime(2024, 12, 10, tzinfo=timezone.utc),
             ),
-            
             ProjectShowcase(
                 project_id=4,
                 name="ML/MLflow Integration",
@@ -174,7 +202,14 @@ class ShowcaseService:
                 project_type=ProjectType.ML_MLFLOW,
                 status=ProjectStatus.PLANNED,
                 showcase_priority=4,
-                technologies=["Python", "MLflow", "Docker", "Kubernetes", "FastAPI", "PostgreSQL"],
+                technologies=[
+                    "Python",
+                    "MLflow",
+                    "Docker",
+                    "Kubernetes",
+                    "FastAPI",
+                    "PostgreSQL",
+                ],
                 complexity_score=8.5,
                 mathematical_complexity="Machine learning algorithms, statistical modeling, optimization",
                 has_live_demo=False,
@@ -187,25 +222,27 @@ class ShowcaseService:
                     "Automated deployment",
                     "Performance monitoring",
                     "A/B testing",
-                    "Scalable architecture"
+                    "Scalable architecture",
                 ],
                 github_url="https://github.com/googa27/ml-mlflow-integration",
                 documentation_url=None,
                 paper_url=None,
                 stars=0,
                 forks=0,
-                last_updated=datetime(2024, 12, 1, tzinfo=timezone.utc)
-            )
+                last_updated=datetime(2024, 12, 1, tzinfo=timezone.utc),
+            ),
         ]
-    
-    def get_showcase_projects(self, include_planned: bool = False) -> List[ShowcaseProject]:
+
+    def get_showcase_projects(
+        self, include_planned: bool = False
+    ) -> List[ShowcaseProject]:
         """Get all showcase projects, optionally including planned ones."""
         projects = []
-        
+
         for project in self.showcase_projects:
             if not include_planned and project.status == ProjectStatus.PLANNED:
                 continue
-                
+
             showcase_project = ShowcaseProject(
                 id=project.project_id,
                 name=project.name,
@@ -225,40 +262,42 @@ class ShowcaseService:
                 forks=project.forks,
                 last_updated=project.last_updated,
                 is_featured=project.showcase_priority <= 3,
-                demo_status=self._get_demo_status(project)
+                demo_status=self._get_demo_status(project),
             )
             projects.append(showcase_project)
-        
+
         # Sort by showcase priority
         projects.sort(key=lambda x: x.showcase_priority)
         return projects
-    
+
     def get_featured_projects(self, limit: int = 3) -> List[ShowcaseProject]:
         """Get featured projects for showcase."""
         all_projects = self.get_showcase_projects(include_planned=False)
         featured = [p for p in all_projects if p.is_featured]
         return featured[:limit]
-    
-    def get_project_by_type(self, project_type: ProjectType) -> Optional[ShowcaseProject]:
+
+    def get_project_by_type(
+        self, project_type: ProjectType
+    ) -> Optional[ShowcaseProject]:
         """Get a specific project by type."""
         for project in self.showcase_projects:
             if project.project_type == project_type:
                 return self._convert_to_showcase_project(project)
         return None
-    
+
     def get_showcase_response(self) -> ShowcaseResponse:
         """Get complete showcase response."""
         featured = self.get_featured_projects()
         all_projects = self.get_showcase_projects(include_planned=False)
-        
+
         return ShowcaseResponse(
             featured_projects=featured,
             all_projects=all_projects,
             total_featured=len(featured),
             total_projects=len(all_projects),
-            showcase_updated=self.last_updated
+            showcase_updated=self.last_updated,
         )
-    
+
     def _get_demo_status(self, project: ProjectShowcase) -> str:
         """Get demo status for a project."""
         if not project.has_live_demo:
@@ -269,7 +308,7 @@ class ShowcaseService:
             return "coming_soon"
         else:
             return "not_available"
-    
+
     def _convert_to_showcase_project(self, project: ProjectShowcase) -> ShowcaseProject:
         """Convert ProjectShowcase to ShowcaseProject."""
         return ShowcaseProject(
@@ -291,9 +330,9 @@ class ShowcaseService:
             forks=project.forks,
             last_updated=project.last_updated,
             is_featured=project.showcase_priority <= 3,
-            demo_status=self._get_demo_status(project)
+            demo_status=self._get_demo_status(project),
         )
-    
+
     def update_project_metrics(self, project_type: ProjectType, stars: int, forks: int):
         """Update GitHub metrics for a project."""
         for project in self.showcase_projects:
@@ -301,24 +340,34 @@ class ShowcaseService:
                 project.stars = stars
                 project.forks = forks
                 project.last_updated = datetime.now(timezone.utc)
-                logger.info(f"Updated metrics for {project.name}: {stars} stars, {forks} forks")
+                logger.info(
+                    f"Updated metrics for {project.name}: {stars} stars, {forks} forks"
+                )
                 break
-    
+
     def get_showcase_stats(self) -> Dict[str, Any]:
         """Get showcase statistics."""
-        active_projects = [p for p in self.showcase_projects if p.status == ProjectStatus.ACTIVE]
+        active_projects = [
+            p for p in self.showcase_projects if p.status == ProjectStatus.ACTIVE
+        ]
         total_stars = sum(p.stars for p in self.showcase_projects)
         total_forks = sum(p.forks for p in self.showcase_projects)
-        
+
         return {
             "total_projects": len(self.showcase_projects),
             "active_projects": len(active_projects),
             "total_stars": total_stars,
             "total_forks": total_forks,
-            "average_complexity": sum(p.complexity_score for p in self.showcase_projects) / len(self.showcase_projects),
-            "projects_with_demos": len([p for p in self.showcase_projects if p.has_live_demo]),
-            "last_updated": self.last_updated.isoformat()
+            "average_complexity": sum(
+                p.complexity_score for p in self.showcase_projects
+            )
+            / len(self.showcase_projects),
+            "projects_with_demos": len(
+                [p for p in self.showcase_projects if p.has_live_demo]
+            ),
+            "last_updated": self.last_updated.isoformat(),
         }
+
 
 # Global instance
 showcase_service = ShowcaseService()

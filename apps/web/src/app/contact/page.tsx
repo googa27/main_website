@@ -24,7 +24,7 @@ const ContactPage = () => {
       await api.sendContact(form);
       setStatus({
         type: "success",
-        message: "Message sent successfully! I'll get back to you soon.",
+        message: "Message sent successfully! I&apos;ll get back to you soon.",
       });
       setForm({ name: "", email: "", message: "" });
     } catch (error) {
@@ -46,7 +46,7 @@ const ContactPage = () => {
       <div className="text-center py-20">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">Get In Touch</h1>
         <p className="text-xl text-gray-600">
-          Ready to start a project or have a question? Let's talk!
+          Ready to start a project or have a question? Let&apos;s talk!
         </p>
       </div>
 

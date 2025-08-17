@@ -62,9 +62,9 @@ A modern, recruiter-friendly portfolio website built with Next.js, FastAPI, and 
 
 ### Prerequisites
 
-- **Node.js**: 18+ (recommended: 20+)
+- **Node.js**: 22+
 - **Python**: 3.8+
-- **pnpm**: 8.0.0+
+- **pnpm**: 10+
 
 ### Installation
 
@@ -76,7 +76,7 @@ A modern, recruiter-friendly portfolio website built with Next.js, FastAPI, and 
 
 2. **Install pnpm** (if not installed)
    ```bash
-   npm install -g pnpm
+   npm install -g pnpm@10
    ```
 
 3. **Bootstrap the monorepo**

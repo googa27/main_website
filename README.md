@@ -46,7 +46,7 @@ A modern, recruiter-friendly portfolio website built with Next.js, FastAPI, and 
 
 ### Backend
 - **Framework**: FastAPI
-- **Language**: Python 3.11+
+- **Language**: Python 3.12+
 - **Validation**: Pydantic
 - **CORS**: Built-in middleware
 - **Server**: Uvicorn
@@ -64,7 +64,7 @@ A modern, recruiter-friendly portfolio website built with Next.js, FastAPI, and 
 ### Prerequisites
 
 - **Node.js**: 22+
-- **Python**: 3.11+
+- **Python**: 3.12+
 - **pnpm**: 10+
 
 ### Installation

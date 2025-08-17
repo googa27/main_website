@@ -3,6 +3,7 @@ from app.main import app
 
 client = TestClient(app)
 
+
 def test_health_check():
     """Test the health check endpoint"""
     response = client.get("/api/health")
@@ -10,6 +11,7 @@ def test_health_check():
     data = response.json()
     assert data["status"] == "healthy"
     assert "Cristobal Portfolio API" in data["service"]
+
 
 def test_root_endpoint():
     """Test the root endpoint"""

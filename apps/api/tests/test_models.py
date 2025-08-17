@@ -63,4 +63,3 @@ class TestDatabaseModels:
         assert message.id is not None
         assert message.role == "user"
         assert message.session_id == session.id
-

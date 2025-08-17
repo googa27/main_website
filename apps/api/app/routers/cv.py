@@ -10,8 +10,11 @@ This router provides endpoints for:
 
 from fastapi import APIRouter, HTTPException, Query
 from app.schemas.cv import (
-    CVProfile, CVExportRequest, CVExportResponse,
-    LinkedInSyncRequest, LinkedInSyncResponse
+    CVProfile,
+    CVExportRequest,
+    CVExportResponse,
+    LinkedInSyncRequest,
+    LinkedInSyncResponse,
 )
 from app.services.cv import cv_service
 from app.services.linkedin import linkedin_service
@@ -26,16 +29,15 @@ async def get_cv_profile():
         cv_profile = await cv_service.get_current_cv()
         if not cv_profile:
             raise HTTPException(
-                status_code=404, 
-                detail="No CV profile available. Please sync from LinkedIn first."
+                status_code=404,
+                detail="No CV profile available. Please sync from LinkedIn first.",
             )
         return cv_profile
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(
-            status_code=500, 
-            detail=f"Failed to retrieve CV profile: {str(e)}"
+            status_code=500, detail=f"Failed to retrieve CV profile: {str(e)}"
         )
 
 
@@ -46,10 +48,7 @@ async def sync_cv_from_linkedin(request: LinkedInSyncRequest):
         response = await cv_service.sync_from_linkedin(request)
         return response
     except Exception as e:
-        raise HTTPException(
-            status_code=500, 
-            detail=f"LinkedIn sync failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"LinkedIn sync failed: {str(e)}")
 
 
 @router.post("/cv/export", response_model=CVExportResponse)
@@ -59,10 +58,7 @@ async def export_cv(request: CVExportRequest):
         response = await cv_service.export_cv(request)
         return response
     except Exception as e:
-        raise HTTPException(
-            status_code=500, 
-            detail=f"CV export failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"CV export failed: {str(e)}")
 
 
 @router.get("/cv/export/{format}")
@@ -70,7 +66,7 @@ async def export_cv_simple(
     format: str,
     include_scores: bool = Query(False, description="Include skill proficiency scores"),
     include_achievements: bool = Query(True, description="Include work achievements"),
-    include_technologies: bool = Query(True, description="Include technologies used")
+    include_technologies: bool = Query(True, description="Include technologies used"),
 ):
     """Export CV in the specified format with query parameters."""
     try:
@@ -78,16 +74,13 @@ async def export_cv_simple(
             format=format,
             include_scores=include_scores,
             include_achievements=include_achievements,
-            include_technologies=include_technologies
+            include_technologies=include_technologies,
         )
-        
+
         response = await cv_service.export_cv(request)
         return response
     except Exception as e:
-        raise HTTPException(
-            status_code=500, 
-            detail=f"CV export failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"CV export failed: {str(e)}")
 
 
 @router.get("/cv/status")
@@ -98,8 +91,7 @@ async def get_cv_status():
         return status
     except Exception as e:
         raise HTTPException(
-            status_code=500, 
-            detail=f"Failed to get CV status: {str(e)}"
+            status_code=500, detail=f"Failed to get CV status: {str(e)}"
         )
 
 
@@ -110,12 +102,11 @@ async def get_supported_formats():
         formats = cv_service.supported_formats
         return {
             "supported_formats": formats,
-            "description": "Available export formats for CV data"
+            "description": "Available export formats for CV data",
         }
     except Exception as e:
         raise HTTPException(
-            status_code=500, 
-            detail=f"Failed to get supported formats: {str(e)}"
+            status_code=500, detail=f"Failed to get supported formats: {str(e)}"
         )
 
 
@@ -127,8 +118,7 @@ async def get_linkedin_status():
         return status
     except Exception as e:
         raise HTTPException(
-            status_code=500, 
-            detail=f"Failed to get LinkedIn status: {str(e)}"
+            status_code=500, detail=f"Failed to get LinkedIn status: {str(e)}"
         )
 
 
@@ -137,11 +127,11 @@ async def download_cv(
     format: str = Query("json", description="Export format"),
     include_scores: bool = Query(False, description="Include skill proficiency scores"),
     include_achievements: bool = Query(True, description="Include work achievements"),
-    include_technologies: bool = Query(True, description="Include technologies used")
+    include_technologies: bool = Query(True, description="Include technologies used"),
 ):
     """
     Download CV in the specified format.
-    
+
     This endpoint provides a simple way to download CV data
     with configurable export options.
     """
@@ -150,26 +140,23 @@ async def download_cv(
             format=format,
             include_scores=include_scores,
             include_achievements=include_achievements,
-            include_technologies=include_technologies
+            include_technologies=include_technologies,
         )
-        
+
         response = await cv_service.export_cv(request)
-        
+
         # For now, return the content directly
         # In a real implementation, you might want to:
         # 1. Generate actual files (especially for PDF)
         # 2. Store them temporarily with download URLs
         # 3. Implement proper file download handling
-        
+
         return {
             "format": response.format,
             "content": response.content,
             "file_size": response.file_size,
-            "download_note": "Content is returned directly. For file downloads, use the /cv/export endpoint."
+            "download_note": "Content is returned directly. For file downloads, use the /cv/export endpoint.",
         }
-        
+
     except Exception as e:
-        raise HTTPException(
-            status_code=500, 
-            detail=f"CV download failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"CV download failed: {str(e)}")

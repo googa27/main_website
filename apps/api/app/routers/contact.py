@@ -7,45 +7,46 @@ from sqlalchemy.orm import Session
 
 router = APIRouter()
 
+
 @router.post("/contact", response_model=ContactResponse)
-async def submit_contact(contact: ContactCreate, request: Request, db: Session = Depends(get_db)):
+async def submit_contact(
+    contact: ContactCreate, request: Request, db: Session = Depends(get_db)
+):
     """Submit a contact form"""
     try:
         # Get client information
         client_ip = request.client.host if request.client else None
         user_agent = request.headers.get("user-agent")
-        
+
         # Store in database
         contact_data = {
             "name": contact.name,
             "email": contact.email,
             "message": contact.message,
             "ip_address": client_ip,
-            "user_agent": user_agent
+            "user_agent": user_agent,
         }
-        
+
         ContactService.create_contact(db, contact_data)
-        
+
         # Send email
         success = await send_contact_email(contact)
-        
+
         if success:
             return ContactResponse(
                 message="Thank you for your message! I'll get back to you soon.",
-                success=True
+                success=True,
             )
         else:
             # Even if email fails, we still have the contact in database
             return ContactResponse(
                 message="Thank you for your message! I'll get back to you soon.",
-                success=True
+                success=True,
             )
-            
+
     except Exception as e:
-        raise HTTPException(
-            status_code=500, 
-            detail=f"Internal server error: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
 
 @router.get("/contact/{contact_id}")
 async def get_contact(contact_id: int, db: Session = Depends(get_db)):
@@ -54,20 +55,21 @@ async def get_contact(contact_id: int, db: Session = Depends(get_db)):
         contact = ContactService.get_contact_by_id(db, contact_id)
         if not contact:
             raise HTTPException(status_code=404, detail="Contact not found")
-        
+
         return {
             "id": contact.id,
             "name": contact.name,
             "email": contact.email,
             "message": contact.message,
             "created_at": contact.created_at,
-            "is_read": contact.is_read
+            "is_read": contact.is_read,
         }
-        
+
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
 
 @router.put("/contact/{contact_id}/read")
 async def mark_contact_read(contact_id: int, db: Session = Depends(get_db)):
@@ -78,7 +80,7 @@ async def mark_contact_read(contact_id: int, db: Session = Depends(get_db)):
             return {"message": "Contact marked as read"}
         else:
             raise HTTPException(status_code=404, detail="Contact not found")
-            
+
     except HTTPException:
         raise
     except Exception as e:

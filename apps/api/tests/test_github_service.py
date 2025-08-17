@@ -47,4 +47,3 @@ class TestGitHubService:
         assert transformed["name"] == "test-project"
         assert transformed["topics"] == ["python", "test"]
         assert transformed["is_featured"] is True
-

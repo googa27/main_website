@@ -8,7 +8,10 @@ class AnalyticsService:
 
     @staticmethod
     def record_cv_download(
-        db: Session, ip_address: str | None = None, user_agent: str | None = None, referrer: str | None = None
+        db: Session,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
+        referrer: str | None = None,
     ) -> CVDownload:
         """Record a CV download event."""
         new_download = CVDownload(

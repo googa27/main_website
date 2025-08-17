@@ -4,8 +4,8 @@ from app.services.chat_service import ChatService
 from app.services.analytics_service import AnalyticsService
 
 
-class TestServiceModules:
-    """Test the individual service modules."""
+class TestDatabaseService:
+    """Test the individual database service modules."""
 
     def test_create_or_update_project(self, db_session, sample_project_data):
         """Test project creation and update."""

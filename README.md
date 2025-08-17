@@ -8,6 +8,7 @@ A modern, recruiter-friendly portfolio website built with Next.js, FastAPI, and 
 - **Backend**: FastAPI with Python, Pydantic models, and RESTful APIs
 - **Monorepo**: Turborepo + pnpm for efficient development
 - **Code Quality**: ESLint, Prettier, Ruff, and MyPy with pre-commit hooks
+- **Deterministic Installs**: `pnpm-lock.yaml` ensures consistent dependencies
 - **Responsive Design**: Mobile-first approach with modern UI/UX
 - **SEO Optimized**: Meta tags, semantic HTML, and accessibility features
 
@@ -45,7 +46,7 @@ A modern, recruiter-friendly portfolio website built with Next.js, FastAPI, and 
 
 ### Backend
 - **Framework**: FastAPI
-- **Language**: Python 3.8+
+- **Language**: Python 3.11+
 - **Validation**: Pydantic
 - **CORS**: Built-in middleware
 - **Server**: Uvicorn
@@ -63,7 +64,7 @@ A modern, recruiter-friendly portfolio website built with Next.js, FastAPI, and 
 ### Prerequisites
 
 - **Node.js**: 22+
-- **Python**: 3.8+
+- **Python**: 3.11+
 - **pnpm**: 10+
 
 ### Installation
@@ -79,7 +80,7 @@ A modern, recruiter-friendly portfolio website built with Next.js, FastAPI, and 
    npm install -g pnpm@10
    ```
 
-3. **Bootstrap the monorepo**
+3. **Install dependencies** (uses the included `pnpm-lock.yaml`)
    ```bash
    pnpm install
    ```

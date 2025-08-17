@@ -1,4 +1,4 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List
 import os
 
@@ -43,8 +43,7 @@ class Settings(BaseSettings):
     GITHUB_USERNAME: str = "googa27"
     GITHUB_API_URL: str = "https://api.github.com"
 
-    class Config:
-        env_file = ".env"
+    model_config = SettingsConfigDict(env_file=".env")
 
 
 settings = Settings()

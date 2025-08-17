@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from "next/link";
 
 export default function HomePage() {
   return (
@@ -6,11 +6,12 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="text-center py-20">
         <h1 className="text-5xl font-bold text-gray-900 mb-6">
-          Hi, I'm <span className="text-blue-600">Your Name</span>
+          Hi, I&apos;m <span className="text-blue-600">Your Name</span>
         </h1>
         <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-          A passionate full-stack developer specializing in modern web technologies. 
-          I build scalable, user-friendly applications that solve real-world problems.
+          A passionate full-stack developer specializing in modern web
+          technologies. I build scalable, user-friendly applications that solve
+          real-world problems.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
@@ -35,14 +36,14 @@ export default function HomePage() {
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
           {[
-            { name: 'React', icon: '⚛️' },
-            { name: 'TypeScript', icon: '📘' },
-            { name: 'Node.js', icon: '🟢' },
-            { name: 'Python', icon: '🐍' },
-            { name: 'Next.js', icon: '▲' },
-            { name: 'PostgreSQL', icon: '🐘' },
-            { name: 'Docker', icon: '🐳' },
-            { name: 'AWS', icon: '☁️' },
+            { name: "React", icon: "⚛️" },
+            { name: "TypeScript", icon: "📘" },
+            { name: "Node.js", icon: "🟢" },
+            { name: "Python", icon: "🐍" },
+            { name: "Next.js", icon: "▲" },
+            { name: "PostgreSQL", icon: "🐘" },
+            { name: "Docker", icon: "🐳" },
+            { name: "AWS", icon: "☁️" },
           ].map((skill) => (
             <div key={skill.name} className="text-center">
               <div className="text-4xl mb-2">{skill.icon}</div>
@@ -58,7 +59,8 @@ export default function HomePage() {
           Ready to Build Something Amazing?
         </h2>
         <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
-          Let's discuss your project and see how we can work together to bring your ideas to life.
+          Let&apos;s discuss your project and see how we can work together to
+          bring your ideas to life.
         </p>
         <Link
           href="/contact"

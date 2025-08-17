@@ -1,21 +1,21 @@
-import type { Metadata } from 'next';
-import { api } from '@/lib/api';
-import ProjectCard from '@/components/ProjectCard';
+import type { Metadata } from "next";
+import { api, type Project } from "@/lib/api";
+import ProjectCard from "@/components/ProjectCard";
 
 export const metadata: Metadata = {
-  title: 'Projects | Portfolio',
-  description: 'Explore my latest web development projects and technical work',
+  title: "Projects | Portfolio",
+  description: "Explore my latest web development projects and technical work",
 };
 
 export default async function ProjectsPage() {
-  let projects: any[] = [];
+  let projects: Project[] = [];
   let error = null;
 
   try {
     projects = await api.getProjects();
   } catch (err) {
-    error = 'Failed to load projects';
-    console.error('Error loading projects:', err);
+    error = "Failed to load projects";
+    console.error("Error loading projects:", err);
   }
 
   if (error) {

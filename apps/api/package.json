@@ -14,6 +14,6 @@
     "build": "echo 'FastAPI app built successfully'"
   },
   "engines": {
-    "python": ">=3.12.0"
+    "python": ">=3.12"
   }
 }

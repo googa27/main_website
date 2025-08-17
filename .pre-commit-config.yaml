@@ -10,17 +10,16 @@ repos:
     rev: v1.7.0
     hooks:
       - id: mypy
-        additional_dependencies: [types-all]
         files: ^apps/api/
 
   - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: v8.0.0
+    rev: v9.33.0
     hooks:
       - id: eslint
         files: ^apps/web/
         types: [file]
         additional_dependencies:
-          - eslint@^8.0.0
+          - eslint@^9.33.0
           - "@repo/config@workspace:*"
 
   - repo: https://github.com/pre-commit/mirrors-prettier

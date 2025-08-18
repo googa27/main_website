@@ -19,7 +19,8 @@ const eslintConfig = [
   ...compat.config(require("@repo/config/eslint")),
   {
     rules: {
-      // Add any web-specific rules here
+      // Add any UI package-specific rules here
+      "@next/next/no-html-link-for-pages": "off",
     },
   },
 ];

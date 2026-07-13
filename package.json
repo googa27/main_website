@@ -9,7 +9,7 @@
     "format": "turbo format",
     "typecheck": "turbo typecheck",
     "test": "turbo test",
-    "clean": "turbo clean",
+    "clean": "rm -rf .turbo apps/*/.turbo packages/*/.turbo apps/web/out apps/web/.next",
     "prepare": "husky install"
   },
   "devDependencies": {
@@ -24,6 +24,11 @@
       "eslint --max-warnings=0",
       "prettier --write"
     ]
+  },
+  "pnpm": {
+    "overrides": {
+      "postcss": "8.5.19"
+    }
   },
   "packageManager": "pnpm@10.14.0"
 }

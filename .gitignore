@@ -10,6 +10,7 @@ db.sqlite3
 .coverage
 .pytest_cache/
 apps/api/test.db
+/test.db
 apps/api/uv.lock
 
 # Node/Turborepo

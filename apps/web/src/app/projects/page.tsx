@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import ProjectCard from "@/components/ProjectCard";
 import { curatedProjects } from "@/lib/content";
 
-export const dynamic = "force-dynamic";
-
 export const metadata: Metadata = {
   title: "Projects | Cristobal Cortinez Duhalde",
   description:

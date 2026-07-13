@@ -9,21 +9,26 @@
     "format": "turbo format",
     "typecheck": "turbo typecheck",
     "test": "turbo test",
-    "clean": "turbo clean",
+    "clean": "rm -rf .turbo apps/*/.turbo packages/*/.turbo apps/web/out apps/web/.next",
     "prepare": "husky install"
   },
   "devDependencies": {
     "@repo/config": "workspace:*",
     "husky": "^9.1.7",
-    "lint-staged": "^16.1.5",
+    "lint-staged": "^17.0.8",
     "prettier": "^3.0.0",
-    "turbo": "^2.9.14"
+    "turbo": "^2.10.4"
   },
   "lint-staged": {
     "apps/web/**/*.{js,jsx,ts,tsx}": [
       "eslint --max-warnings=0",
       "prettier --write"
     ]
+  },
+  "pnpm": {
+    "overrides": {
+      "postcss": "8.5.19"
+    }
   },
   "packageManager": "pnpm@10.14.0"
 }

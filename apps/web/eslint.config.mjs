@@ -1,27 +1,23 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { createRequire } from "module";
-import { FlatCompat } from "@eslint/eslintrc";
+import { defineConfig, globalIgnores } from "eslint/config";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTypeScript from "eslint-config-next/typescript";
 
-const require = createRequire(import.meta.url);
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-
-const eslintConfig = [
-  {
-    ignores: ["eslint.config.mjs"],
-  },
-  ...compat.config(require("@repo/config/eslint")),
+export default defineConfig([
+  ...nextVitals,
+  ...nextTypeScript,
   {
     rules: {
-      // Add any web-specific rules here
+      "@typescript-eslint/no-unused-vars": "error",
+      "@typescript-eslint/no-explicit-any": "warn",
+      "prefer-const": "error",
+      "no-var": "error",
     },
   },
-];
-
-export default eslintConfig;
+  globalIgnores([
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+    "eslint.config.mjs",
+  ]),
+]);

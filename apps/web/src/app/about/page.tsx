@@ -1,118 +1,174 @@
 import type { Metadata } from "next";
+import { publicResume } from "@/lib/content";
 
 export const metadata: Metadata = {
-  title: "About | Portfolio",
-  description:
-    "Learn more about my background, skills, and experience in web development",
+  title: `About | ${publicResume.basics.name}`,
+  description: "Resume, work history, education, and technical focus areas.",
 };
+
+function formatDate(value?: string | null): string {
+  return value ?? "Present";
+}
 
 export default function AboutPage() {
   return (
-    <div className="max-w-4xl mx-auto space-y-12">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">About Me</h1>
-        <p className="text-xl text-gray-600">
-          Passionate developer with a love for clean code and user experience
+    <div className="mx-auto max-w-5xl space-y-14">
+      <header className="text-center">
+        <p className="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-blue-700">
+          Resume
         </p>
-      </div>
-
-      <section className="space-y-6">
-        <h2 className="text-2xl font-bold text-gray-900">Background</h2>
-        <p className="text-gray-700 leading-relaxed">
-          I&apos;m a full-stack developer with over 5 years of experience
-          building web applications. I specialize in modern JavaScript
-          frameworks, Python backend development, and cloud infrastructure.
+        <h1 className="mb-4 text-4xl font-bold text-slate-950">
+          About {publicResume.basics.name}
+        </h1>
+        <p className="mx-auto max-w-3xl text-lg leading-8 text-slate-700">
+          {publicResume.basics.summary}
         </p>
-        <p className="text-gray-700 leading-relaxed">
-          My journey in tech started with curiosity and has evolved into a
-          passion for creating solutions that make a difference. I believe in
-          writing maintainable code, following best practices, and continuously
-          learning new technologies.
+        <p className="mt-4 text-sm text-slate-500">
+          {publicResume.basics.location}
         </p>
-      </section>
+      </header>
 
-      <section className="space-y-6">
-        <h2 className="text-2xl font-bold text-gray-900">Experience</h2>
-        <div className="space-y-4">
-          <div className="border-l-4 border-blue-600 pl-4">
-            <h3 className="font-semibold text-gray-900">
-              Senior Full-Stack Developer
-            </h3>
-            <p className="text-gray-600">Tech Company • 2022 - Present</p>
-            <p className="text-gray-700 mt-2">
-              Lead development of enterprise web applications using React,
-              Node.js, and Python. Mentored junior developers and implemented
-              CI/CD pipelines.
-            </p>
-          </div>
-
-          <div className="border-l-4 border-blue-600 pl-4">
-            <h3 className="font-semibold text-gray-900">Web Developer</h3>
-            <p className="text-gray-600">Digital Agency • 2020 - 2022</p>
-            <p className="text-gray-700 mt-2">
-              Built responsive websites and e-commerce platforms for various
-              clients. Worked with WordPress, custom PHP, and modern frontend
-              frameworks.
-            </p>
-          </div>
+      <section>
+        <h2 className="mb-6 text-2xl font-bold text-slate-950">
+          Professional Experience
+        </h2>
+        <div className="space-y-5">
+          {publicResume.work.map((job, index) => (
+            <article
+              key={`${job.organization}-${job.role}-${index}`}
+              className="rounded-2xl border bg-white p-6 shadow-sm"
+            >
+              <div className="flex flex-col justify-between gap-2 md:flex-row md:items-start">
+                <div>
+                  <h3 className="text-xl font-semibold text-slate-950">
+                    {job.role}
+                  </h3>
+                  <p className="font-medium text-blue-700">
+                    {job.organization}
+                  </p>
+                  {job.location && (
+                    <p className="text-sm text-slate-500">{job.location}</p>
+                  )}
+                </div>
+                <p className="text-sm font-medium text-slate-500">
+                  {formatDate(job.startDate)} – {formatDate(job.endDate)}
+                </p>
+              </div>
+              {job.summary && (
+                <p className="mt-4 leading-7 text-slate-700">{job.summary}</p>
+              )}
+            </article>
+          ))}
         </div>
       </section>
 
-      <section className="space-y-6">
-        <h2 className="text-2xl font-bold text-gray-900">Education</h2>
-        <div className="border-l-4 border-blue-600 pl-4">
-          <h3 className="font-semibold text-gray-900">
-            Bachelor of Computer Science
-          </h3>
-          <p className="text-gray-600">University Name • 2016 - 2020</p>
-          <p className="text-gray-700 mt-2">
-            Focused on software engineering, algorithms, and web technologies.
-            Graduated with honors and completed several relevant projects.
-          </p>
+      <section className="grid gap-8 md:grid-cols-2">
+        <div>
+          <h2 className="mb-6 text-2xl font-bold text-slate-950">Education</h2>
+          <div className="space-y-4">
+            {publicResume.education.map((item, index) => (
+              <article
+                key={`${item.institution}-${index}`}
+                className="rounded-2xl border bg-white p-5 shadow-sm"
+              >
+                <h3 className="font-semibold text-slate-950">
+                  {item.institution}
+                </h3>
+                <p className="text-sm text-slate-700">
+                  {[item.credential, item.area].filter(Boolean).join(" — ")}
+                </p>
+                <p className="mt-2 text-sm text-slate-500">
+                  {formatDate(item.startDate)} – {formatDate(item.endDate)}
+                </p>
+              </article>
+            ))}
+          </div>
         </div>
-      </section>
-
-      <section className="space-y-6">
-        <h2 className="text-2xl font-bold text-gray-900">What I Do</h2>
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <h3 className="font-semibold text-gray-900 mb-3">
-              Frontend Development
-            </h3>
-            <p className="text-gray-700">
-              Building responsive, accessible user interfaces with React,
-              TypeScript, and modern CSS.
-            </p>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <h3 className="font-semibold text-gray-900 mb-3">
-              Backend Development
-            </h3>
-            <p className="text-gray-700">
-              Creating robust APIs and server-side logic with Python, Node.js,
-              and various databases.
-            </p>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <h3 className="font-semibold text-gray-900 mb-3">
-              DevOps & Deployment
-            </h3>
-            <p className="text-gray-700">
-              Setting up CI/CD pipelines, containerization with Docker, and
-              cloud deployment.
-            </p>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <h3 className="font-semibold text-gray-900 mb-3">
-              Problem Solving
-            </h3>
-            <p className="text-gray-700">
-              Analyzing complex requirements and designing efficient, scalable
-              solutions.
-            </p>
+        <div>
+          <h2 className="mb-6 text-2xl font-bold text-slate-950">
+            Skills and Languages
+          </h2>
+          <div className="space-y-4">
+            <article className="rounded-2xl border bg-white p-5 shadow-sm">
+              <h3 className="mb-3 font-semibold text-slate-950">Awards</h3>
+              <ul className="space-y-2 text-sm text-slate-700">
+                {publicResume.awards.map((award) => (
+                  <li key={award.title}>
+                    <span className="font-medium">{award.title}</span>
+                    {award.date ? ` — ${formatDate(award.date)}` : ""}
+                  </li>
+                ))}
+              </ul>
+            </article>
+            <article className="rounded-2xl border bg-white p-5 shadow-sm">
+              <h3 className="mb-3 font-semibold text-slate-950">
+                Certificates
+              </h3>
+              <ul className="space-y-2 text-sm text-slate-700">
+                {publicResume.certificates.map((certificate) => (
+                  <li key={certificate.title}>
+                    {certificate.url ? (
+                      <a
+                        href={certificate.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium text-blue-700 hover:text-blue-900"
+                      >
+                        {certificate.title}
+                      </a>
+                    ) : (
+                      <span className="font-medium">{certificate.title}</span>
+                    )}
+                    {certificate.issuer ? ` — ${certificate.issuer}` : ""}
+                    {certificate.startDate
+                      ? ` (${formatDate(certificate.startDate)}${certificate.endDate ? `–${formatDate(certificate.endDate)}` : ""})`
+                      : ""}
+                  </li>
+                ))}
+              </ul>
+            </article>
+            <article className="rounded-2xl border bg-white p-5 shadow-sm">
+              <h3 className="mb-3 font-semibold text-slate-950">Volunteer</h3>
+              <ul className="space-y-2 text-sm text-slate-700">
+                {publicResume.volunteer.map((item) => (
+                  <li key={item.organization}>
+                    <span className="font-medium">{item.organization}</span>
+                    {item.role ? ` — ${item.role}` : ""}
+                  </li>
+                ))}
+              </ul>
+            </article>
+            {publicResume.skills.map((group) => (
+              <article
+                key={group.name}
+                className="rounded-2xl border bg-white p-5 shadow-sm"
+              >
+                <h3 className="mb-3 font-semibold text-slate-950">
+                  {group.name}
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {group.keywords.map((skill, index) => (
+                    <span
+                      key={`${group.name}-${skill}-${index}`}
+                      className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </article>
+            ))}
+            <article className="rounded-2xl border bg-white p-5 shadow-sm">
+              <h3 className="mb-3 font-semibold text-slate-950">Languages</h3>
+              <ul className="space-y-2 text-sm text-slate-700">
+                {publicResume.languages.map((language) => (
+                  <li key={language.language}>
+                    <span className="font-medium">{language.language}</span>
+                    {language.fluency ? ` — ${language.fluency}` : ""}
+                  </li>
+                ))}
+              </ul>
+            </article>
           </div>
         </div>
       </section>

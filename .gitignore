@@ -3,12 +3,25 @@ __pycache__/
 *.py[cod]
 db.sqlite3
 
-# Virtual env
+# Virtual env and generated Python artifacts
+.venv/
 .venvw/
+*.egg-info/
+.coverage
+.pytest_cache/
+apps/api/test.db
+/test.db
+apps/api/uv.lock
 
-# If you create a React frontend later:
+# Node/Turborepo
 node_modules/
 build/
+dist/
+out/
+.next/
+.turbo/
+**/.turbo/
 
 # Secrets
 .env
+.env.local

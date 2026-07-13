@@ -1,0 +1,510 @@
+{
+  "basics": {
+    "name": "Cristobal Cortinez Duhalde",
+    "label": "Msc Data Science | AI | Applied Math | Quantitative Finance",
+    "summary": "Data Scientist and Machine Learning Engineer with a strong foundation in applied mathematics and numerical methods. Experienced in developing and validating predictive models—statistical, machine learning, deep learning, and numerical PDEs—for financial and business applications. Skilled in Python (PyTorch, Pandas, scikit-learn), SQL, MATLAB, and deploying models through Django and REST APIs. Notable projects include a finite‑element options pricing library and a Django-based optimization web app. Proven track record in market and credit risk model validation within international settings (Chile, Canada). Passionate about applying mathematical rigor to real‑world problems, from quant finance to AI, and always learning new tools like MLflow and MLOps frameworks. Open to data science and ML roles that are fun, collaborative, and offer opportunities to grow—remote or in Chile/Europe/North America. Trilingual: Spanish (native), English, and French.",
+    "location": {
+      "general": "Santiago, Santiago Metropolitan Region, Chile"
+    },
+    "profiles": [],
+    "email": "ccortinezduhalde@gmail.com"
+  },
+  "work": [
+    {
+      "name": "Deloitte",
+      "position": "Consultant, Financial Engineering & Modelling",
+      "location": "Santiago, Santiago Metropolitan Region, Chile",
+      "summary": "Validated model in market risk, credit risk and machine learning/artificial intelligence.",
+      "startDate": "2024-03",
+      "endDate": null
+    },
+    {
+      "name": "Deloitte",
+      "position": "Consultant, Financial Engineering & Modelling",
+      "location": "Toronto, Ontario, Canada",
+      "summary": "Secondment",
+      "startDate": "2023-09",
+      "endDate": "2024-03"
+    },
+    {
+      "name": "Deloitte",
+      "position": "Consultant, Financial Engineering & Modelling",
+      "location": "Santiago, Santiago Metropolitan Region, Chile",
+      "summary": "Validación de modelos en riesgo de mercado y riesgo de crédito.",
+      "startDate": "2023-04",
+      "endDate": "2023-09"
+    },
+    {
+      "name": "Pacifico Research",
+      "position": "Quant",
+      "location": "Santiago, Metropolitan Region, Chile",
+      "summary": "• Automated report writing, data collection, and model prediction processes to enhance operational efficiency.   • Developed inflation forecasting and risk estimation models for diverse financial products.   • Conducted in-depth analysis of interest rate curves, contributing to informed decision-making.   • Collaborated with a dynamic team at Pacifico Research, a startup focused on innovative financial solutions in Santiago, Chile.",
+      "startDate": "2020-11",
+      "endDate": "2022-11"
+    },
+    {
+      "name": "Pontificia Universidad Católica de Chile",
+      "position": "Teacher Asistant of the course: Simulation",
+      "location": "Santiago, Región Metropolitana de Santiago, Chile",
+      "summary": "The course is about stochastic simulation and process optimization, applied to the industry and other areas.",
+      "startDate": "2020-03",
+      "endDate": "2020-08"
+    },
+    {
+      "name": "Banco Santander Chile",
+      "position": "Summer Intern",
+      "location": "Santiago Province, Chile",
+      "summary": "Work with NLP models.",
+      "startDate": "2020-01",
+      "endDate": "2020-02"
+    },
+    {
+      "name": "Dataforce",
+      "position": "Data Scientist",
+      "location": "Santiago, Chile",
+      "summary": "Dimensionality reduction, variable selection, time series, and optimization algorithms.",
+      "startDate": "2019-04",
+      "endDate": "2019-12"
+    },
+    {
+      "name": "WebEngineering - Leader français pour le recrutement d'ingénieurs",
+      "position": "Data Scientist",
+      "location": "France",
+      "summary": "Development of algorithms that analyse curriculums with deep learning : NLP (natural language processing) and CNN (convolutional neural networks) among other techniques.",
+      "startDate": "2018-10",
+      "endDate": "2018-11"
+    },
+    {
+      "name": "WebEngineering - Leader français pour le recrutement d'ingénieurs",
+      "position": "Data Science Intern",
+      "location": "Boulogne-Billancourt Area, France",
+      "summary": "Development of algorithms that analyse curriculums with deep learning : NLP (natural language processing) and CNN (convolutional neural networks) among other techniques.",
+      "startDate": "2018-03",
+      "endDate": "2018-08"
+    },
+    {
+      "name": "Pacifico Research",
+      "position": "Data analyst intern",
+      "location": "Santiago Province, Chile",
+      "summary": "Internship. Charged with the task of implementing regression models for inflation prediction. Integration and cleaning of large volumes of data in excel with Python.",
+      "startDate": "2017-06",
+      "endDate": "2017-08"
+    },
+    {
+      "name": "Pontificia Universidad Católica de Chile",
+      "position": "Research Asistant",
+      "location": "Santiago, Chile",
+      "summary": "Peripheral Nerve Stimulation Modelling with Multiple Trace Formulation (Boundary Element Methods)",
+      "startDate": "2015-03",
+      "endDate": "2015-12"
+    },
+    {
+      "name": "Pontificia Universidad Católica de Chile",
+      "position": "Teacher assistant linear algebra (MAT1203)",
+      "location": "Pontificia Universidad Catolica de Chile",
+      "summary": "Corrects tests y and does classes of excercises ",
+      "startDate": "2015-03",
+      "endDate": "2015-06"
+    },
+    {
+      "name": "GreenLibros",
+      "position": "Employee",
+      "location": "",
+      "summary": "Input books to the database, clean and erase books, collecting books from collection points.",
+      "startDate": "2015-01",
+      "endDate": "2015-02"
+    },
+    {
+      "name": "Pontificia Universidad Católica de Chile",
+      "position": "Teaching assistant linear algebra (MAT1203)",
+      "location": "Pontificia Universidad Catolica de Chile",
+      "summary": "Corrects tests y and does classes with exercises ",
+      "startDate": "2014-08",
+      "endDate": "2014-11"
+    }
+  ],
+  "education": [
+    {
+      "institution": "École Polytechnique",
+      "area": null,
+      "studyType": "Ingènieur polytechnicien (X2015)",
+      "startDate": "2016",
+      "endDate": "2018"
+    },
+    {
+      "institution": "Pontificia Universidad Católica de Chile",
+      "area": null,
+      "studyType": "Engineer's degree",
+      "startDate": "2013-03",
+      "endDate": "2020-07"
+    },
+    {
+      "institution": "Pontificia Universidad Católica de Chile",
+      "area": null,
+      "studyType": "Industrial engineering and applied mathematics.",
+      "startDate": "2019",
+      "endDate": "2020"
+    },
+    {
+      "institution": "Pontificia Universidad Católica de Chile",
+      "area": "Being Teacher assistant twice, being part of the aerial silk club and doing research on spectral methods in boundary elements.",
+      "studyType": null,
+      "startDate": "2013",
+      "endDate": "2015"
+    }
+  ],
+  "skills": [
+    {
+      "name": "Deep Learning"
+    },
+    {
+      "name": "fraud detection"
+    },
+    {
+      "name": "Python (Programming Language)"
+    },
+    {
+      "name": "Financial Risk Management"
+    },
+    {
+      "name": "Option Pricing Models"
+    },
+    {
+      "name": "Artificial Intelligence (AI)"
+    },
+    {
+      "name": "P&L Analysis"
+    },
+    {
+      "name": "Credit Risk Model Documentation"
+    },
+    {
+      "name": "React.js"
+    },
+    {
+      "name": "ESG"
+    },
+    {
+      "name": "PostgreSQL"
+    },
+    {
+      "name": "Teaching"
+    },
+    {
+      "name": "Linear Algebra"
+    },
+    {
+      "name": "Partial Differential Equations"
+    },
+    {
+      "name": "Computational Mathematics"
+    },
+    {
+      "name": "Computational Physics"
+    },
+    {
+      "name": "High Performance Computing (HPC)"
+    },
+    {
+      "name": "Stochastic Calculus"
+    },
+    {
+      "name": "Stochastic Differential Equations"
+    },
+    {
+      "name": "Fixed Income Analysis"
+    },
+    {
+      "name": "Regression Models"
+    },
+    {
+      "name": "Fourier Analysis"
+    },
+    {
+      "name": "Computer Simulations"
+    },
+    {
+      "name": "Markov Chains"
+    },
+    {
+      "name": "Overleaf"
+    },
+    {
+      "name": "Model Validation"
+    },
+    {
+      "name": "Model Selection"
+    },
+    {
+      "name": "k-means clustering"
+    },
+    {
+      "name": "Convolutional Neural Networks (CNN)"
+    },
+    {
+      "name": "Data Visualization"
+    },
+    {
+      "name": "Hierarchical Clustering"
+    },
+    {
+      "name": "Clustering"
+    },
+    {
+      "name": "Dimensionality Reduction"
+    },
+    {
+      "name": "ARIMA"
+    },
+    {
+      "name": "Logistic Regression"
+    },
+    {
+      "name": "Loss Given Default (LGD)"
+    },
+    {
+      "name": "Principal Component Analysis"
+    },
+    {
+      "name": "Word Embeddings"
+    },
+    {
+      "name": "Inflation"
+    },
+    {
+      "name": "IFRS9"
+    },
+    {
+      "name": "ECL"
+    },
+    {
+      "name": "Market Risk"
+    },
+    {
+      "name": "Credit risk"
+    },
+    {
+      "name": "Value-at-Risk (VAR) Calculations"
+    },
+    {
+      "name": "Basel"
+    },
+    {
+      "name": "GARCH"
+    },
+    {
+      "name": "Time Series Analysis"
+    },
+    {
+      "name": "Time Series Forecasting"
+    },
+    {
+      "name": "Backtesting"
+    },
+    {
+      "name": "Risk Measurement"
+    },
+    {
+      "name": "Credit Risk Model Implementation"
+    },
+    {
+      "name": "Scikit-Learn"
+    },
+    {
+      "name": "Predictive Modeling"
+    },
+    {
+      "name": "Microsoft Word"
+    },
+    {
+      "name": "Inglés"
+    },
+    {
+      "name": "Microsoft Office"
+    },
+    {
+      "name": "Microsoft Excel"
+    },
+    {
+      "name": "Python"
+    },
+    {
+      "name": "Matlab"
+    },
+    {
+      "name": "Spanish"
+    },
+    {
+      "name": "numerical solving of partial differential equations with python"
+    },
+    {
+      "name": "Maple"
+    },
+    {
+      "name": "Microsoft PowerPoint"
+    },
+    {
+      "name": "Investigación y desarrollo"
+    },
+    {
+      "name": "Español"
+    },
+    {
+      "name": "Docencia"
+    },
+    {
+      "name": "LaTeX"
+    },
+    {
+      "name": "Java"
+    },
+    {
+      "name": "Freefem++"
+    },
+    {
+      "name": "R"
+    },
+    {
+      "name": "Machine Learning"
+    },
+    {
+      "name": "TensorFlow"
+    },
+    {
+      "name": "keras"
+    },
+    {
+      "name": "ingles"
+    },
+    {
+      "name": "Francés"
+    },
+    {
+      "name": "numpy"
+    },
+    {
+      "name": "Análisis de datos"
+    },
+    {
+      "name": "pytorch"
+    },
+    {
+      "name": "Modelos matemáticos"
+    },
+    {
+      "name": "Inteligencia artificial"
+    },
+    {
+      "name": "Procesamiento de lenguajes naturales"
+    },
+    {
+      "name": "Web scraping"
+    },
+    {
+      "name": "Git"
+    },
+    {
+      "name": "Pandas (Software)"
+    },
+    {
+      "name": "Ciencia de datos"
+    },
+    {
+      "name": "Capacidad de análisis"
+    },
+    {
+      "name": "Redes neuronales"
+    },
+    {
+      "name": "Matemáticas aplicadas"
+    },
+    {
+      "name": "Simulaciones"
+    },
+    {
+      "name": "Aprendizaje profundo"
+    },
+    {
+      "name": "Matplotlib"
+    },
+    {
+      "name": "SQL"
+    },
+    {
+      "name": "Análisis de series temporales"
+    },
+    {
+      "name": "Programación orientada a objetos (POO)"
+    },
+    {
+      "name": "Automatización de procesos"
+    },
+    {
+      "name": "Visión por computador"
+    },
+    {
+      "name": "Programación"
+    },
+    {
+      "name": "Matemáticas"
+    },
+    {
+      "name": "Programación neurolingüística (PNL)"
+    },
+    {
+      "name": "Informática científica"
+    }
+  ],
+  "projects": [],
+  "languages": [
+    {
+      "language": "Spanish",
+      "fluency": "Native or bilingual proficiency"
+    },
+    {
+      "language": "English",
+      "fluency": "Native or bilingual proficiency"
+    },
+    {
+      "language": "French",
+      "fluency": "Professional working proficiency"
+    }
+  ],
+  "awards": [
+    {
+      "title": "National Score",
+      "date": "2013-01",
+      "summary": null
+    },
+    {
+      "title": "Eiffel excellence scholarship",
+      "date": "2015-12",
+      "summary": null
+    }
+  ],
+  "volunteer": [
+    {
+      "organization": "SIAM",
+      "position": null,
+      "summary": null,
+      "startDate": null,
+      "endDate": null
+    }
+  ],
+  "certificates": [
+    {
+      "name": "Data Scientist Asociate Certificate",
+      "issuer": "DataCamp",
+      "url": "https://www.datacamp.com/certificate/DSA0014002648763#",
+      "startDate": "2023-01",
+      "endDate": "2025-01"
+    },
+    {
+      "name": "MLOps Culture",
+      "issuer": "Workera",
+      "url": "https://skills.workera.ai/app/consumer/achievement/663c1bb3-6756-4d13-ad16-9aa4e24fdd70",
+      "startDate": "2025-07",
+      "endDate": null
+    }
+  ]
+}

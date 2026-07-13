@@ -1,243 +1,205 @@
-# Portfolio Monorepo
+# main_website
 
-A modern, recruiter-friendly portfolio website built with Next.js, FastAPI, and TypeScript. This monorepo demonstrates full-stack development skills with a clean, scalable architecture.
+Portfolio monorepo for Cristóbal Cortinez Duhalde, split into a Next.js frontend and a FastAPI backend. The repo is useful as a full-stack portfolio scaffold, but several surfaces are still experimental or planned, so this README distinguishes implemented code from aspirational features.
 
-## 🚀 Features
+![Implemented portfolio architecture](docs/assets/portfolio_architecture_dark.svg)
 
-- **Frontend**: Next.js 15 with App Router, TypeScript, and Tailwind CSS
-- **Backend**: FastAPI with Python, Pydantic models, and RESTful APIs
-- **Monorepo**: Turborepo + pnpm for efficient development
-- **Code Quality**: ESLint, Prettier, Ruff, and MyPy with pre-commit hooks
-- **Deterministic Installs**: `pnpm-lock.yaml` ensures consistent dependencies
-- **Responsive Design**: Mobile-first approach with modern UI/UX
-- **SEO Optimized**: Meta tags, semantic HTML, and accessibility features
+## Current status at a glance
 
-## 📁 Project Structure
+| Area | Implemented today | Caveat |
+|---|---|---|
+| Web app | Next.js 15 App Router with Home, About, Projects, Contact pages | Some content is static in page files. |
+| API app | FastAPI app with health, projects, showcase, contact, AI, and CV routers | Several routes depend on database, SMTP, OpenAI/Ollama, or local static data. |
+| Monorepo tooling | pnpm workspaces + Turborepo | `pnpm format` writes changes; use package-level `--check` commands for CI-style verification. |
+| Project data | SQLAlchemy project/contact models, GitHub sync service, hardcoded showcase service | Frontend `Project` interface does not match the `/api/projects` response shape yet. |
+| CV data | `apps/api/app/static/cv/cv_profile.json` served through CV service endpoints | LinkedIn sync/export features are scaffolded, not a verified production integration. |
+| Deployment | Dockerfiles and deployment-oriented docs exist | No production host/URL is verified in this README. |
+| License | API package metadata says MIT | No root `LICENSE` file is tracked; do not advertise root MIT licensing until added. |
 
+## Architecture
+
+The intended runtime split is simple:
+
+1. Browser requests the Next.js app in `apps/web`.
+2. The frontend can call `NEXT_PUBLIC_API_BASE_URL`, defaulting to `http://localhost:8000`.
+3. FastAPI in `apps/api` exposes `/api/*` routes.
+4. API services read/write database models, serve static CV data, sync public GitHub repositories, and call external services only when configured.
+
+## Project scoring heuristic
+
+The backend includes an ordering heuristic in `apps/api/app/services/scoring.py`.
+
+![Project scoring weights](docs/assets/project_scoring_weights_dark.png)
+
+Implemented formula:
+
+```text
+score = 0.5 × technical_complexity + 0.3 × github_metrics + 0.2 × recency
 ```
-├── apps/
-│   ├── web/                 # Next.js frontend
-│   │   ├── src/
-│   │   │   ├── app/        # App Router pages
-│   │   │   ├── components/ # React components
-│   │   │   └── lib/        # Utilities and API client
-│   │   └── public/         # Static assets
-│   └── api/                # FastAPI backend
-│       ├── app/
-│       │   ├── routers/    # API endpoints
-│       │   ├── models/     # Pydantic models
-│       │   └── core/       # Configuration
-│       └── data/           # Sample data
-├── packages/
-│   ├── config/             # Shared ESLint/Prettier/TS configs
-│   └── ui/                 # Future shared React components
-├── docs/                   # Project documentation
-└── scripts/                # Development utilities
+
+Important caveats:
+
+- This is a heuristic for sorting project records, not a validated ranking of quality, business value, correctness, or deployment maturity.
+- Technical complexity is based on keyword hits in project name, description, and language. Keyword presence can overstate or understate real complexity.
+- GitHub metrics use stars, forks, and a watcher attribute when present; low public engagement does not mean low quality.
+- Recency favors recently updated repositories and can penalize stable or archived work.
+- The frontend currently has a schema mismatch: `apps/web/src/lib/api.ts` expects a `Project[]` with `title`, `summary`, `tags`, and `links`, while FastAPI returns a `ProjectList` object with `projects` and `total` containing `name`, `description`, `language`, `url`, `stars`, `forks`, `topics`, and `updated_at`.
+
+## Implemented surfaces
+
+### Web (`apps/web`)
+
+- Next.js 15.4.x App Router.
+- React 19 and TypeScript.
+- Tailwind CSS 4 via PostCSS.
+- Pages:
+  - `/`
+  - `/about`
+  - `/projects`
+  - `/contact`
+- `src/lib/api.ts` client helper for projects and contact submission.
+- Development fallback stub projects when API calls fail in dev mode.
+
+### API (`apps/api`)
+
+FastAPI app mounted in `apps/api/app/main.py`:
+
+| Router | Prefix | Implemented routes include |
+|---|---|---|
+| `health` | `/api` | `/health`, `/health/db` |
+| `projects` | `/api` | `/projects`, `/projects/featured`, `/projects/sync`, `/projects/{id}`, `/projects/{id}/score`, `/projects/showcase*` |
+| `contact` | `/api` | `POST /contact`, contact lookup/read admin-style helpers |
+| `ai` | `/api` | `/ai/status`, `POST /chat`, `POST /predict`, `POST /visualize` |
+| `cv` | `/api` | `/cv/profile`, `/cv/export*`, `/cv/status`, `/cv/formats`, `/cv/linkedin/status`, `/cv/download` |
+| static files | `/static` | Serves `apps/api/app/static` |
+
+### Data sources
+
+- `apps/api/app/static/cv/cv_profile.json` for CV profile content.
+- SQLAlchemy models in `apps/api/app/models/database.py` for projects and contacts.
+- Public GitHub REST API for repository metadata and topics in `GitHubService`.
+- Hardcoded showcase entries in `ShowcaseService`; treat demo URLs and metrics there as curated placeholders unless independently verified.
+- SMTP environment variables for contact email delivery if configured.
+- OpenAI/Ollama-style AI service settings if configured.
+
+## Planned or not production-verified
+
+- Blog, authentication, payments, monetization, premium content, and CMS workflows.
+- Production deployment URLs for web and API.
+- Verified live demo links from hardcoded showcase entries.
+- End-to-end project API rendering in the web app without schema adaptation.
+- Root MIT license claim; add a `LICENSE` file before making that claim.
+- `apps/api/.env.example`; only `apps/web/env.example` is present in this clone.
+
+## Repository map
+
+```text
+apps/
+├── web/                         # Next.js frontend
+│   ├── env.example              # Frontend env example (not .env.example)
+│   └── src/app/                 # App Router pages and layout
+└── api/                         # FastAPI backend
+    ├── app/main.py              # FastAPI app, CORS, routers, static mount
+    ├── app/routers/             # health, projects, contact, ai, cv
+    ├── app/services/            # GitHub, scoring, contact/email, AI, CV services
+    ├── app/models/              # SQLAlchemy database models
+    ├── app/static/cv/           # Static CV JSON
+    └── tests/                   # Pytest tests
+packages/
+├── config/                      # Shared config package
+└── ui/                          # Minimal shared UI package placeholder
 ```
 
-## 🛠️ Tech Stack
+## Local setup
 
-### Frontend
-- **Framework**: Next.js 15 (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **State Management**: React hooks
-- **Build Tool**: Turbopack
+Prerequisites:
 
-### Backend
-- **Framework**: FastAPI
-- **Language**: Python 3.12+
-- **Validation**: Pydantic
-- **CORS**: Built-in middleware
-- **Server**: Uvicorn
+- Node.js compatible with the lockfile and `packageManager` (`pnpm@10.14.0`).
+- Python 3.12+ for `apps/api`.
+- PostgreSQL if you want database-backed project/contact routes instead of import/build smoke checks.
 
-### Development
-- **Package Manager**: pnpm
-- **Monorepo**: Turborepo
-- **Linting**: ESLint + Ruff
-- **Formatting**: Prettier + Ruff
-- **Type Checking**: TypeScript + MyPy
-- **Hooks**: Pre-commit + Husky
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- **Node.js**: 22+
-- **Python**: 3.12+
-- **pnpm**: 10+
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone <your-repo-url>
-   cd portfolio-monorepo
-   ```
-
-2. **Install pnpm** (if not installed)
-   ```bash
-   npm install -g pnpm@10
-   ```
-
-3. **Install dependencies** (uses the included `pnpm-lock.yaml`)
-   ```bash
-   pnpm install
-   ```
-
-4. **Set up environment variables**
-   ```bash
-   # Copy example files
-   cp apps/web/.env.example apps/web/.env.local
-   cp apps/api/.env.example apps/api/.env
-   
-   # Edit with your values
-   # apps/web/.env.local
-   NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
-   
-   # apps/api/.env
-   SMTP_USER=your-email@gmail.com
-   SMTP_PASSWORD=your-app-password
-   ```
-
-### Development
-
-1. **Start both apps concurrently**
-   ```bash
-   pnpm dev
-   ```
-   
-   This starts:
-   - Frontend: http://localhost:3000
-   - Backend: http://localhost:8000
-
-2. **Or start individually**
-   ```bash
-   # Frontend only
-   pnpm --filter web dev
-   
-   # Backend only
-   pnpm --filter api dev
-   ```
-
-### Available Scripts
+Install frontend/monorepo dependencies:
 
 ```bash
-# Root level (runs across all apps)
-pnpm dev          # Start development servers
-pnpm build        # Build all apps
-pnpm lint         # Lint all code
-pnpm typecheck    # Type check all code
-pnpm format       # Format all code
-pnpm test         # Run tests
-
-# Individual app scripts
-pnpm --filter web dev      # Start frontend
-pnpm --filter api dev      # Start backend
-pnpm --filter web build    # Build frontend
-pnpm --filter api build    # Build backend
+pnpm install
 ```
 
-## 📱 Pages
+Create frontend environment file:
 
-- **Home** (`/`): Hero section, skills overview, and call-to-action
-- **About** (`/about`): Personal background, experience, and education
-- **Projects** (`/projects`): Portfolio showcase with project details
-- **Contact** (`/contact`): Contact form and social links
-
-## 🔌 API Endpoints
-
-### Projects
-- `GET /api/projects` - Retrieve all projects
-
-### Contact
-- `POST /api/contact` - Submit contact form
-
-## 🧪 Code Quality
-
-### Pre-commit Hooks
-The repository includes pre-commit hooks that run automatically:
-
-- **Ruff**: Python linting and formatting
-- **MyPy**: Python type checking
-- **ESLint**: JavaScript/TypeScript linting
-- **Prettier**: Code formatting
-
-### Manual Quality Checks
 ```bash
-# Python (Backend)
-pnpm --filter api lint      # Ruff linting
-pnpm --filter api format    # Ruff formatting
-pnpm --filter api typecheck # MyPy type checking
-
-# TypeScript (Frontend)
-pnpm --filter web lint      # ESLint
-pnpm --filter web format    # Prettier
-pnpm --filter web typecheck # TypeScript compiler
+cp apps/web/env.example apps/web/.env.local
 ```
 
-### Automated Dependency Updates
-Dependabot monitors the npm workspaces in `apps/web` and `packages/ui` as well as Python dependencies in `apps/api`. It runs weekly and opens pull requests that trigger the full CI pipeline to test and lint updates automatically.
+For API local development, create `apps/api/.env` manually if needed. Do not commit secrets. Common variables read by `apps/api/app/core/config.py` include:
 
-## 🚀 Deployment
+```text
+DATABASE_URL=
+SECRET_KEY=
+OPENAI_API_KEY=
+OPENAI_MODEL=
+SMTP_HOST=
+SMTP_PORT=
+SMTP_USER=
+SMTP_PASSWORD=
+SMTP_TLS=
+```
 
-### Frontend (Vercel)
-1. Connect your GitHub repository to Vercel
-2. Set environment variables:
-   - `NEXT_PUBLIC_API_BASE_URL`: Your backend API URL
-3. Deploy automatically on push to main branch
+Install API dependencies in a virtual environment of your choice:
 
-### Backend (Railway/Render/Heroku)
-1. Set environment variables for production
-2. Update CORS origins in `apps/api/app/core/config.py`
-3. Deploy using your preferred platform
+```bash
+cd apps/api
+python -m pip install -e '.[dev]'
+```
 
-## 🔧 Customization
+## Development commands
 
-### Personal Information
-- Update personal details in `apps/web/src/app/page.tsx`
-- Modify experience in `apps/web/src/app/about/page.tsx`
-- Add your projects to `apps/api/data/projects.json`
-- Update social links in `apps/web/src/app/contact/page.tsx`
+From the repo root:
 
-### Styling
-- Modify Tailwind classes in component files
-- Update color scheme in `tailwind.config.js`
-- Add custom CSS in `apps/web/src/app/globals.css`
+```bash
+pnpm dev          # Turborepo dev across workspaces
+pnpm build        # Build workspaces
+pnpm lint         # Lint workspaces
+pnpm typecheck    # Type-check workspaces
+pnpm test         # Run workspace tests; web currently echoes "No tests yet"
+```
 
-### Backend
-- Add new API endpoints in `apps/api/app/routers/`
-- Create new models in `apps/api/app/models/`
-- Implement database integration when ready
+Individual apps:
 
-## 📚 Learning Resources
+```bash
+pnpm --filter web dev        # Next.js dev server
+pnpm --filter web build      # Next.js production build
+pnpm --filter web lint       # ESLint
+pnpm --filter web typecheck  # TypeScript compiler
 
-- [Next.js Documentation](https://nextjs.org/docs)
-- [FastAPI Documentation](https://fastapi.tiangolo.com/)
-- [Turborepo Documentation](https://turbo.build/repo)
-- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+pnpm --filter api dev        # Uvicorn via apps/api/package.json
+pnpm --filter api test       # Pytest via apps/api/package.json
+pnpm --filter api lint       # Ruff via apps/api/package.json
+```
 
-## 🤝 Contributing
+Direct API checks from `apps/api`:
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run quality checks: `pnpm lint && pnpm typecheck`
-5. Commit with conventional commits
-6. Push and create a pull request
+```bash
+pytest
+ruff check .
+ruff format --check .
+mypy .
+python -m compileall -q app tests scripts
+```
 
-## 📄 License
+## Deployment notes
 
-MIT License - see LICENSE file for details
+- Frontend: `apps/web` can be deployed as a Next.js app after `pnpm --filter web build` passes.
+- API: `apps/api` can run with Uvicorn and has a Dockerfile, but production deployment requires real environment variables, CORS review, database provisioning, and secret management.
+- Do not publish fake production URLs in docs. Add links only after a smoke check against the deployed target.
 
-## 🆘 Support
+## Security and privacy
 
-If you encounter any issues:
+- Never place API keys, SMTP passwords, database credentials, or personal contact data in README examples.
+- Treat frontend `NEXT_PUBLIC_*` values as browser-visible.
+- Treat static CV JSON and hardcoded page content as public if deployed.
+- The implemented `/contact` page still contains `yourusername` GitHub/LinkedIn links and `your.email@example.com`; replace them with reviewed destinations or remove them before public launch.
+- Review `ShowcaseService` and dev fallback project links before public launch; placeholders should not be marketed as live production demos.
 
-1. Check the [Issues](../../issues) page
-2. Review the documentation
-3. Create a new issue with detailed information
+## License
 
----
-
-**Built with ❤️ using modern web technologies**
+No root `LICENSE` file is present in this clone. The API package metadata declares MIT, but the repository README should not claim root MIT licensing until a license file is added.

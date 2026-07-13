@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { api, type Project } from "@/lib/api";
 import ProjectCard from "@/components/ProjectCard";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Projects | Portfolio",
   description: "Explore my latest web development projects and technical work",

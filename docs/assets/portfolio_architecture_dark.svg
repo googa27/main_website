@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">main_website actual portfolio monorepo architecture</title>
+  <desc id="desc">Dark diagram showing the Next.js web app, FastAPI routers, local database and static CV data, GitHub API sync, SMTP/OpenAI/Ollama integrations, and caveats for schema mismatch and planned-only surfaces.</desc>
+  <defs>
+    <marker id="arrow-cyan" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#22d3ee"/></marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#3fb950"/></marker>
+    <marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#a78bfa"/></marker>
+    <marker id="arrow-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#f97316"/></marker>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#000" flood-opacity="0.35"/></filter>
+    <style>
+      .bg{fill:#0d1117}.panel{fill:#161b22;stroke:#30363d;stroke-width:2;rx:18;filter:url(#shadow)}
+      .frontend{stroke:#22d3ee}.api{stroke:#3fb950}.data{stroke:#a78bfa}.external{stroke:#f97316}.caveat{stroke:#f85149}
+      .title{font:700 31px Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;fill:#f0f6fc}.subtitle{font:500 16px Inter,ui-sans-serif,system-ui,sans-serif;fill:#8b949e}
+      .label{font:700 20px Inter,ui-sans-serif,system-ui,sans-serif;fill:#f0f6fc}.body{font:500 15px Inter,ui-sans-serif,system-ui,sans-serif;fill:#c9d1d9}.small{font:500 13px Inter,ui-sans-serif,system-ui,sans-serif;fill:#8b949e}.tag{font:700 12px Inter,ui-sans-serif,system-ui,sans-serif;fill:#0d1117}
+      .line-cyan{stroke:#22d3ee;stroke-width:3;fill:none;marker-end:url(#arrow-cyan)}.line-green{stroke:#3fb950;stroke-width:3;fill:none;marker-end:url(#arrow-green)}.line-purple{stroke:#a78bfa;stroke-width:3;fill:none;marker-end:url(#arrow-purple)}.line-orange{stroke:#f97316;stroke-width:3;fill:none;marker-end:url(#arrow-orange);stroke-dasharray:8 7}.line-red{stroke:#f85149;stroke-width:3;fill:none;stroke-dasharray:7 7}
+    </style>
+  </defs>
+  <rect class="bg" width="1200" height="675"/>
+  <text x="54" y="55" class="title">main_website: implemented monorepo architecture</text>
+  <text x="54" y="84" class="subtitle">Actual code paths only; deployment hosts, auth, payments, blog, and production URLs are planned/unverified.</text>
+
+  <rect x="52" y="120" width="210" height="115" class="panel frontend"/>
+  <text x="82" y="157" class="label">Browser</text>
+  <text x="82" y="187" class="body">Next.js pages</text>
+  <text x="82" y="211" class="small">/, /about, /projects, /contact</text>
+
+  <rect x="330" y="95" width="320" height="170" class="panel frontend"/>
+  <text x="360" y="132" class="label">apps/web</text>
+  <text x="360" y="162" class="body">Next.js 15 App Router + React 19</text>
+  <text x="360" y="186" class="body">Tailwind CSS 4; static page content</text>
+  <text x="360" y="210" class="body">lib/api.ts can call NEXT_PUBLIC_API_BASE_URL</text>
+  <text x="360" y="234" class="small">Dev fallback returns stub projects with example URLs</text>
+
+  <rect x="735" y="88" width="360" height="206" class="panel api"/>
+  <text x="765" y="125" class="label">apps/api FastAPI</text>
+  <text x="765" y="155" class="body">Routers: /api/health, /projects, /contact</text>
+  <text x="765" y="179" class="body">/api/ai, /api/cv, /static</text>
+  <text x="765" y="203" class="body">Services: GitHub sync, scoring, email, CV, AI</text>
+  <text x="765" y="227" class="small">Uvicorn; Pydantic schemas; SQLAlchemy models</text>
+  <rect x="765" y="244" width="62" height="22" rx="11" fill="#3fb950"/><text x="784" y="260" class="tag">API</text>
+
+  <rect x="735" y="345" width="360" height="150" class="panel data"/>
+  <text x="765" y="382" class="label">Data sources</text>
+  <text x="765" y="412" class="body">SQLAlchemy database for projects and contacts</text>
+  <text x="765" y="436" class="body">app/static/cv/cv_profile.json for CV profile</text>
+  <text x="765" y="460" class="body">GitHub API sync for public repositories</text>
+
+  <rect x="330" y="345" width="320" height="162" class="panel external"/>
+  <text x="360" y="382" class="label">External integrations</text>
+  <text x="360" y="412" class="body">GitHub REST API: repo metadata/topics</text>
+  <text x="360" y="436" class="body">SMTP: contact email if configured</text>
+  <text x="360" y="460" class="body">OpenAI/Ollama-style AI service checks</text>
+  <text x="360" y="484" class="small">Secrets must stay in env, never README/docs/assets</text>
+
+  <rect x="52" y="363" width="210" height="124" class="panel external"/>
+  <text x="82" y="400" class="label">Build/dev tools</text>
+  <text x="82" y="430" class="body">pnpm + Turborepo</text>
+  <text x="82" y="454" class="body">ESLint / Prettier</text>
+  <text x="82" y="478" class="body">Ruff / mypy / pytest</text>
+
+  <rect x="185" y="550" width="830" height="82" class="panel caveat"/>
+  <text x="215" y="582" class="label">Known README-facing caveats</text>
+  <text x="215" y="608" class="body">Frontend Project[] interface does not match /api/projects {projects,total} response; no root LICENSE file; API env.example absent.</text>
+
+  <path d="M262 178 C294 178 302 178 330 178" class="line-cyan"/>
+  <path d="M650 181 C684 181 698 181 735 181" class="line-green"/>
+  <path d="M914 294 C914 320 914 326 914 345" class="line-purple"/>
+  <path d="M650 424 C685 424 702 424 735 424" class="line-orange"/>
+  <path d="M262 425 C292 425 303 425 330 425" class="line-orange"/>
+  <path d="M490 507 C490 535 555 543 600 550" class="line-red"/>
+  <path d="M914 495 C914 530 730 536 635 550" class="line-red"/>
+
+  <circle cx="82" cy="650" r="7" fill="#22d3ee"/><text x="97" y="655" class="small">frontend</text>
+  <circle cx="180" cy="650" r="7" fill="#3fb950"/><text x="195" y="655" class="small">API</text>
+  <circle cx="253" cy="650" r="7" fill="#a78bfa"/><text x="268" y="655" class="small">data</text>
+  <circle cx="340" cy="650" r="7" fill="#f97316"/><text x="355" y="655" class="small">external/build</text>
+  <circle cx="475" cy="650" r="7" fill="#f85149"/><text x="490" y="655" class="small">caveat</text>
+</svg>

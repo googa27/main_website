@@ -60,7 +60,7 @@ After the dependency route is sound, apply SOLID, DRY knowledge ownership, suita
 - Pin every third-party action to a full-length commit SHA; keep the human-readable release in a comment.
 - Declare least-privilege workflow `permissions`; read-only `contents` is the default.
 - Set `persist-credentials: false` on checkout and provide narrowly scoped credentials only to the step that needs mutation.
-- Validate workflow changes with `python scripts/selftest_ai_hierarchy_policy.py`, `pinact run --fix=false --no-api`, and `uvx zizmor --offline --min-severity medium .github/workflows`.
+- Validate workflow changes with `python scripts/selftest_ai_hierarchy_policy.py`, `pinact run --fix=false --no-api`, and `zizmor --offline --min-severity medium .`.
 
 ### Data and core-repository boundaries
 
@@ -81,6 +81,7 @@ React-folio consolidation evidence lives in `docs/REACT_FOLIO_CONSOLIDATION.md`.
 - Tests: `pnpm test`
 - Lint/format: `pnpm run lint`
 - Portfolio architecture: `python scripts/check_portfolio_architecture.py`
+- Governance setup: `python3 -m pip install -r requirements-architecture.txt`
 - AI/hierarchy policy: `python3 scripts/check_ai_hierarchy_policy.py`
 
 If a command is declared unavailable, the activation trigger and replacement command belong in `docs/ARCHITECTURE.yaml`; do not fabricate successful output.

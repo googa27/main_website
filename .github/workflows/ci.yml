@@ -120,9 +120,19 @@ jobs:
           python -m pip install pip-audit
           pip-audit -r apps/api/requirements.txt
 
-  osv-scan:
+  osv-pr-scan:
+    if: ${{ github.event_name == 'pull_request' }}
     needs: quality-checks
     uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@9a498708959aeaef5ef730655706c5a1df1edbc2 # v2.3.8
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+  osv-full-scan:
+    if: ${{ github.event_name == 'push' }}
+    needs: quality-checks
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@9a498708959aeaef5ef730655706c5a1df1edbc2 # v2.3.8
     permissions:
       actions: read
       contents: read

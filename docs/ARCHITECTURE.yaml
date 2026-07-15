@@ -320,7 +320,17 @@
           "finding": "Pinact resolves action tags to immutable full-length commit SHAs and verifies pinned references."
         }
       ],
-      "write_permission_exceptions": []
+      "write_permission_exceptions": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "scopes": [
+            "security-events"
+          ],
+          "reason": "OSV-Scanner uploads SARIF vulnerability results to the repository code-scanning security surface.",
+          "owner": "googa27",
+          "review_by": "2027-07-15"
+        }
+      ]
     }
   },
   "exceptions": [

@@ -12,7 +12,7 @@
     "@repo/config": "workspace:*",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
-    "eslint": "^9.39.5",
+    "eslint": "^10.6.0",
     "react": "19.2.7",
     "react-dom": "19.2.7",
     "typescript": "^5.0.0"

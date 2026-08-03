@@ -79,7 +79,7 @@ class ShowcaseService:
                     "Convergence studies",
                     "Interactive parameter adjustment",
                 ],
-                github_url="https://github.com/googa27/finite-difference-options",
+                github_url="https://github.com/googa27/finite_difference_options",
                 documentation_url="https://finite-diff-options.readthedocs.io",
                 paper_url=None,
                 stars=15,

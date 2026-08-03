@@ -25,6 +25,22 @@
       "apps/web/src/lib/api.ts",
       "apps/api/app"
     ],
+    "public_response_contracts": [
+      {
+        "surface": "/api/projects/showcase*",
+        "schemas": [
+          "apps/api/app/schemas/project.py::ProjectShowcase",
+          "apps/api/app/schemas/project.py::ShowcaseProject"
+        ],
+        "fields": {
+          "github_url": "HttpUrl or JSON null; planned or unverified projects must not publish fabricated repository URLs"
+        },
+        "fitness_tests": [
+          "tests/architecture/test_public_content_links.py::test_architecture_contract_documents_nullable_api_github_url",
+          "tests/architecture/test_public_content_links.py::test_api_project_links_use_existing_repository_slugs"
+        ]
+      }
+    ],
     "extension_points": [
       "typed public APIs",
       "deterministic CLI/contracts",
@@ -259,7 +275,7 @@
   },
   "data": {
     "consumes_data": true,
-    "architecture": "Static-first public content adapter with curated/redacted React-folio resume JSON; optional API adapters remain separate from presentation and must record source/freshness/evidence before use.",
+    "architecture": "Static-first public content adapter with curated/phone-redacted React-folio resume JSON and intentionally public resume email; optional API adapters remain separate from presentation and must record source/freshness/evidence before use.",
     "required_controls": [
       "source registry",
       "typed contracts",
@@ -277,10 +293,10 @@
       "ui_and_artifacts": "Consume prebuilt ui_and_artifacts outputs; no PDP/FPF internals."
     },
     "source_registry_plan": [
-      "checked-in React-folio resume copy with consolidation evidence and phone redaction",
+      "checked-in React-folio resume copy with consolidation evidence, intentionally public email, and phone redaction",
       "explicit external/social adapters with credential isolation and freshness metadata"
     ],
-    "flow": "React-folio resume/source registry -> redacted checked-in copy -> typed curated public content -> static Next.js pages; optional dynamic adapters remain separately validated.",
+    "flow": "React-folio resume/source registry -> phone-redacted checked-in copy with intentionally public email -> typed curated public content -> static Next.js pages; optional dynamic adapters remain separately validated.",
     "storage_and_replay": "Immutable raw/content-addressed inputs; canonical typed products; idempotent replay by source identity and effective/vintage time where applicable.",
     "quality_and_lineage": "Validate schema, grain, units, classification, lineage, freshness, licence, and content identity before consumption; fail closed on missing evidence."
   },

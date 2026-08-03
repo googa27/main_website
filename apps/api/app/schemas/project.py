@@ -53,7 +53,7 @@ class ProjectShowcase(BaseModel):
     key_features: List[str] = Field(default_factory=list)
 
     # Links
-    github_url: HttpUrl
+    github_url: Optional[HttpUrl] = None
     documentation_url: Optional[HttpUrl] = None
     paper_url: Optional[HttpUrl] = None
 
@@ -131,7 +131,7 @@ class ShowcaseProject(BaseModel):
     demo_type: Optional[str]
     outputs: List[str]
     key_features: List[str]
-    github_url: HttpUrl
+    github_url: Optional[HttpUrl]
     stars: int
     forks: int
     last_updated: datetime

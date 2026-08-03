@@ -211,7 +211,7 @@ export const curatedProjects: PortfolioProject[] = [
       "PDE-based derivatives pricing work using finite-difference schemes, convergence checks, Greeks, and risk analysis dashboards.",
     tags: ["Python", "NumPy", "SciPy", "Streamlit", "Quant Finance"],
     links: {
-      github: "https://github.com/googa27/finite-difference-options",
+      github: "https://github.com/googa27/finite_difference_options",
       live: "https://finite-diff-options.streamlit.app",
     },
     evidence:

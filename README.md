@@ -197,7 +197,7 @@ python -m compileall -q app tests scripts
 - Never place API keys, SMTP passwords, database credentials, or personal contact data in README examples.
 - Treat frontend `NEXT_PUBLIC_*` values as browser-visible.
 - Treat static CV JSON and hardcoded page content as public if deployed.
-- The static contact page uses redacted resume email and profile defaults; do not add or publish new contact/profile links until they are smoke-checked.
+- The static contact page intentionally publishes the curated resume email and reviewed profile links; treat them as public deployment content and change or redact them only with privacy/content regression coverage.
 - Review `ShowcaseService` and dev fallback project links before public launch; placeholders should not be marketed as live production demos.
 
 ## License

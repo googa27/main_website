@@ -4,6 +4,7 @@ import ast
 import json
 import re
 from pathlib import Path
+from typing import cast
 
 ROOT = Path(__file__).resolve().parents[2]
 FRONTEND_CONTENT = ROOT / "apps" / "web" / "src" / "lib" / "content.ts"
@@ -14,21 +15,30 @@ PROJECT_SCHEMAS = ROOT / "apps" / "api" / "app" / "schemas" / "project.py"
 ARCHITECTURE_CONTRACT = ROOT / "docs" / "ARCHITECTURE.yaml"
 README = ROOT / "README.md"
 
-FRONTEND_REQUIRED_URLS = {
-    "https://github.com/googa27/finite_difference_options",
-    "https://github.com/googa27/django-optimization-app",
-    "https://github.com/googa27/main_website",
+FRONTEND_PROJECT_GITHUB_URLS = {
+    "Finite Difference Options Pricing": "https://github.com/googa27/finite_difference_options",
+    "Django Optimization App": "https://github.com/googa27/django-optimization-app",
+    "Static-first Portfolio Site": "https://github.com/googa27/main_website",
 }
-API_REQUIRED_URLS = {
-    "https://github.com/googa27/finite_difference_options",
-    "https://github.com/googa27/finite_element_options",
-    "https://github.com/googa27/django-optimization-app",
+API_PROJECT_GITHUB_URLS = {
+    "Finite Difference Options Pricing": "https://github.com/googa27/finite_difference_options",
+    "Django Optimization App": "https://github.com/googa27/django-optimization-app",
+    "Finite Element Options Pricing": "https://github.com/googa27/finite_element_options",
+    "ML/MLflow Integration": None,
 }
 INVALID_PROJECT_URLS = {
     "https://github.com/googa27/finite-difference-options",
     "https://github.com/googa27/finite-element-options",
     '"https://github.com/googa27/django-optimization"',
 }
+SHOWCASE_CONTRACT_SCHEMA_PATHS = [
+    "apps/api/app/schemas/project.py::ProjectShowcase",
+    "apps/api/app/schemas/project.py::ShowcaseProject",
+]
+SHOWCASE_GITHUB_URL_CONTRACT = (
+    "HttpUrl or JSON null; planned or unverified projects must not publish fabricated "
+    "repository URLs"
+)
 
 
 def read_text(path: Path) -> str:
@@ -40,6 +50,63 @@ def literal_keyword(call: ast.Call, name: str) -> object:
         if keyword.arg == name:
             return ast.literal_eval(keyword.value)
     raise AssertionError(f"missing keyword: {name}")
+
+
+def top_level_object_blocks(source: str, declaration: str) -> list[str]:
+    """Extract top-level object literals from a TypeScript array declaration."""
+
+    declaration_start = source.index(declaration)
+    assignment_start = source.index("=", declaration_start)
+    array_start = source.index("[", assignment_start)
+    square_depth = 0
+    curly_depth = 0
+    object_start: int | None = None
+    quote: str | None = None
+    escaped = False
+    blocks: list[str] = []
+
+    for index, char in enumerate(source[array_start:], start=array_start):
+        if quote is not None:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == quote:
+                quote = None
+            continue
+
+        if char in {'"', "'", "`"}:
+            quote = char
+        elif char == "[":
+            square_depth += 1
+        elif char == "]":
+            square_depth -= 1
+            if square_depth == 0:
+                break
+        elif char == "{":
+            if square_depth == 1 and curly_depth == 0:
+                object_start = index
+            curly_depth += 1
+        elif char == "}":
+            curly_depth -= 1
+            if square_depth == 1 and curly_depth == 0 and object_start is not None:
+                blocks.append(source[object_start : index + 1])
+                object_start = None
+
+    return blocks
+
+
+def frontend_project_github_urls_by_title() -> dict[str, str | None]:
+    projects: dict[str, str | None] = {}
+    for block in top_level_object_blocks(
+        read_text(FRONTEND_CONTENT), "curatedProjects"
+    ):
+        title_match = re.search(r'\btitle:\s*"([^"]+)"', block)
+        if title_match is None:
+            continue
+        github_match = re.search(r'\bgithub:\s*"([^"]+)"', block)
+        projects[title_match.group(1)] = github_match.group(1) if github_match else None
+    return projects
 
 
 def showcase_project_named(project_name: str) -> ast.Call:
@@ -54,22 +121,51 @@ def showcase_project_named(project_name: str) -> ast.Call:
     raise AssertionError(f"missing ProjectShowcase record: {project_name}")
 
 
-def test_frontend_project_links_use_existing_repository_slugs() -> None:
-    frontend_content = read_text(FRONTEND_CONTENT)
+def api_project_github_urls_by_name() -> dict[str, str | None]:
+    return {
+        project_name: cast(
+            str | None,
+            literal_keyword(showcase_project_named(project_name), "github_url"),
+        )
+        for project_name in API_PROJECT_GITHUB_URLS
+    }
 
-    for expected_url in FRONTEND_REQUIRED_URLS:
-        assert expected_url in frontend_content
+
+def class_field_annotation(class_name: str, field_name: str) -> tuple[str, str]:
+    tree = ast.parse(read_text(PROJECT_SCHEMAS))
+    for node in tree.body:
+        if not isinstance(node, ast.ClassDef) or node.name != class_name:
+            continue
+        for statement in node.body:
+            if not isinstance(statement, ast.AnnAssign):
+                continue
+            if not isinstance(statement.target, ast.Name):
+                continue
+            if statement.target.id == field_name:
+                default = (
+                    ast.unparse(statement.value)
+                    if statement.value is not None
+                    else "required"
+                )
+                return ast.unparse(statement.annotation), default
+        raise AssertionError(f"missing field {class_name}.{field_name}")
+    raise AssertionError(f"missing schema class: {class_name}")
+
+
+def test_frontend_project_links_use_existing_repository_slugs() -> None:
+    frontend_project_urls = frontend_project_github_urls_by_title()
+
+    assert frontend_project_urls == FRONTEND_PROJECT_GITHUB_URLS
     for invalid_url in INVALID_PROJECT_URLS:
-        assert invalid_url not in frontend_content
+        assert invalid_url not in read_text(FRONTEND_CONTENT)
 
 
 def test_api_project_links_use_existing_repository_slugs() -> None:
-    showcase_service = read_text(SHOWCASE_SERVICE)
+    api_project_urls = api_project_github_urls_by_name()
 
-    for expected_url in API_REQUIRED_URLS:
-        assert expected_url in showcase_service
+    assert api_project_urls == API_PROJECT_GITHUB_URLS
     for invalid_url in INVALID_PROJECT_URLS:
-        assert invalid_url not in showcase_service
+        assert invalid_url not in read_text(SHOWCASE_SERVICE)
 
 
 def test_showcase_service_does_not_publish_unverified_demo_or_doc_urls() -> None:
@@ -105,23 +201,28 @@ def test_public_contact_email_policy_matches_deployment_surfaces() -> None:
 
 def test_architecture_contract_documents_nullable_api_github_url() -> None:
     contract = json.loads(read_text(ARCHITECTURE_CONTRACT))
-    schema_source = read_text(PROJECT_SCHEMAS)
 
     contracts = contract["architecture"]["public_response_contracts"]
     showcase_contract = next(
         item for item in contracts if item["surface"] == "/api/projects/showcase*"
     )
 
-    assert "ProjectShowcase" in "\n".join(showcase_contract["schemas"])
-    assert "ShowcaseProject" in "\n".join(showcase_contract["schemas"])
-    assert "github_url" in showcase_contract["fields"]
-    assert "JSON null" in showcase_contract["fields"]["github_url"]
-    assert "Optional[HttpUrl] = None" in schema_source
-    assert "github_url: Optional[HttpUrl]" in schema_source
+    assert showcase_contract["schemas"] == SHOWCASE_CONTRACT_SCHEMA_PATHS
+    assert showcase_contract["fields"] == {"github_url": SHOWCASE_GITHUB_URL_CONTRACT}
+    assert class_field_annotation("ProjectShowcase", "github_url") == (
+        "Optional[HttpUrl]",
+        "None",
+    )
+    assert class_field_annotation("ShowcaseProject", "github_url") == (
+        "Optional[HttpUrl]",
+        "required",
+    )
 
 
 def test_readme_documents_lockfile_based_pnpm_install() -> None:
-    readme = (Path(__file__).resolve().parents[2] / "README.md").read_text(encoding="utf-8")
+    readme = (Path(__file__).resolve().parents[2] / "README.md").read_text(
+        encoding="utf-8"
+    )
 
     assert "pnpm install --frozen-lockfile" in readme
     assert "pnpm install\n" not in readme

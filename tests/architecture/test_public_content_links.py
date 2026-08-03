@@ -18,6 +18,23 @@ def test_curated_project_links_use_existing_repository_slugs() -> None:
 
     assert "https://github.com/googa27/finite_difference_options" in public_content
     assert "https://github.com/googa27/finite-difference-options" not in public_content
+    assert "https://github.com/googa27/finite_element_options" in public_content
+    assert "https://github.com/googa27/finite-element-options" not in public_content
+    assert "https://github.com/googa27/django-optimization-app" in public_content
+    assert '"https://github.com/googa27/django-optimization"' not in public_content
+
+
+def test_showcase_service_does_not_publish_unverified_demo_or_doc_urls() -> None:
+    root = Path(__file__).resolve().parents[2]
+    showcase_service = (
+        root / "apps" / "api" / "app" / "services" / "showcase_service.py"
+    ).read_text(encoding="utf-8")
+
+    assert "https://django-optimization.herokuapp.com" not in showcase_service
+    assert "https://django-optimization.readthedocs.io" not in showcase_service
+    assert "https://finite-diff-options.readthedocs.io" not in showcase_service
+    assert 'name="Django Optimization App"' in showcase_service
+    assert "has_live_demo=False" in showcase_service
 
 
 def test_readme_contact_security_caveat_matches_static_contact_page() -> None:

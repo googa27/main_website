@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ast
 import json
 import re
 from pathlib import Path
@@ -34,6 +35,25 @@ def read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 
+def literal_keyword(call: ast.Call, name: str) -> object:
+    for keyword in call.keywords:
+        if keyword.arg == name:
+            return ast.literal_eval(keyword.value)
+    raise AssertionError(f"missing keyword: {name}")
+
+
+def showcase_project_named(project_name: str) -> ast.Call:
+    tree = ast.parse(read_text(SHOWCASE_SERVICE))
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        if not isinstance(node.func, ast.Name) or node.func.id != "ProjectShowcase":
+            continue
+        if literal_keyword(node, "name") == project_name:
+            return node
+    raise AssertionError(f"missing ProjectShowcase record: {project_name}")
+
+
 def test_frontend_project_links_use_existing_repository_slugs() -> None:
     frontend_content = read_text(FRONTEND_CONTENT)
 
@@ -54,12 +74,14 @@ def test_api_project_links_use_existing_repository_slugs() -> None:
 
 def test_showcase_service_does_not_publish_unverified_demo_or_doc_urls() -> None:
     showcase_service = read_text(SHOWCASE_SERVICE)
+    django_project = showcase_project_named("Django Optimization App")
 
     assert "https://django-optimization.herokuapp.com" not in showcase_service
     assert "https://django-optimization.readthedocs.io" not in showcase_service
     assert "https://finite-diff-options.readthedocs.io" not in showcase_service
-    assert 'name="Django Optimization App"' in showcase_service
-    assert "has_live_demo=False" in showcase_service
+    assert literal_keyword(django_project, "has_live_demo") is False
+    assert literal_keyword(django_project, "demo_url") is None
+    assert literal_keyword(django_project, "demo_type") is None
 
 
 def test_public_contact_email_policy_matches_deployment_surfaces() -> None:

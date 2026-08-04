@@ -7,8 +7,9 @@ This service implements a sophisticated scoring algorithm that considers:
 - Recency (20%): Recent updates and active development
 """
 
-from datetime import datetime, timezone
 from typing import Dict, List
+
+from app.core.time import as_utc, utc_now
 from app.models.database import Project as DBProject
 
 
@@ -262,15 +263,9 @@ class ProjectScoringService:
         if not project.updated_at:
             return 0.0
 
-        # Calculate days since last update
-        now = datetime.now(timezone.utc)
-
-        # Handle both naive and aware datetimes
-        if project.updated_at.tzinfo is None:
-            # If database datetime is naive, assume it's UTC
-            updated_at = project.updated_at.replace(tzinfo=timezone.utc)
-        else:
-            updated_at = project.updated_at
+        # UTC clock and legacy-naive normalization share one contract.
+        now = utc_now()
+        updated_at = as_utc(project.updated_at)
 
         days_since_update = (now - updated_at).days
 

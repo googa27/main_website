@@ -1,9 +1,9 @@
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from datetime import datetime
 import json
 
+from app.core.time import utc_now
 from app.models.database import (
     Base,
     Project,  # noqa: F401
@@ -46,8 +46,8 @@ def sample_project_data():
         "forks": 5,
         "topics": json.dumps(["python", "test"]),
         "is_featured": True,
-        "created_at": datetime.utcnow(),
-        "updated_at": datetime.utcnow(),
+        "created_at": utc_now(),
+        "updated_at": utc_now(),
     }
 
 

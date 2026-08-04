@@ -13,8 +13,8 @@ def test_python_security_floors_are_synchronized_across_manifests() -> None:
     dev_requirements = (API / "requirements-dev.txt").read_text(encoding="utf-8")
     pyproject = tomllib.loads((API / "pyproject.toml").read_text(encoding="utf-8"))
 
-    runtime_floors = {"idna==3.15", "Mako==1.3.12"}
-    dev_floors = {"Pygments==2.20.0"}
+    runtime_floors = {"idna==3.18", "Mako==1.3.12", "httpx==0.28.1"}
+    dev_floors = {"Pygments==2.20.0", "httpx2==2.9.1"}
     project_runtime = set(pyproject["project"]["dependencies"])
     project_dev = set(pyproject["project"]["optional-dependencies"]["dev"])
 
@@ -22,6 +22,28 @@ def test_python_security_floors_are_synchronized_across_manifests() -> None:
     assert runtime_floors <= project_runtime
     assert dev_floors <= set(dev_requirements.splitlines())
     assert dev_floors <= project_dev
+
+    runtime_manifest = {
+        line
+        for line in runtime_requirements.splitlines()
+        if line and not line.startswith("#")
+    }
+    dev_manifest = {
+        line
+        for line in dev_requirements.splitlines()
+        if line and not line.startswith(("#", "-r "))
+    }
+    assert runtime_manifest == project_runtime
+    assert dev_manifest == project_dev
+
+
+def test_ci_audits_runtime_and_development_python_dependencies() -> None:
+    workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text(
+        encoding="utf-8"
+    )
+
+    assert "pip-audit -r apps/api/requirements.txt" in workflow
+    assert "pip-audit -r apps/api/requirements-dev.txt" in workflow
 
 
 def test_postcss_security_floor_is_owned_by_override_and_lock() -> None:

@@ -10,10 +10,11 @@ This service handles:
 
 import json
 import logging
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Dict, Optional, Any
 from pathlib import Path
 
+from app.core.time import utc_now
 from app.schemas.cv import (
     CVProfile,
     CVExportRequest,
@@ -70,7 +71,7 @@ class CVService:
                 return LinkedInSyncResponse(
                     success=False,
                     message="LinkedIn service not configured",
-                    last_sync=datetime.now(timezone.utc),
+                    last_sync=utc_now(),
                     data_updated=False,
                     changes=None,
                 )
@@ -84,7 +85,7 @@ class CVService:
                 return LinkedInSyncResponse(
                     success=False,
                     message="Failed to sync from LinkedIn",
-                    last_sync=datetime.now(timezone.utc),
+                    last_sync=utc_now(),
                     data_updated=False,
                     changes=None,
                 )
@@ -111,7 +112,7 @@ class CVService:
                 message="CV synced successfully from LinkedIn",
                 last_sync=datetime.fromisoformat(sync_status["last_sync"])
                 if sync_status["last_sync"]
-                else datetime.now(timezone.utc),
+                else utc_now(),
                 data_updated=bool(changes),
                 changes=changes,
             )
@@ -121,7 +122,7 @@ class CVService:
             return LinkedInSyncResponse(
                 success=False,
                 message=f"Sync failed: {str(e)}",
-                last_sync=datetime.now(timezone.utc),
+                last_sync=utc_now(),
                 data_updated=False,
                 changes=None,
             )
@@ -189,8 +190,7 @@ class CVService:
     ) -> CVExportResponse:
         """Export CV as JSON."""
         try:
-            # Convert to dict with export options
-            export_data = cv_profile.dict()
+            export_data = cv_profile.model_dump()
 
             # Apply export options
             if not request.include_scores:
@@ -238,7 +238,7 @@ class CVService:
             pdf_content = f"""
             CV Export - {cv_profile.personal_info.first_name} {cv_profile.personal_info.last_name}
             Format: PDF
-            Generated: {datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")}
+            Generated: {utc_now().strftime("%Y-%m-%d %H:%M:%S UTC")}
             
             Note: PDF export is not yet implemented.
             Please use JSON or MDX format for now.
@@ -528,7 +528,7 @@ class CVService:
         """Save CV profile to storage."""
         try:
             # Serialize dates for JSON storage
-            cv_data = self._serialize_dates(cv_profile.dict())
+            cv_data = self._serialize_dates(cv_profile.model_dump())
 
             with open(self.cv_data_file, "w", encoding="utf-8") as f:
                 json.dump(cv_data, f, indent=2, ensure_ascii=False)

@@ -1,8 +1,9 @@
 -r requirements.txt
 pytest==9.0.3
 pytest-asyncio==1.4.0
-httpx==0.28.1
+httpx2==2.9.1
 black==26.3.1
 ruff==0.12.9
+mypy==1.17.1
 Pygments==2.20.0
 types-requests==2.32.4.20250809

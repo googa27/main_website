@@ -41,6 +41,17 @@
         ]
       }
     ],
+    "time_contract": {
+      "canonical_zone": "UTC",
+      "generation": "apps/api/app/core/time.py::utc_now returns timezone-aware datetime values",
+      "persistence": "SQLAlchemy UTCDateTime stores normalized UTC and restores timezone metadata on reads, including SQLite and legacy naive rows",
+      "legacy_read_compatibility": "Existing naive database timestamps are interpreted as UTC by the application boundary until an explicit Alembic baseline exists",
+      "forbidden": "datetime.utcnow and newly generated naive timestamps",
+      "fitness_tests": [
+        "apps/api/tests/test_datetime_contracts.py",
+        "apps/api/pytest.ini deprecation warnings as errors"
+      ]
+    },
     "extension_points": [
       "typed public APIs",
       "deterministic CLI/contracts",
@@ -211,6 +222,29 @@
           ".github/workflows/ai-hierarchy-policy.yml",
           "scripts/selftest_ai_hierarchy_policy.py"
         ]
+      },
+      {
+        "capability": "HTTP clients and ASGI test transport",
+        "selected": [
+          "HTTPX 0.28.1 for the runtime GitHub adapter",
+          "HTTPX2 2.9.1 for the development-only Starlette TestClient backend",
+          "IDNA 3.18 shared security-compatible domain processing"
+        ],
+        "alternatives": [
+          "Deprecated Starlette fallback to plain HTTPX",
+          "Requests for ASGI in-process testing"
+        ],
+        "evidence": "https://starlette.dev/testclient and https://pypi.org/project/httpx2/2.9.1/",
+        "adapter_boundary": "HTTPX remains owned by apps/api/app/services/github_service.py; HTTPX2 is restricted to apps/api development tests.",
+        "custom_code_reason": "No custom HTTP transport; maintained clients own runtime and in-process test semantics.",
+        "maintenance_evidence": "https://github.com/pydantic/httpx2/releases/tag/v2.9.1",
+        "api_stability_evidence": "https://httpx2.pydantic.dev/",
+        "license_evidence": "https://raw.githubusercontent.com/pydantic/httpx2/v2.9.1/LICENSE.md",
+        "api_license_evidence": "https://raw.githubusercontent.com/pydantic/httpx2/v2.9.1/LICENSE.md",
+        "oracle_or_reference_tests": [
+          "apps/api/tests/test_datetime_contracts.py::test_starlette_testclient_uses_httpx2",
+          "tests/architecture/test_dependency_security_floors.py"
+        ]
       }
     ]
   },
@@ -267,6 +301,7 @@
     "commands": {
       "setup": "pnpm install --frozen-lockfile && (cd apps/api && python -m pip install -e .[dev])",
       "test": "pnpm test",
+      "api_test": "cd apps/api && python -m pytest",
       "lint": "pnpm run lint",
       "architecture": "python scripts/check_portfolio_architecture.py"
     },
@@ -297,6 +332,7 @@
       "explicit external/social adapters with credential isolation and freshness metadata"
     ],
     "flow": "React-folio resume/source registry -> phone-redacted checked-in copy with intentionally public email -> typed curated public content -> static Next.js pages; optional dynamic adapters remain separately validated.",
+    "timestamp_semantics": "Optional API timestamps are generated as timezone-aware UTC values and declared timezone-aware in SQLAlchemy metadata. Existing naive values remain readable as UTC until a real Alembic baseline and deployment-specific migration exist.",
     "storage_and_replay": "Immutable raw/content-addressed inputs; canonical typed products; idempotent replay by source identity and effective/vintage time where applicable.",
     "quality_and_lineage": "Validate schema, grain, units, classification, lineage, freshness, licence, and content identity before consumption; fail closed on missing evidence."
   },

@@ -13,6 +13,8 @@ import logging
 from datetime import datetime, timezone, timedelta
 from typing import Dict, List, Optional, Any
 import requests
+
+from app.core.time import utc_now
 from app.schemas.cv import (
     CVProfile,
     PersonalInfo,
@@ -57,7 +59,7 @@ class LinkedInService:
         if not self.last_sync:
             return True
 
-        return datetime.now(timezone.utc) - self.last_sync > self.sync_interval
+        return utc_now() - self.last_sync > self.sync_interval
 
     async def sync_profile_data(
         self, force_refresh: bool = False
@@ -81,8 +83,6 @@ class LinkedInService:
 
         try:
             logger.info("Starting LinkedIn profile sync")
-
-            # Fetch profile data
             profile_data = await self._fetch_profile_data()
             if not profile_data:
                 logger.error("Failed to fetch LinkedIn profile data")
@@ -94,8 +94,7 @@ class LinkedInService:
                 logger.error("Failed to transform LinkedIn data to CV profile")
                 return None
 
-            # Update last sync time
-            self.last_sync = datetime.now(timezone.utc)
+            self.last_sync = utc_now()
 
             logger.info("LinkedIn profile sync completed successfully")
             return cv_profile
@@ -210,7 +209,7 @@ class LinkedInService:
                 skills=skills,
                 certifications=certifications,
                 languages=languages,
-                last_updated=datetime.now(timezone.utc),
+                last_updated=utc_now(),
                 linkedin_url=personal_info.linkedin_url,
                 version="1.0",
             )

@@ -11,6 +11,8 @@ This service manages showcase information for key projects:
 import logging
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
+
+from app.core.time import utc_now
 from app.schemas.project import (
     ProjectShowcase,
     ShowcaseProject,
@@ -28,7 +30,7 @@ class ShowcaseService:
     def __init__(self):
         """Initialize the showcase service with key projects."""
         self.showcase_projects = self._initialize_showcase_projects()
-        self.last_updated = datetime.now(timezone.utc)
+        self.last_updated = utc_now()
 
     def _initialize_showcase_projects(self) -> List[ProjectShowcase]:
         """Initialize showcase projects with detailed information."""
@@ -339,7 +341,7 @@ class ShowcaseService:
             if project.project_type == project_type:
                 project.stars = stars
                 project.forks = forks
-                project.last_updated = datetime.now(timezone.utc)
+                project.last_updated = utc_now()
                 logger.info(
                     f"Updated metrics for {project.name}: {stars} stars, {forks} forks"
                 )

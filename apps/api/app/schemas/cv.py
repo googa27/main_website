@@ -13,6 +13,8 @@ from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, HttpUrl, Field, field_validator, ConfigDict
 from enum import Enum
 
+from app.core.time import as_utc, utc_now
+
 
 class SkillLevel(str, Enum):
     """Skill proficiency levels."""
@@ -119,11 +121,10 @@ class Skills(BaseModel):
     def get_all_skills(self) -> List[Skill]:
         """Get all skills as a flat list."""
         all_skills = []
-        for field in self.__fields__.values():
-            if hasattr(self, field.name):
-                skills = getattr(self, field.name)
-                if isinstance(skills, list):
-                    all_skills.extend(skills)
+        for field_name in type(self).model_fields:
+            skills = getattr(self, field_name)
+            if isinstance(skills, list):
+                all_skills.extend(skills)
         return all_skills
 
     def get_skills_by_category(self, category: str) -> List[Skill]:
@@ -183,10 +184,16 @@ class CVProfile(BaseModel):
         default_factory=list, description="Language proficiencies"
     )
     last_updated: datetime = Field(
-        default_factory=datetime.utcnow, description="Last update timestamp"
+        default_factory=utc_now, description="Last update timestamp"
     )
     linkedin_url: HttpUrl = Field(..., description="LinkedIn profile URL")
     version: str = Field(default="1.0", description="CV version")
+
+    @field_validator("last_updated", mode="after")
+    @classmethod
+    def normalize_last_updated(cls, value: datetime) -> datetime:
+        """Normalize supplied and legacy CV timestamps to aware UTC."""
+        return as_utc(value)
 
     model_config = ConfigDict(
         from_attributes=True,

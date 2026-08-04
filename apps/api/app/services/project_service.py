@@ -1,10 +1,10 @@
-from datetime import datetime
 import json
 from typing import List, Optional
 
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
+from app.core.time import utc_now
 from app.models.database import Project
 
 
@@ -56,7 +56,7 @@ class ProjectService:
                         setattr(existing_project, key, json.dumps(value))
                     else:
                         setattr(existing_project, key, value)
-            existing_project.updated_at = datetime.utcnow()
+            existing_project.updated_at = utc_now()
             db.commit()
             return existing_project
         else:

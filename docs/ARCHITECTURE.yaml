@@ -52,6 +52,53 @@
         "apps/api/pytest.ini deprecation warnings as errors"
       ]
     },
+    "dependency_lifecycle_policy": {
+      "package_manager": "pnpm@10.34.5",
+      "denied_packages": {
+        "@tailwindcss/oxide": {
+          "version": "4.1.12",
+          "decision": "deny",
+          "lifecycle_command": "node ./scripts/install.js",
+          "manifest_sha256": "19e31a0bc5fa826d5f4c1a73fa2d7e821e3ed826f86d28987618bc18c0a3a656",
+          "script_sha256": "df8750369bdc91787de5baec99eaaf27b7d8d2952acb25cf1a0b0aa511185b2a"
+        },
+        "unrs-resolver": {
+          "version": "1.11.1",
+          "decision": "deny",
+          "lifecycle_command": "napi-postinstall unrs-resolver 1.11.1 check",
+          "manifest_sha256": "0510c5611b2c4436d12364dff5ddd0f227dacd174cadd62141b226bce1fa4b19",
+          "script_sha256": "2d79f5b3ee7566309a587c267ab8363881f5ebe97a728b0271fb530569b1f356",
+          "support_package": {
+            "name": "napi-postinstall",
+            "version": "0.3.3",
+            "manifest_sha256": "94d75d361fd158062dd3888ca0bd3abc90d67ef0f5f746d4b7b0de9065a384bd",
+            "lib_files": [
+              "lib/cli.js",
+              "lib/constants.js",
+              "lib/fallback.js",
+              "lib/helpers.js",
+              "lib/index.js",
+              "lib/target.js",
+              "lib/types.js"
+            ],
+            "lib_tree_sha256": "f2b5f747776727b0bf13220d49407cd0523d180842a09df3bc2e2f2e9116e3d8",
+            "cli_sha256": "2d79f5b3ee7566309a587c267ab8363881f5ebe97a728b0271fb530569b1f356"
+          }
+        }
+      },
+      "rationale": {
+        "@tailwindcss/oxide": "The postinstall performs an unneeded registry download and archive extraction fallback when the locked optional binary is absent; direct load and production build pass while denied.",
+        "unrs-resolver": "The postinstall can invoke npm or download a native binary fallback; the locked optional binding loads and lint/build pass while denied."
+      },
+      "verification_command": "pnpm run check:dependency-build-policy",
+      "policy_source": "https://pnpm.io/settings#ignoredbuiltdependencies"
+    },
+    "node_runtime_policy": {
+      "managed_runtime": "node@24.19.0",
+      "reason": "Tailwind CSS 4 emits Node DEP0205 under Node 26",
+      "upstream_issue": "https://github.com/tailwindlabs/tailwindcss/issues/19893",
+      "removal_trigger": "upgrade after a stable Tailwind release replaces module.register and the Node 26 strict build is warning-free"
+    },
     "extension_points": [
       "typed public APIs",
       "deterministic CLI/contracts",
@@ -299,10 +346,13 @@
       "architecture"
     ],
     "commands": {
-      "setup": "pnpm install --frozen-lockfile && (cd apps/api && python -m pip install -e .[dev])",
+      "setup": "corepack enable && pnpm install --frozen-lockfile && pnpm run check:dependency-build-policy && (cd apps/api && python -m pip install -e .[dev])",
       "test": "pnpm test",
       "api_test": "cd apps/api && python -m pytest",
       "lint": "pnpm run lint",
+      "typecheck": "pnpm run typecheck",
+      "build": "pnpm run build",
+      "dependency_build_policy": "pnpm run check:dependency-build-policy",
       "architecture": "python scripts/check_portfolio_architecture.py"
     },
     "ci_workflow": ".github/workflows/portfolio-architecture.yml",

@@ -46,6 +46,21 @@ Source of truth: `docs/ARCHITECTURE.yaml`. Tracking: [Project #24](https://githu
 
 This split avoids a risky application-wide HTTP-client migration while removing the deprecation path actually exercised by tests.
 
+### Executive summary: monorepo tooling and lifecycle policy
+
+| Boundary          | Decision                                                                                                 | Why                                                                                                                                                                    | Executable evidence                                   |
+| ----------------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| Package manager   | Pin `pnpm@10.34.5`                                                                                       | Current pnpm 10 maintenance release while preserving the existing lockfile major                                                                                       | `packageManager`; `test_node_tooling_contract.py`     |
+| Script runtime    | Let pnpm download and use `node@24.19.0` through `devEngines.runtime`                                    | Tailwind's current Node adapter emits `DEP0205` under Node 26; Node 24 is a maintained LTS and is warning-free for this build                                          | `pnpm install`; uncached `pnpm build`                 |
+| Oxide fallback    | Deny `@tailwindcss/oxide@4.1.12` postinstall                                                             | The reviewed script performs a registry download and archive extraction only when the locked optional binary is missing; direct load and production build already pass | `pnpm.ignoredBuiltDependencies`; lock/version checker |
+| Resolver fallback | Deny `unrs-resolver@1.11.1` postinstall                                                                  | The reviewed checker can invoke npm or download a native binding; the locked optional binding already loads and lint/build pass                                        | `pnpm.ignoredBuiltDependencies`; lock/version checker |
+| API build         | Remove the echo-only package build task                                                                  | FastAPI is a runtime service and produces no build artifact; claiming a successful build created a Turborepo cache warning and false evidence                          | absence asserted by architecture test                 |
+| GitHub Actions    | Full-SHA pins for checkout v7.0.1, setup-node v7.0.0, setup-python v7.0.0, and pnpm/action-setup v6.0.10 | These reviewed releases use Node 24 internally and eliminate GitHub's Node 20 action-runtime annotation                                                                | architecture test, Pinact, Zizmor, native CI          |
+
+No lifecycle script is silently approved. Future lock changes remain denied by pnpm and fail `pnpm run check:dependency-build-policy` until the exact new version, package manifest, lifecycle entrypoint, support-package implementation, and pending-build state are reviewed.
+
+The Node 26 warning is tracked upstream at https://github.com/tailwindlabs/tailwindcss/issues/19893. Remove the managed Node 24 constraint only after a stable Tailwind release replaces `module.register()` and an uncached Node 26 build is warning-free; do not suppress `DEP0205`.
+
 ### Extension and exception discipline
 
 Probable extensions must cross named ports/capability registries rather than adding sibling modules indefinitely. Every exception is exact, risk-bearing, no-growth, and has a refactoring trigger. Generated/vendor/migration/resource paths are declared explicitly; they do not silently weaken runtime rules.

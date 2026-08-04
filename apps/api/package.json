@@ -10,8 +10,7 @@
     "format": "black .",
     "db:setup": "python scripts/init_db.py",
     "db:migrate": "alembic upgrade head",
-    "db:revision": "alembic revision --autogenerate -m",
-    "build": "echo 'FastAPI app built successfully'"
+    "db:revision": "alembic revision --autogenerate -m"
   },
   "engines": {
     "python": ">=3.12"

@@ -11,6 +11,7 @@
 - `docs/ARCHITECTURE.md` — rationale and extension guidance
 
 <!-- PORTFOLIO-CONSTITUTION:START -->
+
 ## Portfolio engineering constitution
 
 This repository follows [Portfolio Project #24](https://github.com/users/googa27/projects/24) and [main_website rollout issue](https://github.com/googa27/main_website/issues/84). A repository-specific, evidence-backed exception in `docs/ARCHITECTURE.yaml` may specialize a rule; undocumented drift is not an exception.
@@ -54,13 +55,19 @@ After the dependency route is sound, apply SOLID, DRY knowledge ownership, suita
 - `__init__.py` is a compatibility/public facade only: imports, re-exports, `__all__`, metadata, and bounded lazy hooks. Domain classes and business functions belong in cohesive modules.
 - Severe branch concentration is a review trigger, not a command to redistribute files. Fix it only when dependency, churn, ownership, or comprehension evidence shows a bad boundary.
 
-
 ### GitHub Actions supply-chain controls
 
 - Pin every third-party action to a full-length commit SHA; keep the human-readable release in a comment.
 - Declare least-privilege workflow `permissions`; read-only `contents` is the default.
 - Set `persist-credentials: false` on checkout and provide narrowly scoped credentials only to the step that needs mutation.
 - Validate workflow changes with `python scripts/selftest_ai_hierarchy_policy.py`, `pinact run --fix=false --no-api`, and `zizmor --offline --min-severity medium .`.
+
+### Node tooling and dependency lifecycle controls
+
+- `packageManager` pins pnpm 10.34.5; `devEngines.runtime` pins managed Node 24.19.0 for project scripts. Do not bypass the managed runtime with a newer host Node.
+- `@tailwindcss/oxide@4.1.12` and `unrs-resolver@1.11.1` lifecycle scripts are deliberately denied after exact script review. The locked optional native bindings load and the full lint/build matrix passes without network download fallbacks.
+- Run `pnpm run check:dependency-build-policy` after every workspace install. Any lock-version, deny-list, reviewed script-byte, support-package, or pending-build drift fails until the exact new lifecycle path is reviewed.
+- The optional FastAPI package has no build artifact and therefore no placeholder `build` task; root `pnpm build` targets only artifact-producing workspaces.
 
 ### Data and core-repository boundaries
 
@@ -77,12 +84,16 @@ React-folio consolidation evidence lives in `docs/REACT_FOLIO_CONSOLIDATION.md`.
 
 ### Exact commands
 
-- Setup: `pnpm install --frozen-lockfile && (cd apps/api && python -m pip install -e .[dev])`
+- Setup: `corepack enable && pnpm install --frozen-lockfile && pnpm run check:dependency-build-policy && (cd apps/api && python -m pip install -e .[dev])`
 - Tests: `pnpm test`
 - Lint/format: `pnpm run lint`
+- Build: `pnpm run build`
+- Typecheck: `pnpm run typecheck`
+- Dependency build policy: `pnpm run check:dependency-build-policy`
 - Portfolio architecture: `python scripts/check_portfolio_architecture.py`
 - Governance setup: `python3 -m pip install -r requirements-architecture.txt`
 - AI/hierarchy policy: `python3 scripts/check_ai_hierarchy_policy.py`
 
 If a command is declared unavailable, the activation trigger and replacement command belong in `docs/ARCHITECTURE.yaml`; do not fabricate successful output.
+
 <!-- PORTFOLIO-CONSTITUTION:END -->

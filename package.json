@@ -9,8 +9,9 @@
     "format": "turbo format",
     "typecheck": "turbo typecheck",
     "test": "turbo test",
+    "check:dependency-build-policy": "node scripts/check-dependency-build-policy.mjs",
     "clean": "rm -rf .turbo apps/*/.turbo packages/*/.turbo apps/web/out apps/web/.next",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "devDependencies": {
     "@repo/config": "workspace:*",
@@ -26,6 +27,10 @@
     ]
   },
   "pnpm": {
+    "ignoredBuiltDependencies": [
+      "@tailwindcss/oxide",
+      "unrs-resolver"
+    ],
     "overrides": {
       "postcss@<8.5.23": "8.5.23",
       "tar@<=7.5.20": "7.5.21",
@@ -38,5 +43,12 @@
       "brace-expansion@>=4.0.0 <5.0.8": "5.0.9"
     }
   },
-  "packageManager": "pnpm@10.14.0"
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "24.19.0",
+      "onFail": "download"
+    }
+  },
+  "packageManager": "pnpm@10.34.5"
 }

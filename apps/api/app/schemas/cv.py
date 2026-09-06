@@ -60,9 +60,9 @@ class WorkExperience(BaseModel):
     is_current: bool = Field(False, description="Whether this is the current position")
 
     @field_validator("is_current", mode="before")
-    def set_is_current(cls, v, values):
+    def set_is_current(cls, v, info):
         """Automatically set is_current based on end_date."""
-        if "end_date" in values and values["end_date"] is None:
+        if "end_date" in info.data and info.data["end_date"] is None:
             return True
         return v
 

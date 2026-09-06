@@ -384,7 +384,14 @@
     "flow": "React-folio resume/source registry -> phone-redacted checked-in copy with intentionally public email -> typed curated public content -> static Next.js pages; optional dynamic adapters remain separately validated.",
     "timestamp_semantics": "Optional API timestamps are generated as timezone-aware UTC values and declared timezone-aware in SQLAlchemy metadata. Existing naive values remain readable as UTC until a real Alembic baseline and deployment-specific migration exist.",
     "storage_and_replay": "Immutable raw/content-addressed inputs; canonical typed products; idempotent replay by source identity and effective/vintage time where applicable.",
-    "quality_and_lineage": "Validate schema, grain, units, classification, lineage, freshness, licence, and content identity before consumption; fail closed on missing evidence."
+    "quality_and_lineage": "Validate schema, grain, units, classification, lineage, freshness, licence, and content identity before consumption; fail closed on missing evidence.",
+    "profile_content_refresh": {
+      "date": "2026-09-06",
+      "evidence": "Owner confirmation, reconciled LinkedIn/CV timeline and public repositories",
+      "public_fields": "Professional history, public email and profile links; phone and private career preferences omitted",
+      "validation": "JSON parse and API CVProfile validation; current and ended work records retain correct status",
+      "claim_boundaries": "Research plans are not delivery evidence; benchmark is online-only synthetic repository evidence; expired credentials omitted"
+    }
   },
   "governance": {
     "architecture_source": "docs/ARCHITECTURE.yaml",

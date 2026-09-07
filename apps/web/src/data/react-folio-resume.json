@@ -318,22 +318,14 @@
       "highlights": [
         "Explores derivative valuation and sensitivities through numerical PDE methods."
       ],
-      "keywords": [
-        "Python",
-        "Finite differences",
-        "Option pricing"
-      ],
+      "keywords": ["Python", "Finite differences", "Option pricing"],
       "type": "Open-source project"
     },
     {
       "name": "Django Optimisation App",
       "url": "https://github.com/googa27/django-optimization-app",
       "description": "Web application for solving a linear programming problem.",
-      "keywords": [
-        "Python",
-        "Django",
-        "Linear programming"
-      ],
+      "keywords": ["Python", "Django", "Linear programming"],
       "type": "Personal project"
     }
   ],

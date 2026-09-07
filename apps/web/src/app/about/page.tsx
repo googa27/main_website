@@ -127,17 +127,19 @@ export default function AboutPage() {
                 ))}
               </ul>
             </article>
-            <article className="rounded-2xl border bg-white p-5 shadow-sm">
-              <h3 className="mb-3 font-semibold text-slate-950">Volunteer</h3>
-              <ul className="space-y-2 text-sm text-slate-700">
-                {publicResume.volunteer.map((item) => (
-                  <li key={item.organization}>
-                    <span className="font-medium">{item.organization}</span>
-                    {item.role ? ` — ${item.role}` : ""}
-                  </li>
-                ))}
-              </ul>
-            </article>
+            {publicResume.volunteer.length > 0 && (
+              <article className="rounded-2xl border bg-white p-5 shadow-sm">
+                <h3 className="mb-3 font-semibold text-slate-950">Volunteer</h3>
+                <ul className="space-y-2 text-sm text-slate-700">
+                  {publicResume.volunteer.map((item) => (
+                    <li key={item.organization}>
+                      <span className="font-medium">{item.organization}</span>
+                      {item.role ? ` — ${item.role}` : ""}
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            )}
             {publicResume.skills.map((group) => (
               <article
                 key={group.name}

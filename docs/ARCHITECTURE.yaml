@@ -398,7 +398,9 @@
         "removal_trigger": "Remove once the resolved Starlette TestClient uses anyio.from_thread.BlockingPortal"
       },
       "presentation": "Visitor copy foregrounds modelling, evidence and role fit; grouped skills come from the reconciled CV, with foundational tools labelled. No hard-coded additional delivery-stack claims.",
-      "curated_projects": "Finite Element Options leads the public project selection; benchmark scope and experimental boundaries remain explicit. Unverified live-demo link omitted."
+      "curated_projects": "Finite Element Options leads the public project selection; benchmark scope and experimental boundaries remain explicit. Unverified live-demo link omitted.",
+      "review_followup": "Public social links map all four verified accounts; empty volunteer card omitted; education score intentionally omitted from public copy. API projects and awards are typed and survive JSON export. Optional resume chat loads the public CV fixture at startup for prompts and fallback responses; contact details are omitted from the model prompt. Current role is derived from end_date even when is_current is absent.",
+      "date_precision": "Public API profile and chat context preserve an explicit note about month/year precision and placeholder days."
     }
   },
   "governance": {

@@ -57,14 +57,14 @@ class WorkExperience(BaseModel):
     technologies: List[str] = Field(
         default_factory=list, description="Technologies used"
     )
-    is_current: bool = Field(False, description="Whether this is the current position")
+    is_current: bool = Field(
+        False, validate_default=True, description="Whether this is the current position"
+    )
 
     @field_validator("is_current", mode="before")
     def set_is_current(cls, v, info):
         """Automatically set is_current based on end_date."""
-        if "end_date" in info.data and info.data["end_date"] is None:
-            return True
-        return v
+        return info.data.get("end_date") is None
 
 
 class Education(BaseModel):
@@ -168,6 +168,26 @@ class Language(BaseModel):
     speaking: Optional[str] = Field(None, description="Speaking proficiency")
 
 
+class ProfileProject(BaseModel):
+    """Public project evidence, including its stated limitations."""
+
+    name: str
+    url: HttpUrl
+    description: str
+    highlights: List[str] = Field(default_factory=list)
+    keywords: List[str] = Field(default_factory=list)
+    type: Optional[str] = None
+
+
+class ProfileAward(BaseModel):
+    """Award with source date precision preserved."""
+
+    title: str
+    date: Optional[str] = None
+    awarder: Optional[str] = None
+    summary: Optional[str] = None
+
+
 class CVProfile(BaseModel):
     """Complete CV profile with all sections."""
 
@@ -182,6 +202,11 @@ class CVProfile(BaseModel):
     )
     languages: List[Language] = Field(
         default_factory=list, description="Language proficiencies"
+    )
+    projects: List[ProfileProject] = Field(default_factory=list)
+    awards: List[ProfileAward] = Field(default_factory=list)
+    date_precision_note: Optional[str] = Field(
+        None, description="Source date precision and serialization placeholders"
     )
     last_updated: datetime = Field(
         default_factory=utc_now, description="Last update timestamp"

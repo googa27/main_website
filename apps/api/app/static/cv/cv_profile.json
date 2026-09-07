@@ -416,5 +416,6 @@
   ],
   "last_updated": "2026-09-06T00:00:00",
   "version": "2.0",
-  "linkedin_url": "https://www.linkedin.com/in/cristobal-cortinez-duhalde/"
+  "linkedin_url": "https://www.linkedin.com/in/cristobal-cortinez-duhalde/",
+  "date_precision_note": "Career and certificate dates are generally known only to the month; some education dates are known only to the year. Day 01 (and January for year-only dates) is a serialization placeholder, not a verified exact date. Describe these dates at month or year precision."
 }

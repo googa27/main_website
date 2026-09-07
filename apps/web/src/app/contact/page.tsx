@@ -45,27 +45,19 @@ export default function ContactPage() {
       </section>
       <section className="rounded-3xl border bg-white p-8 text-center shadow-sm">
         <h2 className="mb-4 text-2xl font-bold text-slate-950">Profiles</h2>
-        <div className="flex flex-col justify-center gap-3 sm:flex-row">
-          <a
-            href={publicResume.social.github}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-lg border px-6 py-3 font-semibold text-slate-700 transition-colors hover:border-blue-700 hover:text-blue-700"
-          >
-            GitHub
-          </a>
-          <a
-            href={publicResume.social.linkedin}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-lg border px-6 py-3 font-semibold text-slate-700 transition-colors hover:border-blue-700 hover:text-blue-700"
-          >
-            LinkedIn
-          </a>
+        <div className="flex flex-wrap justify-center gap-3">
+          {publicResume.social.map((profile) => (
+            <a
+              key={profile.name}
+              href={profile.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-lg border px-6 py-3 font-semibold text-slate-700 transition-colors hover:border-blue-700 hover:text-blue-700"
+            >
+              {profile.name}
+            </a>
+          ))}
         </div>
-        <p className="mt-5 text-sm text-slate-500">
-          {publicResume.social.evidence}
-        </p>
       </section>
     </div>
   );

@@ -67,6 +67,7 @@ interface SourceResume {
     summary?: string;
     email?: string;
     phone?: string;
+    profiles?: Array<{ network: string; username?: string; url: string }>;
     location?: { general?: string; full?: string; raw?: string };
   };
   work?: Array<{
@@ -178,12 +179,10 @@ export const publicResume = {
       "basics.phone is excluded from the checked-in main_website copy and public renderer",
     ],
   },
-  social: {
-    github: "https://github.com/googa27",
-    linkedin: "https://www.linkedin.com/in/cristobal-cortinez-duhalde",
-    evidence:
-      "Professional background on LinkedIn; source code and project documentation on GitHub.",
-  },
+  social: (resume.basics.profiles ?? []).map((profile) => ({
+    name: profile.network,
+    url: profile.url,
+  })),
 } as const;
 
 export const curatedProjects: PortfolioProject[] = [

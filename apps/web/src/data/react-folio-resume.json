@@ -35,7 +35,7 @@
       "name": "Deloitte",
       "position": "Consultant, Regulatory and Financial Risk",
       "location": "Santiago, Santiago Metropolitan Region, Chile",
-      "summary": "Validate market-risk, credit-risk and AI/ML models, assessing their assumptions, implementation and limitations. Develop machine-learning models for credit-card limit optimisation. Develop PDE-based models for real-estate and mortgage-portfolio haircut estimation. Develop Bayesian expected credit loss models for project finance, corporate debt, private debt and real estate funds under IFRS 9.",
+      "summary": "Develop machine-learning models for credit-card limit optimisation. Develop PDE-based models for real-estate and mortgage-portfolio haircut estimation. Develop Bayesian expected credit loss models for project finance, corporate debt, private debt and real estate funds under IFRS 9. Validate market-risk, credit-risk and AI/ML models, assessing their assumptions, implementation and limitations.",
       "startDate": "2024-03",
       "highlights": [
         "Validate market-risk, credit-risk and AI/ML models, assessing their assumptions, implementation and limitations.",
@@ -132,7 +132,7 @@
     {
       "name": "Pontificia Universidad Católica de Chile",
       "position": "Teaching Assistant, Linear Algebra",
-      "location": "Pontificia Universidad Catolica de Chile",
+      "location": "Santiago, Chile",
       "summary": "Led exercise sessions and marked assessments in linear algebra.",
       "startDate": "2015-03",
       "endDate": "2015-06"
@@ -148,7 +148,7 @@
     {
       "name": "Pontificia Universidad Católica de Chile",
       "position": "Teaching Assistant, Linear Algebra",
-      "location": "Pontificia Universidad Catolica de Chile",
+      "location": "Santiago, Chile",
       "summary": "Led exercise sessions and marked assessments in linear algebra.",
       "startDate": "2014-08",
       "endDate": "2014-11"
@@ -167,8 +167,7 @@
       "studyType": "Ingeniero Civil de Industrias, especialidad en Ingeniería Matemática",
       "area": "Industrial engineering and applied mathematics",
       "startDate": "2013-03",
-      "endDate": "2020-07",
-      "score": "5.6/7"
+      "endDate": "2020-07"
     }
   ],
   "skills": [

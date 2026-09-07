@@ -390,7 +390,13 @@
       "evidence": "Owner confirmation, reconciled LinkedIn/CV timeline and public repositories",
       "public_fields": "Professional history, public email and profile links; phone and private career preferences omitted",
       "validation": "JSON parse and API CVProfile validation; current and ended work records retain correct status",
-      "claim_boundaries": "Research plans are not delivery evidence; benchmark is online-only synthetic repository evidence; expired credentials omitted"
+      "claim_boundaries": "Research plans are not delivery evidence; benchmark is online-only synthetic repository evidence; expired credentials omitted",
+      "test_compatibility_note": {
+        "date": "2026-09-06",
+        "issue": "Starlette 1.6.0 TestClient imports an alias deprecated in AnyIO 4.15; reproducible without project imports",
+        "scope": "Ignore only the exact BlockingPortal alias message from starlette.testclient; all other deprecations remain errors",
+        "removal_trigger": "Remove once the resolved Starlette TestClient uses anyio.from_thread.BlockingPortal"
+      }
     }
   },
   "governance": {

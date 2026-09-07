@@ -21,9 +21,8 @@ export default function ContactPage() {
         </p>
         <h1 className="mb-4 text-4xl font-bold text-slate-950">Get in Touch</h1>
         <p className="mx-auto max-w-2xl text-lg leading-8 text-slate-700">
-          The static site does not submit messages to a backend by default. Use
-          the direct email link for collaboration, data science, ML, or
-          quantitative finance opportunities.
+          Get in touch about data science, applied ML, quantitative development
+          or scientific software opportunities.
         </p>
       </header>
       <section className="rounded-3xl border bg-white p-8 text-center shadow-sm">
@@ -41,8 +40,7 @@ export default function ContactPage() {
           </p>
         )}
         <p className="mt-5 text-sm text-slate-500">
-          No message body is stored by this website; your mail client owns the
-          submission flow.
+          Based in Santiago, Chile. I work in Spanish, English and French.
         </p>
       </section>
       <section className="rounded-3xl border bg-white p-8 text-center shadow-sm">

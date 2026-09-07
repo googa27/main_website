@@ -50,3 +50,9 @@ The canonical site now renders from local typed content:
 - No source repository deletion/archive toggle.
 - No commit, push, Dependabot merge, or GitHub mutation.
 - No migration of generic placeholder assets or unused hero image; the consolidation is content/evidence-first to avoid copying unused assets into the canonical site.
+
+## Profile evidence refresh — 6 September 2026
+
+The curated copy was reconciled with the owner's corrections, LinkedIn timeline and public repositories. It retains 14 roles, two verified education entries, one award, one active certificate and seven grouped skill areas. Duplicate or unsupported credential entries and unrelated hard-coded skill claims were removed. Phone redaction and the intentionally public email remain in place. The source React-folio repository was not changed.
+
+Finite Element Options now leads the project selection, with the synthetic online-only benchmark and experimental boundaries stated explicitly. Public visitor copy describes the work and career focus; internal migration details remain in this document.

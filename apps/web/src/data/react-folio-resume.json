@@ -173,124 +173,65 @@
   ],
   "skills": [
     {
-      "name": "Python"
+      "name": "Python and scientific computing",
+      "keywords": [
+        "Python",
+        "NumPy",
+        "SciPy",
+        "pandas",
+        "Polars",
+        "Matplotlib",
+        "scikit-fem"
+      ]
     },
     {
-      "name": "NumPy"
+      "name": "Machine learning and statistics",
+      "keywords": [
+        "scikit-learn",
+        "PyTorch",
+        "TensorFlow",
+        "Time series",
+        "NLP",
+        "Feature selection",
+        "Model validation",
+        "Bayesian inference"
+      ]
     },
     {
-      "name": "SciPy"
+      "name": "Mathematical modelling",
+      "keywords": [
+        "Partial differential equations",
+        "Finite elements",
+        "Finite differences",
+        "Optimisation",
+        "Stochastic simulation",
+        "Reduced-order modelling"
+      ]
     },
     {
-      "name": "pandas"
+      "name": "Quantitative finance",
+      "keywords": [
+        "Credit risk",
+        "Market risk",
+        "IFRS 9",
+        "Expected credit loss",
+        "Derivatives pricing",
+        "Greeks",
+        "Interest-rate curves"
+      ]
     },
     {
-      "name": "Polars"
+      "name": "Software development",
+      "keywords": ["Git", "Automated testing", "Python packaging", "Streamlit"]
     },
     {
-      "name": "Matplotlib"
+      "name": "Additional working knowledge (foundational)",
+      "level": "Foundational",
+      "keywords": ["SQL", "Django", "REST APIs"]
     },
     {
-      "name": "scikit-fem"
-    },
-    {
-      "name": "scikit-learn"
-    },
-    {
-      "name": "PyTorch"
-    },
-    {
-      "name": "TensorFlow"
-    },
-    {
-      "name": "Time series"
-    },
-    {
-      "name": "NLP"
-    },
-    {
-      "name": "Feature selection"
-    },
-    {
-      "name": "Model validation"
-    },
-    {
-      "name": "Bayesian inference"
-    },
-    {
-      "name": "Partial differential equations"
-    },
-    {
-      "name": "Finite elements"
-    },
-    {
-      "name": "Finite differences"
-    },
-    {
-      "name": "Optimisation"
-    },
-    {
-      "name": "Stochastic simulation"
-    },
-    {
-      "name": "Reduced-order modelling"
-    },
-    {
-      "name": "Credit risk"
-    },
-    {
-      "name": "Market risk"
-    },
-    {
-      "name": "IFRS 9"
-    },
-    {
-      "name": "Expected credit loss"
-    },
-    {
-      "name": "Derivatives pricing"
-    },
-    {
-      "name": "Greeks"
-    },
-    {
-      "name": "Interest-rate curves"
-    },
-    {
-      "name": "Git"
-    },
-    {
-      "name": "Automated testing"
-    },
-    {
-      "name": "Python packaging"
-    },
-    {
-      "name": "Streamlit"
-    },
-    {
-      "name": "SQL"
-    },
-    {
-      "name": "Django"
-    },
-    {
-      "name": "REST APIs"
-    },
-    {
-      "name": "PyMC"
-    },
-    {
-      "name": "ArviZ"
-    },
-    {
-      "name": "JAX"
-    },
-    {
-      "name": "NumPyro"
-    },
-    {
-      "name": "pyMOR"
+      "name": "Recent project use",
+      "keywords": ["PyMC", "ArviZ", "JAX", "NumPyro", "pyMOR"]
     }
   ],
   "projects": [

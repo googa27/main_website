@@ -396,7 +396,9 @@
         "issue": "Starlette 1.6.0 TestClient imports an alias deprecated in AnyIO 4.15; reproducible without project imports",
         "scope": "Ignore only the exact BlockingPortal alias message from starlette.testclient; all other deprecations remain errors",
         "removal_trigger": "Remove once the resolved Starlette TestClient uses anyio.from_thread.BlockingPortal"
-      }
+      },
+      "presentation": "Visitor copy foregrounds modelling, evidence and role fit; grouped skills come from the reconciled CV, with foundational tools labelled. No hard-coded additional delivery-stack claims.",
+      "curated_projects": "Finite Element Options leads the public project selection; benchmark scope and experimental boundaries remain explicit. Unverified live-demo link omitted."
     }
   },
   "governance": {

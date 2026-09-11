@@ -145,7 +145,38 @@
       "issue": "https://github.com/googa27/main_website/issues/113",
       "required_data": "Setuptools explicitly includes app/static/cv/*.json; application and CV public imports work from the installed wheel outside the source tree.",
       "gate": "scripts/check_installed_api.py --python /absolute/path/to/wheel-venv/bin/python; isolated interpreter and temporary cwd; checks public fixture export and contact-redacted AI context.",
-      "generated_files": "Mypy excludes only the root build/ directory created by setuptools; runtime app source remains checked."
+      "generated_files": "Mypy source discovery excludes only the root build/ directory created by Setuptools; existing per-module type coverage is unchanged."
+    },
+    "node_peer_compatibility": {
+      "package_manager_policy": ".npmrc requires strict-peer-dependencies=true",
+      "workspace_split": "UI uses ESLint10 with the shared TypeScript-ESLint parser/plugin; web remains on ESLint9 because the maintained Next React/import/accessibility plugins exclude ESLint10. TypeScript remains5 within parser support.",
+      "evidence": [
+        "https://registry.npmjs.org/@typescript-eslint/parser/8.63.0",
+        "https://registry.npmjs.org/@typescript-eslint/eslint-plugin/8.63.0",
+        "https://github.com/googa27/main_website/pull/89#issuecomment-5638237070",
+        "https://github.com/googa27/main_website/pull/91#issuecomment-5638238178"
+      ],
+      "fitness": "Frozen pnpm install rejects unsupported peer combinations; workspace-specific lint and typecheck verify their public CLI behavior."
+    },
+    "node_security_remediation": {
+      "issue": "https://github.com/googa27/main_website/issues/108",
+      "date": "2026-09-11",
+      "decision": "Pin Next and its ESLint config to 16.3.4; enforce fixed transitive minimums for sharp, baseline-browser-mapping, browserslist, js-yaml and nanoid in pnpm overrides. Retain ESLint 9 and TypeScript 5 within upstream plugin peer support.",
+      "source": "https://github.com/googa27/main_website/actions/runs/34626893359",
+      "validation": "Full lockfile vulnerability scan, frozen install, existing lifecycle policy, frontend lint/typecheck/static export and API/architecture regression gates.",
+      "deployment_boundary": "Static export and unoptimized images remain configured; package vulnerabilities do not alone establish deployment exploitability."
+    },
+    "contact_administration": {
+      "issue": "https://github.com/googa27/main_website/issues/110",
+      "boundary": "FastAPI HTTPBearer dependency gates GET /api/contact/{id} and PUT /api/contact/{id}/read before database access. Public POST submission remains separate.",
+      "secret": "CONTACT_ADMIN_TOKEN is an optional Pydantic SecretStr; missing/empty/short/whitespace-only values fail closed. Operators configure a unique random server-only secret of at least 32 characters, HTTPS and rotation. No insecure default or reuse of SECRET_KEY.",
+      "comparison": "Python secrets.compare_digest over UTF-8 bytes; no token logging or query-string credential.",
+      "scope": "Single-owner contact inbox authorization only; unrelated optional API authorization is not implied.",
+      "fitness_test": "apps/api/tests/test_contact_admin.py",
+      "sources": [
+        "https://fastapi.tiangolo.com/reference/security/#fastapi.security.HTTPBearer",
+        "https://docs.python.org/3/library/secrets.html#secrets.compare_digest"
+      ]
     }
   },
   "source_layout": {

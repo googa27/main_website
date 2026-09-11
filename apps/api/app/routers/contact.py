@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
+from app.core.contact_auth import require_contact_admin
 from app.core.database import get_db
 from app.schemas.contact import ContactCreate, ContactResponse
 from app.services.contact_service import ContactService
@@ -49,7 +50,7 @@ async def submit_contact(
         raise HTTPException(status_code=500, detail=f"Internal server error: {e!s}")
 
 
-@router.get("/contact/{contact_id}")
+@router.get("/contact/{contact_id}", dependencies=[Depends(require_contact_admin)])
 async def get_contact(contact_id: int, db: Session = Depends(get_db)):
     """Get a specific contact (admin only)"""
     try:
@@ -72,7 +73,7 @@ async def get_contact(contact_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=f"Internal server error: {e!s}")
 
 
-@router.put("/contact/{contact_id}/read")
+@router.put("/contact/{contact_id}/read", dependencies=[Depends(require_contact_admin)])
 async def mark_contact_read(contact_id: int, db: Session = Depends(get_db)):
     """Mark a contact as read (admin only)"""
     try:

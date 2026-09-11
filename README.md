@@ -8,7 +8,7 @@ Portfolio monorepo for Cristóbal Cortinez Duhalde, split into a Next.js fronten
 
 | Area             | Implemented today                                                                  | Caveat                                                                                                                  |
 | ---------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| Web app          | Next.js 16.2.11 App Router with Home, About, Projects, Contact pages               | Some content is static in page files.                                                                                   |
+| Web app          | Next.js 16.3.4 App Router with Home, About, Projects, Contact pages               | Some content is static in page files.                                                                                   |
 | API app          | FastAPI app with health, projects, showcase, contact, AI, and CV routers           | Several routes depend on database, SMTP, OpenAI/Ollama, or local static data.                                           |
 | Monorepo tooling | pnpm 10.34.5 workspaces + Turborepo, with managed Node 24.19.0                     | Native dependency fallback scripts are explicitly denied because locked optional binaries pass load/build verification. |
 | Project data     | SQLAlchemy project/contact models, GitHub sync service, hardcoded showcase service | Frontend `Project` interface does not match the `/api/projects` response shape yet.                                     |
@@ -49,7 +49,7 @@ Important caveats:
 
 ### Web (`apps/web`)
 
-- Next.js 16.2.11 App Router.
+- Next.js 16.3.4 App Router.
 - React 19 and TypeScript.
 - Tailwind CSS 4 via PostCSS.
 - Pages:
@@ -224,3 +224,18 @@ coverage and legacy per-module exclusions are unchanged.
 ## License
 
 No root `LICENSE` file is present in this clone. The API package metadata declares MIT, but the repository README should not claim root MIT licensing until a license file is added.
+
+### Optional contact administration
+
+Public contact submission remains anonymous. Reading a saved contact and marking it
+as read require `Authorization: Bearer <token>`. Configure `CONTACT_ADMIN_TOKEN`
+only on the API server using a unique cryptographically random secret of at least
+32 characters, stored in the deployment secret manager. Missing, empty, short or
+whitespace-only configuration disables both administrative routes (503); missing
+or incorrect credentials return 401 before database access.
+
+Use HTTPS for any remote API access. Never place this token in browser code, public
+Next.js environment variables, URL query strings, logs or source control. Rotate it
+by replacing the server-side secret and restarting the API. This single-owner
+boundary is scoped to the contact inbox; it does not provide user accounts, roles
+or authorization for unrelated optional API routes. `SECRET_KEY` is not reused.

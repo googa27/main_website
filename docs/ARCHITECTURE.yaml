@@ -274,20 +274,20 @@
         "capability": "HTTP clients and ASGI test transport",
         "selected": [
           "HTTPX 0.28.1 for the runtime GitHub adapter",
-          "HTTPX2 2.9.1 for the development-only Starlette TestClient backend",
+          "HTTPX2 2.12.0 for the development-only Starlette TestClient backend",
           "IDNA 3.18 shared security-compatible domain processing"
         ],
         "alternatives": [
           "Deprecated Starlette fallback to plain HTTPX",
           "Requests for ASGI in-process testing"
         ],
-        "evidence": "https://starlette.dev/testclient and https://pypi.org/project/httpx2/2.9.1/",
+        "evidence": "https://starlette.dev/testclient and https://pypi.org/project/httpx2/2.12.0/",
         "adapter_boundary": "HTTPX remains owned by apps/api/app/services/github_service.py; HTTPX2 is restricted to apps/api development tests.",
         "custom_code_reason": "No custom HTTP transport; maintained clients own runtime and in-process test semantics.",
-        "maintenance_evidence": "https://github.com/pydantic/httpx2/releases/tag/v2.9.1",
+        "maintenance_evidence": "https://github.com/pydantic/httpx2/releases/tag/v2.12.0",
         "api_stability_evidence": "https://httpx2.pydantic.dev/",
-        "license_evidence": "https://raw.githubusercontent.com/pydantic/httpx2/v2.9.1/LICENSE.md",
-        "api_license_evidence": "https://raw.githubusercontent.com/pydantic/httpx2/v2.9.1/LICENSE.md",
+        "license_evidence": "https://raw.githubusercontent.com/pydantic/httpx2/v2.12.0/LICENSE.md",
+        "api_license_evidence": "https://raw.githubusercontent.com/pydantic/httpx2/v2.12.0/LICENSE.md",
         "oracle_or_reference_tests": [
           "apps/api/tests/test_datetime_contracts.py::test_starlette_testclient_uses_httpx2",
           "tests/architecture/test_dependency_security_floors.py"

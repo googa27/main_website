@@ -8,7 +8,7 @@ Portfolio monorepo for Cristóbal Cortinez Duhalde, split into a Next.js fronten
 
 | Area             | Implemented today                                                                  | Caveat                                                                                                                  |
 | ---------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| Web app          | Next.js 16.2.11 App Router with Home, About, Projects, Contact pages               | Some content is static in page files.                                                                                   |
+| Web app          | Next.js 16.3.4 App Router with Home, About, Projects, Contact pages               | Some content is static in page files.                                                                                   |
 | API app          | FastAPI app with health, projects, showcase, contact, AI, and CV routers           | Several routes depend on database, SMTP, OpenAI/Ollama, or local static data.                                           |
 | Monorepo tooling | pnpm 10.34.5 workspaces + Turborepo, with managed Node 24.19.0                     | Native dependency fallback scripts are explicitly denied because locked optional binaries pass load/build verification. |
 | Project data     | SQLAlchemy project/contact models, GitHub sync service, hardcoded showcase service | Frontend `Project` interface does not match the `/api/projects` response shape yet.                                     |
@@ -49,7 +49,7 @@ Important caveats:
 
 ### Web (`apps/web`)
 
-- Next.js 16.2.11 App Router.
+- Next.js 16.3.4 App Router.
 - React 19 and TypeScript.
 - Tailwind CSS 4 via PostCSS.
 - Pages:

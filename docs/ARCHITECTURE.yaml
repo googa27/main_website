@@ -111,7 +111,11 @@
       "modules": {
         "service": "Provider orchestration, response contracts and serialized cache transactions",
         "storage": "Typed JSON read and atomic replacement",
-        "rendering": "Pure existing MDX rendering"
+        "rendering": "Pure existing MDX rendering",
+        "resume": "Typed offline-schema JSON Resume projection",
+        "pdf": "Optional escaped text-only PDF rendering",
+        "projects": "Pure curated project fallback projection",
+        "export": "Deterministic CLI with explicit atomic output writes"
       },
       "concurrency": "Thread-backed read/merge/write/cache transactions share one per-service RLock. Cancellation after scheduling may complete an atomic transaction, but cannot leave cache and disk published out of order. Provider HTTP remains outside this lock.",
       "limits": "Each new CV module must stay below the normal 500-line ceiling; service-level fanout is unchanged by replacing one file with one package."
@@ -184,6 +188,32 @@
       "compatibility": "LinkedInService.sync_profile_data keeps direct-call completion by default; keyword-only defer_completion=True is for persistence owners that subsequently call mark_sync_completed.",
       "concurrency": "A provider lock publishes monotonically increasing completion timestamps and snapshots status consistently. Failed or cancelled-before-commit requests do not roll back another success. A scheduled cancelled worker may still commit and acknowledge together.",
       "fitness": "apps/api/tests/test_cv_retry.py covers actual provider retry, successful throttle, direct-call compatibility, acquisition cancellation, successful/failed cancelled storage, older concurrent failure and backward concurrent clocks."
+    },
+    "public_cv_exports": {
+      "issue": "https://github.com/googa27/main_website/issues/116",
+      "owners": {
+        "schemas": "app.schemas.resume",
+        "projection": "app.services.cv.resume",
+        "pdf": "app.services.cv.pdf",
+        "curated_projects": "app.services.cv.projects",
+        "cli": "app.services.cv.export"
+      },
+      "authority": "Current CVProfile only; no second resume source. Static React-folio content and redacted chatbot remain separate existing consumers.",
+      "jsonresume_schema": "@jsonresume/schema1.3.1, offline vendored MIT resource; SHA256 recorded in docs/CV_EXPORTS.md",
+      "boundaries": [
+        "Typed pure projection; explicit conservative month/year export precision and preserved source precision note",
+        "Optional PDF lazy import, packaged font, escaped text only, no network assets or arbitrary templates",
+        "Read-only curated project fallback, deterministic featured/priority order, explicit unavailable metrics",
+        "API routes compose service ports; static preview cannot require backend at build time"
+      ],
+      "fitness_tests": [
+        "apps/api/tests/test_public_cv_exports.py",
+        "apps/api/tests/test_project_fallback.py",
+        "tests/architecture/test_public_cv_exports.py"
+      ],
+      "optional_dependency": "portfolio-api[pdf] owns ReportLab; core JSON Resume projection must work without it",
+      "schema_sha256": "a07eedd3d86ac5bb61d72e136d788269e35baf42c35391e15d0be39b3dc5a4bd",
+      "cli": "portfolio-cv --capabilities; portfolio-cv --format jsonresume; portfolio-cv --format pdf --output ./resume.pdf"
     }
   },
   "source_layout": {
@@ -200,7 +230,9 @@
     ],
     "allowed_non_python_files": [
       "apps/api/app/static/README.md",
-      "apps/api/app/static/cv/cv_profile.json"
+      "apps/api/app/static/cv/cv_profile.json",
+      "apps/api/app/static/schemas/jsonresume-1.3.1.json",
+      "apps/api/app/static/schemas/JSONRESUME-LICENSE.md"
     ],
     "future_rule": "Any new Python package uses a src layout unless an evidence-backed exception is approved.",
     "hierarchy_policy": {

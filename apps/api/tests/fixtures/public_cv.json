@@ -1,0 +1,80 @@
+{
+  "personal_info": {
+    "first_name": "Éva",
+    "last_name": "Example",
+    "email": "eva@example.test",
+    "location": "Example City",
+    "linkedin_url": "https://example.test/profile",
+    "summary": "Synthetic quantitative research.",
+    "github_url": "https://example.test/code"
+  },
+  "experience": [
+    {
+      "company": "Example Company",
+      "position": "Researcher",
+      "location": "Example City",
+      "start_date": "2024-03-01",
+      "description": "Bounded synthetic evidence.",
+      "achievements": [
+        "Published a tested prototype."
+      ],
+      "technologies": [
+        "Python"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "institution": "École Example",
+      "degree": "MSc",
+      "field_of_study": "Mathematics",
+      "start_date": "2020-01-01",
+      "end_date": "2022-01-01"
+    }
+  ],
+  "skills": {
+    "programming_languages": [
+      {
+        "name": "Python",
+        "level": "advanced",
+        "category": "Programming"
+      }
+    ]
+  },
+  "certifications": [
+    {
+      "name": "Example Certificate",
+      "issuing_organization": "Example Institute",
+      "issue_date": "2024-01-01"
+    }
+  ],
+  "languages": [
+    {
+      "name": "Spanish",
+      "proficiency": "Fluent"
+    }
+  ],
+  "projects": [
+    {
+      "name": "Baseline",
+      "url": "https://example.test/baseline",
+      "description": "Synthetic-only numerical study.",
+      "highlights": [
+        "Not calibrated or deployed."
+      ],
+      "keywords": [
+        "Python"
+      ]
+    }
+  ],
+  "awards": [
+    {
+      "title": "Example Award",
+      "date": "2024-02",
+      "awarder": "Example Institute"
+    }
+  ],
+  "last_updated": "2026-01-01T00:00:00Z",
+  "linkedin_url": "https://example.test/profile",
+  "date_precision_note": "Day01 represents month/year serialization placeholders."
+}

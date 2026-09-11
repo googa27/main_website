@@ -176,6 +176,8 @@ class ProfileProject(BaseModel):
     highlights: list[str] = Field(default_factory=list)
     keywords: list[str] = Field(default_factory=list)
     type: str | None = None
+    is_featured: bool = False
+    display_priority: int | None = Field(None, ge=0)
 
 
 class ProfileAward(BaseModel):
@@ -260,6 +262,10 @@ class CVExportResponse(BaseModel):
 
     format: str = Field(..., description="Export format")
     download_url: HttpUrl | None = Field(None, description="Download URL for file")
+    download_path: str | None = Field(
+        None,
+        description="Same-origin API download path when a binary export is available",
+    )
     content: str | None = Field(None, description="Content for inline display")
     file_size: int | None = Field(None, description="File size in bytes")
     expires_at: datetime | None = Field(

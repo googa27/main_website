@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { publicResume } from "@/lib/content";
 
 export const metadata: Metadata = {
@@ -25,6 +26,14 @@ export default function AboutPage() {
         </p>
         <p className="mt-4 text-sm text-slate-500">
           {publicResume.basics.location}
+        </p>
+        <p className="mt-4 text-sm print:hidden">
+          <Link
+            href="/cv/preview"
+            className="text-blue-700 underline underline-offset-4"
+          >
+            CV preview and downloads
+          </Link>
         </p>
       </header>
 

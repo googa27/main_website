@@ -3,7 +3,7 @@ name = "portfolio-api"
 version = "0.1.0"
 description = "FastAPI backend service for the portfolio website"
 authors = [{ name = "Portfolio Maintainers" }]
-license = {text = "MIT"}
+license = "MIT"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi==0.139.0",
@@ -22,9 +22,11 @@ dependencies = [
     "Mako==1.3.12",
     "aiohttp==3.14.3",
     "httpx==0.28.1",
+    "jsonschema==4.26.0",
 ]
 
 [project.optional-dependencies]
+pdf = ["reportlab==5.0.1"]
 dev = [
     "pytest==9.1.1",
     "pytest-asyncio==1.4.0",
@@ -34,10 +36,14 @@ dev = [
     "Pygments==2.20.0",
     "types-requests==2.32.4.20250809",
     "mypy==1.17.1",
+    "pypdf==6.18.1",
 ]
 
+[project.scripts]
+portfolio-cv = "app.services.cv.export:main"
+
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=77.0.3"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
@@ -58,4 +64,4 @@ extend-immutable-calls = ["fastapi.Depends"]
 "app/schemas/project.py" = ["UP042"]
 
 [tool.setuptools.package-data]
-app = ["static/cv/*.json"]
+app = ["static/cv/*.json", "static/schemas/*.json", "static/schemas/*.md"]

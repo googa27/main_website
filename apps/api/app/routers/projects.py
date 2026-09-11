@@ -1,10 +1,14 @@
 import json
+from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.schemas.project import Project, ProjectList, ShowcaseResponse
+from app.services.cv import cv_service
+from app.services.cv.projects import curated_project_page
 from app.services.github_service import GitHubService
 from app.services.project_service import ProjectService
 from app.services.scoring import scoring_service
@@ -15,13 +19,26 @@ github_service = GitHubService()
 
 
 @router.get("/projects", response_model=ProjectList)
-async def get_projects(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    """Get all projects from database with intelligent ordering"""
+async def get_projects(
+    skip: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=100)] = 100,
+    db: Session = Depends(get_db),
+):
+    """Read a stable database page or an explicit curated fallback without sync."""
     try:
-        projects = ProjectService.get_all_projects(db, skip, limit)
+        try:
+            total = ProjectService.count_projects(db)
+            projects = ProjectService.get_all_projects(db, skip, limit) if total else []
+        except SQLAlchemyError:
+            total, projects = 0, []
+
+        if total == 0:
+            profile = await cv_service.get_current_cv()
+            return curated_project_page(profile, skip=skip, limit=limit)
 
         # Sort projects by intelligent scoring algorithm
         sorted_projects = scoring_service.sort_projects_by_score(projects)
+        sorted_projects.sort(key=lambda project: not bool(project.is_featured))
 
         # Transform database models to Pydantic models
         project_list = []
@@ -36,10 +53,11 @@ async def get_projects(skip: int = 0, limit: int = 100, db: Session = Depends(ge
                 "forks": project.forks,
                 "topics": json.loads(project.topics) if project.topics else [],
                 "updated_at": project.updated_at,
+                "is_featured": bool(project.is_featured),
             }
             project_list.append(Project(**project_data))
 
-        return ProjectList(projects=project_list, total=len(project_list))
+        return ProjectList(projects=project_list, total=total)
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: {e!s}")

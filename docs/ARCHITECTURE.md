@@ -67,3 +67,9 @@ The Node 26 warning is tracked upstream at https://github.com/tailwindlabs/tailw
 Probable extensions must cross named ports/capability registries rather than adding sibling modules indefinitely. Every exception is exact, risk-bearing, no-growth, and has a refactoring trigger. Generated/vendor/migration/resource paths are declared explicitly; they do not silently weaken runtime rules.
 
 <!-- PORTFOLIO-CONSTITUTION:END -->
+
+### CV sync persistence
+
+LinkedIn sync preserves curated `projects`, `awards` and `date_precision_note` when the typed provider profile omits those fields. An explicitly supplied empty list or null replaces that section; Pydantic's `model_fields_set` defines this distinction. The merge creates a newly validated profile and leaves the provider object unchanged.
+
+The existing Pydantic serializer/validator owns URL, enum and date conversion ([serialization](https://docs.pydantic.dev/latest/concepts/serialization/), [model validation](https://docs.pydantic.dev/latest/concepts/models/)). Generic recursive date guessing is removed so date-looking text stays text. CVService serializes the full profile before writing a same-directory temporary file, then atomically replaces storage. Failed persistence retains the previous file and cache and returns a failed sync. Offline tests in `apps/api/tests/test_cv_sync.py` verify omitted/explicit fields, typed storage roundtrip and failed replacement; [#107](https://github.com/googa27/main_website/issues/107) tracks this correction.

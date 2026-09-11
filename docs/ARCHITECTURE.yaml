@@ -523,5 +523,15 @@
       "accepted_ceiling": 584,
       "refactoring_trigger": "Any new CV behavior must extract smaller parser/normalizer/output modules or keep the line count at/below this ceiling."
     }
-  ]
+  ],
+  "cv_sync_contract": {
+    "preserve_when_omitted": [
+      "projects",
+      "awards",
+      "date_precision_note"
+    ],
+    "explicit_empty_policy": "Provider fields explicitly supplied through CVProfile.model_fields_set replace curated values.",
+    "storage": "Pydantic typed JSON serialized before same-directory temporary write and atomic replacement; failed persistence retains prior file/cache.",
+    "fitness_test": "apps/api/tests/test_cv_sync.py"
+  }
 }

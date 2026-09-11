@@ -10,6 +10,7 @@ This service handles:
 
 import json
 import logging
+from tempfile import NamedTemporaryFile
 from datetime import datetime
 from typing import Dict, Optional, Any
 from pathlib import Path
@@ -92,6 +93,16 @@ class CVService:
 
             # Compare with current profile to detect changes
             current_profile = await self.get_current_cv()
+            if current_profile:
+                omitted = {
+                    "projects",
+                    "awards",
+                    "date_precision_note",
+                } - cv_profile.model_fields_set
+                preserved = current_profile.model_dump(include=omitted)
+                cv_profile = CVProfile.model_validate(
+                    cv_profile.model_dump() | preserved
+                )
             changes = (
                 self._detect_changes(current_profile, cv_profile)
                 if current_profile
@@ -99,7 +110,8 @@ class CVService:
             )
 
             # Save new profile
-            await self._save_cv_to_storage(cv_profile)
+            if not await self._save_cv_to_storage(cv_profile):
+                raise OSError("CV storage update failed")
             self._current_profile = cv_profile
 
             # Update sync status
@@ -513,10 +525,7 @@ class CVService:
             with open(self.cv_data_file, "r", encoding="utf-8") as f:
                 cv_data = json.load(f)
 
-            # Convert dates back to datetime objects
-            cv_data = self._deserialize_dates(cv_data)
-
-            cv_profile = CVProfile(**cv_data)
+            cv_profile = CVProfile.model_validate(cv_data)
             logger.info("CV profile loaded from storage")
             return cv_profile
 
@@ -525,46 +534,24 @@ class CVService:
             return None
 
     async def _save_cv_to_storage(self, cv_profile: CVProfile) -> bool:
-        """Save CV profile to storage."""
+        """Atomically persist typed JSON, retaining the previous file on failure."""
+        temporary_path: Optional[Path] = None
         try:
-            # Serialize dates for JSON storage
-            cv_data = self._serialize_dates(cv_profile.model_dump())
-
-            with open(self.cv_data_file, "w", encoding="utf-8") as f:
-                json.dump(cv_data, f, indent=2, ensure_ascii=False)
-
+            content = cv_profile.model_dump_json(indent=2)
+            with NamedTemporaryFile(
+                mode="w", encoding="utf-8", dir=self.cv_data_dir, delete=False
+            ) as temporary:
+                temporary_path = Path(temporary.name)
+                temporary.write(content)
+            temporary_path.replace(self.cv_data_file)
             logger.info("CV profile saved to storage")
             return True
-
         except Exception as e:
             logger.error(f"Error saving CV to storage: {str(e)}")
             return False
-
-    def _serialize_dates(self, data: Any) -> Any:
-        """Serialize datetime objects to ISO strings for JSON storage."""
-        if isinstance(data, dict):
-            return {key: self._serialize_dates(value) for key, value in data.items()}
-        elif isinstance(data, list):
-            return [self._serialize_dates(item) for item in data]
-        elif isinstance(data, datetime):
-            return data.isoformat()
-        else:
-            return data
-
-    def _deserialize_dates(self, data: Any) -> Any:
-        """Deserialize ISO date strings back to datetime objects."""
-        if isinstance(data, dict):
-            return {key: self._deserialize_dates(value) for key, value in data.items()}
-        elif isinstance(data, list):
-            return [self._deserialize_dates(item) for item in data]
-        elif isinstance(data, str):
-            # Try to parse as ISO date
-            try:
-                return datetime.fromisoformat(data.replace("Z", "+00:00"))
-            except ValueError:
-                return data
-        else:
-            return data
+        finally:
+            if temporary_path is not None:
+                temporary_path.unlink(missing_ok=True)
 
     def get_sync_status(self) -> Dict[str, Any]:
         """Get CV sync status."""

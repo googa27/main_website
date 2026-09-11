@@ -69,6 +69,12 @@ def test_pdf_stays_optional_and_profile_audit_includes_it():
     workflow = (ROOT / ".github/workflows/ci.yml").read_text()
     assert 'pip install -e ".[dev,pdf]"' in workflow
     assert "pip-audit -r apps/api/requirements-pdf.txt" in workflow
+    setup = next(
+        line
+        for line in (ROOT / "AGENTS.md").read_text().splitlines()
+        if line.startswith("- Setup:")
+    )
+    assert "'[dev,pdf]'" in setup or "'.[dev,pdf]'" in setup
 
 
 def test_preview_composes_current_static_cv_without_build_time_provider_calls():

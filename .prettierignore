@@ -1,0 +1,3 @@
+# Machine-owned formats: preserve JSON-subset architecture and pnpm canonical lock output.
+docs/ARCHITECTURE.yaml
+pnpm-lock.yaml

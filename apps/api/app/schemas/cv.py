@@ -13,6 +13,8 @@ from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, HttpUrl, Field, field_validator, ConfigDict
 from enum import Enum
 
+from app.core.time import as_utc, utc_now
+
 
 class SkillLevel(str, Enum):
     """Skill proficiency levels."""
@@ -55,14 +57,14 @@ class WorkExperience(BaseModel):
     technologies: List[str] = Field(
         default_factory=list, description="Technologies used"
     )
-    is_current: bool = Field(False, description="Whether this is the current position")
+    is_current: bool = Field(
+        False, validate_default=True, description="Whether this is the current position"
+    )
 
     @field_validator("is_current", mode="before")
-    def set_is_current(cls, v, values):
+    def set_is_current(cls, v, info):
         """Automatically set is_current based on end_date."""
-        if "end_date" in values and values["end_date"] is None:
-            return True
-        return v
+        return info.data.get("end_date") is None
 
 
 class Education(BaseModel):
@@ -119,11 +121,10 @@ class Skills(BaseModel):
     def get_all_skills(self) -> List[Skill]:
         """Get all skills as a flat list."""
         all_skills = []
-        for field in self.__fields__.values():
-            if hasattr(self, field.name):
-                skills = getattr(self, field.name)
-                if isinstance(skills, list):
-                    all_skills.extend(skills)
+        for field_name in type(self).model_fields:
+            skills = getattr(self, field_name)
+            if isinstance(skills, list):
+                all_skills.extend(skills)
         return all_skills
 
     def get_skills_by_category(self, category: str) -> List[Skill]:
@@ -167,6 +168,26 @@ class Language(BaseModel):
     speaking: Optional[str] = Field(None, description="Speaking proficiency")
 
 
+class ProfileProject(BaseModel):
+    """Public project evidence, including its stated limitations."""
+
+    name: str
+    url: HttpUrl
+    description: str
+    highlights: List[str] = Field(default_factory=list)
+    keywords: List[str] = Field(default_factory=list)
+    type: Optional[str] = None
+
+
+class ProfileAward(BaseModel):
+    """Award with source date precision preserved."""
+
+    title: str
+    date: Optional[str] = None
+    awarder: Optional[str] = None
+    summary: Optional[str] = None
+
+
 class CVProfile(BaseModel):
     """Complete CV profile with all sections."""
 
@@ -182,11 +203,22 @@ class CVProfile(BaseModel):
     languages: List[Language] = Field(
         default_factory=list, description="Language proficiencies"
     )
+    projects: List[ProfileProject] = Field(default_factory=list)
+    awards: List[ProfileAward] = Field(default_factory=list)
+    date_precision_note: Optional[str] = Field(
+        None, description="Source date precision and serialization placeholders"
+    )
     last_updated: datetime = Field(
-        default_factory=datetime.utcnow, description="Last update timestamp"
+        default_factory=utc_now, description="Last update timestamp"
     )
     linkedin_url: HttpUrl = Field(..., description="LinkedIn profile URL")
     version: str = Field(default="1.0", description="CV version")
+
+    @field_validator("last_updated", mode="after")
+    @classmethod
+    def normalize_last_updated(cls, value: datetime) -> datetime:
+        """Normalize supplied and legacy CV timestamps to aware UTC."""
+        return as_utc(value)
 
     model_config = ConfigDict(
         from_attributes=True,

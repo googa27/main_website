@@ -1,4 +1,7 @@
+from datetime import UTC
+
 from app.services.github_service import GitHubService
+from app.services.project_service import ProjectService
 
 
 class TestGitHubService:
@@ -24,8 +27,8 @@ class TestGitHubService:
         topics = []
         assert service._is_featured_repo(repo_data, topics) is False
 
-    def test_repo_data_transformation(self):
-        """Test repository data transformation."""
+    def test_repo_data_transformation(self, db_session):
+        """GitHub timestamps become persistable aware UTC values."""
         service = GitHubService()
 
         repo_data = {
@@ -47,3 +50,9 @@ class TestGitHubService:
         assert transformed["name"] == "test-project"
         assert transformed["topics"] == ["python", "test"]
         assert transformed["is_featured"] is True
+        assert transformed["created_at"].tzinfo is UTC
+        assert transformed["updated_at"].tzinfo is UTC
+
+        project = ProjectService.create_or_update_project(db_session, transformed)
+        assert project.created_at.tzinfo is UTC
+        assert project.updated_at.tzinfo is UTC

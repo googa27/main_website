@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import declarative_base, relationship
-from datetime import datetime
+
+from app.core.time import UTCDateTime, utc_now
 
 Base = declarative_base()
 
@@ -20,8 +21,8 @@ class Project(Base):
     forks = Column(Integer, default=0)
     topics = Column(Text)  # JSON string of topics
     is_featured = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(UTCDateTime(), default=utc_now)
+    updated_at = Column(UTCDateTime(), default=utc_now, onupdate=utc_now)
 
 
 class Contact(Base):
@@ -35,7 +36,7 @@ class Contact(Base):
     message = Column(Text, nullable=False)
     ip_address = Column(String(45))  # IPv6 compatible
     user_agent = Column(Text)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(UTCDateTime(), default=utc_now)
     is_read = Column(Boolean, default=False)
 
 
@@ -48,8 +49,8 @@ class ChatSession(Base):
     session_id = Column(String(255), unique=True, index=True)
     ip_address = Column(String(45))
     user_agent = Column(Text)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    last_activity = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(UTCDateTime(), default=utc_now)
+    last_activity = Column(UTCDateTime(), default=utc_now, onupdate=utc_now)
 
     # Relationship to messages
     messages = relationship("ChatMessage", back_populates="session")
@@ -64,7 +65,7 @@ class ChatMessage(Base):
     session_id = Column(Integer, ForeignKey("chat_sessions.id"))
     role = Column(String(50), nullable=False)  # 'user' or 'assistant'
     content = Column(Text, nullable=False)
-    timestamp = Column(DateTime, default=datetime.utcnow)
+    timestamp = Column(UTCDateTime(), default=utc_now)
 
     # Relationship to session
     session = relationship("ChatSession", back_populates="messages")
@@ -78,5 +79,5 @@ class CVDownload(Base):
     id = Column(Integer, primary_key=True, index=True)
     ip_address = Column(String(45))
     user_agent = Column(Text)
-    download_date = Column(DateTime, default=datetime.utcnow)
+    download_date = Column(UTCDateTime(), default=utc_now)
     referrer = Column(String(500))  # Where they came from

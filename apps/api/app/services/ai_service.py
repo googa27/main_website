@@ -9,6 +9,7 @@ This service provides:
 
 import asyncio
 import logging
+from pathlib import Path
 import aiohttp
 from typing import List, Optional, Dict, Any
 from app.schemas.ai import (
@@ -18,6 +19,7 @@ from app.schemas.ai import (
     VisualizationResponse,
 )
 from app.core.config import settings
+from app.schemas.cv import CVProfile
 
 logger = logging.getLogger(__name__)
 
@@ -31,42 +33,23 @@ class LocalAIService:
             settings, "OLLAMA_BASE_URL", "http://localhost:11434"
         )
         self.default_model = getattr(settings, "OLLAMA_DEFAULT_MODEL", "llama2:7b")
+        # This optional service uses the same public fixture as the CV endpoint.
+        # Load at startup; restart the service after a checked-in profile refresh.
+        profile_path = Path(__file__).resolve().parents[1] / "static/cv/cv_profile.json"
+        self.profile = CVProfile.model_validate_json(
+            profile_path.read_text(encoding="utf-8")
+        )
         self.cv_context = self._load_cv_context()
 
     def _load_cv_context(self) -> str:
-        """Load CV context for AI responses."""
-        return """
-        Cristobal Cortinez Duhalde is a Data Scientist and ML Engineer with expertise in:
-        
-        EDUCATION:
-        - MSc in Applied Mathematics from Universidad de Chile (2019-2021)
-        - BSc in Mathematics from Universidad de Chile (2015-2019)
-        
-        EXPERIENCE:
-        - Senior Data Scientist at Quantitative Finance Solutions (2023-present)
-        - ML Engineer at Machine Learning Consulting (2022-2022)
-        - Quantitative Developer at Financial Technology Startup (2021-2022)
-        
-        SKILLS:
-        - Programming: Python (expert), C++ (advanced), JavaScript/TypeScript (intermediate)
-        - ML/AI: TensorFlow, PyTorch, Scikit-learn, MLflow (expert to advanced)
-        - Mathematical: PDE methods, finite difference/element methods, optimization (expert)
-        - Tools: Docker, AWS, PostgreSQL, Redis, Git (advanced to intermediate)
-        
-        PROJECTS:
-        - Finite difference option pricing library with PDE methods
-        - Django optimization app for linear programming
-        - ML pipelines for financial risk assessment
-        - Real-time risk calculation engines
-        
-        SPECIALIZATIONS:
-        - Quantitative finance and derivatives pricing
-        - Machine learning and MLOps
-        - Numerical methods and mathematical modeling
-        - Financial risk management
-        """
+        """Use validated career data, excluding contact details from the prompt."""
+        return self.profile.model_dump_json(
+            exclude={"personal_info": {"phone", "email", "profile_picture_url"}}
+        )
 
-    async def _call_ollama(self, prompt: str, model: str = None) -> str:
+    async def _call_ollama(
+        self, prompt: str, model: str = None, *, question: Optional[str] = None
+    ) -> str:
         """Call Ollama API for text generation."""
         if model is None:
             model = self.default_model
@@ -91,39 +74,50 @@ class LocalAIService:
                         )
                     else:
                         logger.error(f"Ollama API error: {response.status}")
-                        return self._fallback_response(prompt)
+                        return self._fallback_response(
+                            question if question is not None else prompt
+                        )
 
         except asyncio.TimeoutError:
             logger.warning("Ollama API timeout, using fallback")
-            return self._fallback_response(prompt)
+            return self._fallback_response(question if question is not None else prompt)
         except Exception as e:
             logger.error(f"Error calling Ollama: {str(e)}")
-            return self._fallback_response(prompt)
+            return self._fallback_response(question if question is not None else prompt)
 
     def _fallback_response(self, prompt: str) -> str:
-        """Fallback response when Ollama is not available."""
-        prompt_lower = prompt.lower()
-
-        if any(word in prompt_lower for word in ["experience", "work", "job"]):
-            return "I have extensive experience in Data Science and Quantitative Finance, including roles at Quantitative Finance Solutions, Machine Learning Consulting, and Financial Technology Startup. I specialize in ML, financial modeling, and PDE methods."
-        elif any(
-            word in prompt_lower for word in ["education", "degree", "university"]
-        ):
-            return "I hold an MSc in Applied Mathematics from Universidad de Chile (2019-2021) and a BSc in Mathematics from the same institution (2015-2019). My focus was on financial mathematics and numerical methods."
-        elif any(
-            word in prompt_lower for word in ["skills", "technologies", "programming"]
-        ):
-            return "My technical skills include Python (expert), C++ (advanced), TensorFlow, PyTorch, Scikit-learn, MLflow, Docker, AWS, PostgreSQL, and expertise in machine learning, statistical modeling, and numerical methods."
-        elif any(word in prompt_lower for word in ["projects", "work", "portfolio"]):
-            return "I've worked on several key projects including finite difference options pricing library, Django optimization app, ML pipelines for financial risk assessment, and real-time risk calculation engines. Check out my GitHub for more details!"
-        elif any(
-            word in prompt_lower for word in ["finance", "quantitative", "pricing"]
-        ):
-            return "I specialize in quantitative finance, particularly derivatives pricing using PDE methods, finite difference schemes, and Monte Carlo simulations. I've implemented these methods in production systems for financial risk management."
-        elif any(word in prompt_lower for word in ["ml", "machine learning", "ai"]):
-            return "I have extensive experience in machine learning and MLOps, including building automated ML pipelines, implementing MLflow for experiment tracking, and deploying models in production environments."
-        else:
-            return "I'm Cristobal Cortinez Duhalde, a Data Scientist and ML Engineer with expertise in quantitative finance and applied mathematics. I specialize in finite difference methods, optimization algorithms, and MLOps pipelines. How can I help you learn more about my background?"
+        """Answer from the public profile when the local model is unavailable."""
+        question = prompt.lower()
+        profile = self.profile
+        if any(word in question for word in ["education", "degree", "university"]):
+            return (
+                "Education: "
+                + "; ".join(
+                    f"{item.degree}, {item.institution}" for item in profile.education
+                )
+                + "."
+            )
+        if any(word in question for word in ["project", "portfolio"]):
+            return "Selected projects: " + "\n".join(
+                f"{item.name}: {item.description} {' '.join(item.highlights)} {item.url}"
+                for item in profile.projects
+            )
+        if any(word in question for word in ["skills", "technologies", "programming"]):
+            return (
+                "Technical background: "
+                + "; ".join(
+                    f"{skill.name} ({skill.level.value})"
+                    for group in type(profile.skills).model_fields
+                    for skill in getattr(profile.skills, group)
+                )
+                + "."
+            )
+        if any(word in question for word in ["experience", "work", "job"]):
+            roles = profile.experience[:4]
+            return "Recent experience: " + "\n".join(
+                f"{role.position}, {role.company}: {role.description}" for role in roles
+            )
+        return profile.personal_info.summary
 
     async def chat_with_resume(
         self, message: str, conversation_history: Optional[List[ChatMessage]] = None
@@ -154,7 +148,7 @@ Please provide a helpful, accurate response based on Cristobal's background. Be 
 Response:"""
 
             # Get response from Ollama
-            response = await self._call_ollama(prompt)
+            response = await self._call_ollama(prompt, question=message)
 
             return ChatResponse(
                 message=response.strip(),

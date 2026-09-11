@@ -11,6 +11,8 @@ This service manages showcase information for key projects:
 import logging
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
+
+from app.core.time import utc_now
 from app.schemas.project import (
     ProjectShowcase,
     ShowcaseProject,
@@ -28,7 +30,7 @@ class ShowcaseService:
     def __init__(self):
         """Initialize the showcase service with key projects."""
         self.showcase_projects = self._initialize_showcase_projects()
-        self.last_updated = datetime.now(timezone.utc)
+        self.last_updated = utc_now()
 
     def _initialize_showcase_projects(self) -> List[ProjectShowcase]:
         """Initialize showcase projects with detailed information."""
@@ -79,8 +81,8 @@ class ShowcaseService:
                     "Convergence studies",
                     "Interactive parameter adjustment",
                 ],
-                github_url="https://github.com/googa27/finite-difference-options",
-                documentation_url="https://finite-diff-options.readthedocs.io",
+                github_url="https://github.com/googa27/finite_difference_options",
+                documentation_url=None,
                 paper_url=None,
                 stars=15,
                 forks=3,
@@ -115,9 +117,9 @@ class ShowcaseService:
                 ],
                 complexity_score=7.5,
                 mathematical_complexity="Linear programming, optimization algorithms, constraint handling",
-                has_live_demo=True,
-                demo_url="https://django-optimization.herokuapp.com",
-                demo_type="web",
+                has_live_demo=False,
+                demo_url=None,
+                demo_type=None,
                 outputs=[
                     "optimization_solutions",
                     "feasibility_reports",
@@ -131,8 +133,8 @@ class ShowcaseService:
                     "Result export (CSV, PDF)",
                     "User authentication",
                 ],
-                github_url="https://github.com/googa27/django-optimization",
-                documentation_url="https://django-optimization.readthedocs.io",
+                github_url="https://github.com/googa27/django-optimization-app",
+                documentation_url=None,
                 paper_url=None,
                 stars=8,
                 forks=2,
@@ -176,7 +178,7 @@ class ShowcaseService:
                     "Advanced boundary conditions",
                     "Performance optimization",
                 ],
-                github_url="https://github.com/googa27/finite-element-options",
+                github_url="https://github.com/googa27/finite_element_options",
                 documentation_url=None,
                 paper_url=None,
                 stars=5,
@@ -224,7 +226,7 @@ class ShowcaseService:
                     "A/B testing",
                     "Scalable architecture",
                 ],
-                github_url="https://github.com/googa27/ml-mlflow-integration",
+                github_url=None,
                 documentation_url=None,
                 paper_url=None,
                 stars=0,
@@ -339,7 +341,7 @@ class ShowcaseService:
             if project.project_type == project_type:
                 project.stars = stars
                 project.forks = forks
-                project.last_updated = datetime.now(timezone.utc)
+                project.last_updated = utc_now()
                 logger.info(
                     f"Updated metrics for {project.name}: {stars} stars, {forks} forks"
                 )

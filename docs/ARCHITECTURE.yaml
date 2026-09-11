@@ -25,6 +25,80 @@
       "apps/web/src/lib/api.ts",
       "apps/api/app"
     ],
+    "public_response_contracts": [
+      {
+        "surface": "/api/projects/showcase*",
+        "schemas": [
+          "apps/api/app/schemas/project.py::ProjectShowcase",
+          "apps/api/app/schemas/project.py::ShowcaseProject"
+        ],
+        "fields": {
+          "github_url": "HttpUrl or JSON null; planned or unverified projects must not publish fabricated repository URLs"
+        },
+        "fitness_tests": [
+          "tests/architecture/test_public_content_links.py::test_architecture_contract_documents_nullable_api_github_url",
+          "tests/architecture/test_public_content_links.py::test_api_project_links_use_existing_repository_slugs"
+        ]
+      }
+    ],
+    "time_contract": {
+      "canonical_zone": "UTC",
+      "generation": "apps/api/app/core/time.py::utc_now returns timezone-aware datetime values",
+      "persistence": "SQLAlchemy UTCDateTime stores normalized UTC and restores timezone metadata on reads, including SQLite and legacy naive rows",
+      "legacy_read_compatibility": "Existing naive database timestamps are interpreted as UTC by the application boundary until an explicit Alembic baseline exists",
+      "forbidden": "datetime.utcnow and newly generated naive timestamps",
+      "fitness_tests": [
+        "apps/api/tests/test_datetime_contracts.py",
+        "apps/api/pytest.ini deprecation warnings as errors"
+      ]
+    },
+    "dependency_lifecycle_policy": {
+      "package_manager": "pnpm@10.34.5",
+      "denied_packages": {
+        "@tailwindcss/oxide": {
+          "version": "4.1.12",
+          "decision": "deny",
+          "lifecycle_command": "node ./scripts/install.js",
+          "manifest_sha256": "19e31a0bc5fa826d5f4c1a73fa2d7e821e3ed826f86d28987618bc18c0a3a656",
+          "script_sha256": "df8750369bdc91787de5baec99eaaf27b7d8d2952acb25cf1a0b0aa511185b2a"
+        },
+        "unrs-resolver": {
+          "version": "1.11.1",
+          "decision": "deny",
+          "lifecycle_command": "napi-postinstall unrs-resolver 1.11.1 check",
+          "manifest_sha256": "0510c5611b2c4436d12364dff5ddd0f227dacd174cadd62141b226bce1fa4b19",
+          "script_sha256": "2d79f5b3ee7566309a587c267ab8363881f5ebe97a728b0271fb530569b1f356",
+          "support_package": {
+            "name": "napi-postinstall",
+            "version": "0.3.3",
+            "manifest_sha256": "94d75d361fd158062dd3888ca0bd3abc90d67ef0f5f746d4b7b0de9065a384bd",
+            "lib_files": [
+              "lib/cli.js",
+              "lib/constants.js",
+              "lib/fallback.js",
+              "lib/helpers.js",
+              "lib/index.js",
+              "lib/target.js",
+              "lib/types.js"
+            ],
+            "lib_tree_sha256": "f2b5f747776727b0bf13220d49407cd0523d180842a09df3bc2e2f2e9116e3d8",
+            "cli_sha256": "2d79f5b3ee7566309a587c267ab8363881f5ebe97a728b0271fb530569b1f356"
+          }
+        }
+      },
+      "rationale": {
+        "@tailwindcss/oxide": "The postinstall performs an unneeded registry download and archive extraction fallback when the locked optional binary is absent; direct load and production build pass while denied.",
+        "unrs-resolver": "The postinstall can invoke npm or download a native binary fallback; the locked optional binding loads and lint/build pass while denied."
+      },
+      "verification_command": "pnpm run check:dependency-build-policy",
+      "policy_source": "https://pnpm.io/settings#ignoredbuiltdependencies"
+    },
+    "node_runtime_policy": {
+      "managed_runtime": "node@24.19.0",
+      "reason": "Tailwind CSS 4 emits Node DEP0205 under Node 26",
+      "upstream_issue": "https://github.com/tailwindlabs/tailwindcss/issues/19893",
+      "removal_trigger": "upgrade after a stable Tailwind release replaces module.register and the Node 26 strict build is warning-free"
+    },
     "extension_points": [
       "typed public APIs",
       "deterministic CLI/contracts",
@@ -179,21 +253,44 @@
       {
         "capability": "GitHub Actions static security audit",
         "selected": [
-          "Zizmor 1.27.0"
+          "Zizmor 1.28.0"
         ],
         "alternatives": [
           "Ad hoc workflow regex checks only"
         ],
-        "evidence": "requirements-architecture.txt and https://github.com/woodruffw/zizmor",
+        "evidence": "requirements-architecture.txt and https://github.com/zizmorcore/zizmor",
         "adapter_boundary": "Offline CI audit of .github workflow definitions; no application runtime coupling.",
         "custom_code_reason": "The local checker owns portfolio-specific policy while Zizmor supplies maintained security rules.",
-        "maintenance_evidence": "https://github.com/woodruffw/zizmor/releases/tag/v1.27.0",
+        "maintenance_evidence": "https://github.com/zizmorcore/zizmor/releases/tag/v1.28.0",
         "api_stability_evidence": "https://docs.zizmor.sh/",
-        "license_evidence": "https://github.com/woodruffw/zizmor/blob/v1.27.0/MIT-LICENSE.txt",
-        "api_license_evidence": "https://github.com/woodruffw/zizmor/blob/v1.27.0/MIT-LICENSE.txt",
+        "license_evidence": "https://github.com/zizmorcore/zizmor/blob/v1.28.0/LICENSE",
+        "api_license_evidence": "https://github.com/zizmorcore/zizmor/blob/v1.28.0/LICENSE",
         "oracle_or_reference_tests": [
           ".github/workflows/ai-hierarchy-policy.yml",
           "scripts/selftest_ai_hierarchy_policy.py"
+        ]
+      },
+      {
+        "capability": "HTTP clients and ASGI test transport",
+        "selected": [
+          "HTTPX 0.28.1 for the runtime GitHub adapter",
+          "HTTPX2 2.12.0 for the development-only Starlette TestClient backend",
+          "IDNA 3.18 shared security-compatible domain processing"
+        ],
+        "alternatives": [
+          "Deprecated Starlette fallback to plain HTTPX",
+          "Requests for ASGI in-process testing"
+        ],
+        "evidence": "https://starlette.dev/testclient and https://pypi.org/project/httpx2/2.12.0/",
+        "adapter_boundary": "HTTPX remains owned by apps/api/app/services/github_service.py; HTTPX2 is restricted to apps/api development tests.",
+        "custom_code_reason": "No custom HTTP transport; maintained clients own runtime and in-process test semantics.",
+        "maintenance_evidence": "https://github.com/pydantic/httpx2/releases/tag/v2.12.0",
+        "api_stability_evidence": "https://httpx2.pydantic.dev/",
+        "license_evidence": "https://raw.githubusercontent.com/pydantic/httpx2/v2.12.0/LICENSE.md",
+        "api_license_evidence": "https://raw.githubusercontent.com/pydantic/httpx2/v2.12.0/LICENSE.md",
+        "oracle_or_reference_tests": [
+          "apps/api/tests/test_datetime_contracts.py::test_starlette_testclient_uses_httpx2",
+          "tests/architecture/test_dependency_security_floors.py"
         ]
       }
     ]
@@ -249,9 +346,13 @@
       "architecture"
     ],
     "commands": {
-      "setup": "pnpm install --frozen-lockfile && (cd apps/api && python -m pip install -e .[dev])",
+      "setup": "corepack enable && pnpm install --frozen-lockfile && pnpm run check:dependency-build-policy && (cd apps/api && python -m pip install -e .[dev])",
       "test": "pnpm test",
+      "api_test": "cd apps/api && python -m pytest",
       "lint": "pnpm run lint",
+      "typecheck": "pnpm run typecheck",
+      "build": "pnpm run build",
+      "dependency_build_policy": "pnpm run check:dependency-build-policy",
       "architecture": "python scripts/check_portfolio_architecture.py"
     },
     "ci_workflow": ".github/workflows/portfolio-architecture.yml",
@@ -259,7 +360,7 @@
   },
   "data": {
     "consumes_data": true,
-    "architecture": "Static-first public content adapter with curated/redacted React-folio resume JSON; optional API adapters remain separate from presentation and must record source/freshness/evidence before use.",
+    "architecture": "Static-first public content adapter with curated/phone-redacted React-folio resume JSON and intentionally public resume email; optional API adapters remain separate from presentation and must record source/freshness/evidence before use.",
     "required_controls": [
       "source registry",
       "typed contracts",
@@ -277,12 +378,31 @@
       "ui_and_artifacts": "Consume prebuilt ui_and_artifacts outputs; no PDP/FPF internals."
     },
     "source_registry_plan": [
-      "checked-in React-folio resume copy with consolidation evidence and phone redaction",
+      "checked-in React-folio resume copy with consolidation evidence, intentionally public email, and phone redaction",
       "explicit external/social adapters with credential isolation and freshness metadata"
     ],
-    "flow": "React-folio resume/source registry -> redacted checked-in copy -> typed curated public content -> static Next.js pages; optional dynamic adapters remain separately validated.",
+    "flow": "React-folio resume/source registry -> phone-redacted checked-in copy with intentionally public email -> typed curated public content -> static Next.js pages; optional dynamic adapters remain separately validated.",
+    "timestamp_semantics": "Optional API timestamps are generated as timezone-aware UTC values and declared timezone-aware in SQLAlchemy metadata. Existing naive values remain readable as UTC until a real Alembic baseline and deployment-specific migration exist.",
     "storage_and_replay": "Immutable raw/content-addressed inputs; canonical typed products; idempotent replay by source identity and effective/vintage time where applicable.",
-    "quality_and_lineage": "Validate schema, grain, units, classification, lineage, freshness, licence, and content identity before consumption; fail closed on missing evidence."
+    "quality_and_lineage": "Validate schema, grain, units, classification, lineage, freshness, licence, and content identity before consumption; fail closed on missing evidence.",
+    "profile_content_refresh": {
+      "date": "2026-09-06",
+      "evidence": "Owner confirmation, reconciled LinkedIn/CV timeline and public repositories",
+      "public_fields": "Professional history, public email and profile links; phone and private career preferences omitted",
+      "validation": "JSON parse and API CVProfile validation; current and ended work records retain correct status",
+      "default_profile_storage": "CVService resolves app/static/cv relative to its application module, independently of the process working directory. A temporary-working-directory JSON export regression protects this contract (issue #105).",
+      "claim_boundaries": "Research plans are not delivery evidence; benchmark is online-only synthetic repository evidence; expired credentials omitted",
+      "test_compatibility_note": {
+        "date": "2026-09-06",
+        "issue": "Starlette 1.6.0 TestClient imports an alias deprecated in AnyIO 4.15; reproducible without project imports",
+        "scope": "Ignore only the exact BlockingPortal alias message from starlette.testclient; all other deprecations remain errors",
+        "removal_trigger": "Remove once the resolved Starlette TestClient uses anyio.from_thread.BlockingPortal"
+      },
+      "presentation": "Visitor copy foregrounds modelling, evidence and role fit; grouped skills come from the reconciled CV, with foundational tools labelled. No hard-coded additional delivery-stack claims.",
+      "curated_projects": "Finite Element Options leads the public project selection; benchmark scope and experimental boundaries remain explicit. Unverified live-demo link omitted.",
+      "review_followup": "Public social links map all four verified accounts; empty volunteer card omitted; education score intentionally omitted from public copy. API projects and awards are typed and survive JSON export. Optional resume chat loads the public CV fixture at startup for prompts and fallback responses; contact details are omitted from the model prompt. Current role is derived from end_date even when is_current is absent.",
+      "date_precision": "Public API profile and chat context preserve an explicit note about month/year precision and placeholder days."
+    }
   },
   "governance": {
     "architecture_source": "docs/ARCHITECTURE.yaml",
@@ -345,7 +465,7 @@
       "security_audit_command": "zizmor --offline --min-severity medium .",
       "validated_versions": {
         "pinact": "4.1.0",
-        "zizmor": "1.27.0",
+        "zizmor": "1.28.0",
         "pyyaml": "6.0.3"
       },
       "evidence": [
@@ -403,5 +523,15 @@
       "accepted_ceiling": 584,
       "refactoring_trigger": "Any new CV behavior must extract smaller parser/normalizer/output modules or keep the line count at/below this ceiling."
     }
-  ]
+  ],
+  "cv_sync_contract": {
+    "preserve_when_omitted": [
+      "projects",
+      "awards",
+      "date_precision_note"
+    ],
+    "explicit_empty_policy": "Provider fields explicitly supplied through CVProfile.model_fields_set replace curated values.",
+    "storage": "Pydantic typed JSON serialized before same-directory temporary write and atomic replacement; failed persistence retains prior file/cache.",
+    "fitness_test": "apps/api/tests/test_cv_sync.py"
+  }
 }

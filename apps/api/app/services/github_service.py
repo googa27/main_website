@@ -1,6 +1,7 @@
 import httpx
 from typing import List, Dict, Any
 from app.core.config import settings
+from app.core.time import parse_utc
 from app.services.project_service import ProjectService
 from sqlalchemy.orm import Session
 import json
@@ -58,8 +59,8 @@ class GitHubService:
             "forks": repo_data.get("forks_count", 0),
             "topics": topics or [],
             "is_featured": self._is_featured_repo(repo_data, topics or []),
-            "created_at": repo_data.get("created_at"),
-            "updated_at": repo_data.get("updated_at"),
+            "created_at": parse_utc(repo_data.get("created_at")),
+            "updated_at": parse_utc(repo_data.get("updated_at")),
         }
 
     def _is_featured_repo(self, repo_data: Dict[str, Any], topics: List[str]) -> bool:

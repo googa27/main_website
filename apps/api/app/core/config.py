@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import SecretStr
 from typing import List
 import os
 
@@ -27,6 +28,7 @@ class Settings(BaseSettings):
     # Security
     SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8  # 8 days
+    CONTACT_ADMIN_TOKEN: SecretStr | None = None
 
     # AI/OpenAI
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")

@@ -3,6 +3,7 @@ from app.schemas.contact import ContactCreate, ContactResponse
 from app.services.email_service import send_contact_email
 from app.services.contact_service import ContactService
 from app.core.database import get_db
+from app.core.contact_auth import require_contact_admin
 from sqlalchemy.orm import Session
 
 router = APIRouter()
@@ -48,7 +49,7 @@ async def submit_contact(
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 
-@router.get("/contact/{contact_id}")
+@router.get("/contact/{contact_id}", dependencies=[Depends(require_contact_admin)])
 async def get_contact(contact_id: int, db: Session = Depends(get_db)):
     """Get a specific contact (admin only)"""
     try:
@@ -71,7 +72,7 @@ async def get_contact(contact_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 
-@router.put("/contact/{contact_id}/read")
+@router.put("/contact/{contact_id}/read", dependencies=[Depends(require_contact_admin)])
 async def mark_contact_read(contact_id: int, db: Session = Depends(get_db)):
     """Mark a contact as read (admin only)"""
     try:

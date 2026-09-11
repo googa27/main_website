@@ -123,6 +123,18 @@
       "source": "https://github.com/googa27/main_website/actions/runs/34626893359",
       "validation": "Full lockfile vulnerability scan, frozen install, existing lifecycle policy, frontend lint/typecheck/static export and API/architecture regression gates.",
       "deployment_boundary": "Static export and unoptimized images remain configured; package vulnerabilities do not alone establish deployment exploitability."
+    },
+    "contact_administration": {
+      "issue": "https://github.com/googa27/main_website/issues/110",
+      "boundary": "FastAPI HTTPBearer dependency gates GET /api/contact/{id} and PUT /api/contact/{id}/read before database access. Public POST submission remains separate.",
+      "secret": "CONTACT_ADMIN_TOKEN is an optional Pydantic SecretStr; missing/empty/short/whitespace-only values fail closed. Operators configure a unique random server-only secret of at least 32 characters, HTTPS and rotation. No insecure default or reuse of SECRET_KEY.",
+      "comparison": "Python secrets.compare_digest over UTF-8 bytes; no token logging or query-string credential.",
+      "scope": "Single-owner contact inbox authorization only; unrelated optional API authorization is not implied.",
+      "fitness_test": "apps/api/tests/test_contact_admin.py",
+      "sources": [
+        "https://fastapi.tiangolo.com/reference/security/#fastapi.security.HTTPBearer",
+        "https://docs.python.org/3/library/secrets.html#secrets.compare_digest"
+      ]
     }
   },
   "source_layout": {

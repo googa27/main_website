@@ -467,7 +467,7 @@
       "architecture"
     ],
     "commands": {
-      "setup": "corepack enable && pnpm install --frozen-lockfile && pnpm run check:dependency-build-policy && (cd apps/api && python -m pip install -e .[dev])",
+      "setup": "corepack enable && pnpm install --frozen-lockfile && pnpm run check:dependency-build-policy && (cd apps/api && python -m pip install -e '.[dev,pdf]')",
       "test": "pnpm test",
       "api_test": "cd apps/api && python -m pytest",
       "lint": "pnpm run lint",

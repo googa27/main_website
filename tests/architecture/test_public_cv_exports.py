@@ -75,6 +75,8 @@ def test_pdf_stays_optional_and_profile_audit_includes_it():
         if line.startswith("- Setup:")
     )
     assert "'[dev,pdf]'" in setup or "'.[dev,pdf]'" in setup
+    contract = json.loads((ROOT / "docs/ARCHITECTURE.yaml").read_text())
+    assert contract["tests"]["commands"]["setup"] in setup
 
 
 def test_preview_composes_current_static_cv_without_build_time_provider_calls():

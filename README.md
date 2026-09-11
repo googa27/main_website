@@ -190,6 +190,23 @@ mypy .
 python -m compileall -q app tests scripts
 ```
 
+The API's wheel includes the reviewed public CV fixture. To verify an installed
+artifact independently of the checkout, run these commands from the repository
+root with a fresh output directory and environment:
+
+```bash
+python -m pip wheel --no-deps --wheel-dir /tmp/portfolio-api-wheels apps/api
+python -m venv /tmp/portfolio-api-wheel-env
+/tmp/portfolio-api-wheel-env/bin/python -m pip install /tmp/portfolio-api-wheels/portfolio_api-*.whl
+python scripts/check_installed_api.py --python /tmp/portfolio-api-wheel-env/bin/python
+```
+
+The check uses an isolated interpreter and temporary working directory to import
+the application, export the typed fixture and verify that AI context omits contact
+fields. It does not contact providers or exercise a deployed database. Setuptools
+build output is excluded from Mypy's discovery of source files; existing type-check
+coverage and legacy per-module exclusions are unchanged.
+
 ## Deployment notes
 
 - Frontend: `apps/web` can be deployed as a Next.js app after `pnpm --filter web build` passes.

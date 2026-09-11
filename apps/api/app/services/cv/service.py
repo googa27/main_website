@@ -8,22 +8,26 @@ This service handles:
 - CV versioning and updates
 """
 
+import asyncio
 import json
 import logging
-from tempfile import NamedTemporaryFile
 from datetime import datetime
-from typing import Dict, Optional, Any
 from pathlib import Path
+from threading import RLock
+from typing import Any
 
 from app.core.time import utc_now
 from app.schemas.cv import (
-    CVProfile,
     CVExportRequest,
     CVExportResponse,
+    CVProfile,
     LinkedInSyncRequest,
     LinkedInSyncResponse,
 )
 from app.services.linkedin import linkedin_service
+
+from .rendering import render_mdx
+from .storage import load_profile, save_profile
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +37,7 @@ class CVService:
 
     def __init__(self):
         """Initialize CV service."""
-        self.cv_data_dir = Path(__file__).resolve().parents[1] / "static" / "cv"
+        self.cv_data_dir = Path(__file__).resolve().parents[2] / "static" / "cv"
         self.cv_data_dir.mkdir(parents=True, exist_ok=True)
 
         # CV data file
@@ -43,14 +47,17 @@ class CVService:
         self.supported_formats = ["json", "pdf", "mdx"]
 
         # Current CV profile
-        self._current_profile: Optional[CVProfile] = None
+        self._current_profile: CVProfile | None = None
+        self._storage_lock = RLock()
 
-    async def get_current_cv(self) -> Optional[CVProfile]:
-        """Get the current CV profile, loading from storage if needed."""
-        if self._current_profile is None:
-            self._current_profile = await self._load_cv_from_storage()
+    async def get_current_cv(self) -> CVProfile | None:
+        return await asyncio.to_thread(self._current_snapshot)
 
-        return self._current_profile
+    def _current_snapshot(self) -> CVProfile | None:
+        with self._storage_lock:
+            if self._current_profile is None:
+                self._current_profile = load_profile(self.cv_data_file)
+            return self._current_profile
 
     async def sync_from_linkedin(
         self, request: LinkedInSyncRequest
@@ -91,28 +98,7 @@ class CVService:
                     changes=None,
                 )
 
-            # Compare with current profile to detect changes
-            current_profile = await self.get_current_cv()
-            if current_profile:
-                omitted = {
-                    "projects",
-                    "awards",
-                    "date_precision_note",
-                } - cv_profile.model_fields_set
-                preserved = current_profile.model_dump(include=omitted)
-                cv_profile = CVProfile.model_validate(
-                    cv_profile.model_dump() | preserved
-                )
-            changes = (
-                self._detect_changes(current_profile, cv_profile)
-                if current_profile
-                else None
-            )
-
-            # Save new profile
-            if not await self._save_cv_to_storage(cv_profile):
-                raise OSError("CV storage update failed")
-            self._current_profile = cv_profile
+            changes = await asyncio.to_thread(self._apply_provider_snapshot, cv_profile)
 
             # Update sync status
             sync_status = linkedin_service.get_sync_status()
@@ -130,14 +116,40 @@ class CVService:
             )
 
         except Exception as e:
-            logger.error(f"LinkedIn CV sync failed: {str(e)}")
+            logger.error(f"LinkedIn CV sync failed: {e!s}")
             return LinkedInSyncResponse(
                 success=False,
-                message=f"Sync failed: {str(e)}",
+                message=f"Sync failed: {e!s}",
                 last_sync=utc_now(),
                 data_updated=False,
                 changes=None,
             )
+
+    def _apply_provider_snapshot(self, cv_profile: CVProfile) -> dict[str, Any] | None:
+        with self._storage_lock:
+            # Compare with current profile to detect changes
+            current_profile = self._current_snapshot()
+            if current_profile:
+                omitted = {
+                    "projects",
+                    "awards",
+                    "date_precision_note",
+                } - cv_profile.model_fields_set
+                preserved = current_profile.model_dump(include=omitted)
+                cv_profile = CVProfile.model_validate(
+                    cv_profile.model_dump() | preserved
+                )
+            changes = (
+                self._detect_changes(current_profile, cv_profile)
+                if current_profile
+                else None
+            )
+
+            # Save new profile
+            if not save_profile(cv_profile, self.cv_data_dir, self.cv_data_file):
+                raise OSError("CV storage update failed")
+            self._current_profile = cv_profile
+            return changes
 
     async def export_cv(self, request: CVExportRequest) -> CVExportResponse:
         """
@@ -188,11 +200,11 @@ class CVService:
                 )
 
         except Exception as e:
-            logger.error(f"CV export failed: {str(e)}")
+            logger.error(f"CV export failed: {e!s}")
             return CVExportResponse(
                 format=request.format,
                 download_url=None,
-                content=f"Export failed: {str(e)}",
+                content=f"Export failed: {e!s}",
                 file_size=None,
                 expires_at=None,
             )
@@ -235,7 +247,7 @@ class CVService:
             )
 
         except Exception as e:
-            logger.error(f"JSON export failed: {str(e)}")
+            logger.error(f"JSON export failed: {e!s}")
             raise
 
     async def _export_pdf(
@@ -265,7 +277,7 @@ class CVService:
             )
 
         except Exception as e:
-            logger.error(f"PDF export failed: {str(e)}")
+            logger.error(f"PDF export failed: {e!s}")
             raise
 
     async def _export_mdx(
@@ -285,177 +297,17 @@ class CVService:
             )
 
         except Exception as e:
-            logger.error(f"MDX export failed: {str(e)}")
+            logger.error(f"MDX export failed: {e!s}")
             raise
 
     def _generate_mdx_content(
         self, cv_profile: CVProfile, request: CVExportRequest
     ) -> str:
-        """Generate MDX content from CV profile."""
-        mdx_lines = []
-
-        # Header
-        mdx_lines.append(
-            f"# {cv_profile.personal_info.first_name} {cv_profile.personal_info.last_name}"
-        )
-        mdx_lines.append("")
-        mdx_lines.append(f"**{cv_profile.personal_info.summary}**")
-        mdx_lines.append("")
-
-        # Contact Information
-        mdx_lines.append("## Contact Information")
-        mdx_lines.append(f"- **Email:** {cv_profile.personal_info.email}")
-        mdx_lines.append(f"- **Location:** {cv_profile.personal_info.location}")
-        mdx_lines.append(
-            f"- **LinkedIn:** [{cv_profile.personal_info.linkedin_url}]({cv_profile.personal_info.linkedin_url})"
-        )
-        if cv_profile.personal_info.github_url:
-            mdx_lines.append(
-                f"- **GitHub:** [{cv_profile.personal_info.github_url}]({cv_profile.personal_info.github_url})"
-            )
-        if cv_profile.personal_info.website_url:
-            mdx_lines.append(
-                f"- **Website:** [{cv_profile.personal_info.website_url}]({cv_profile.personal_info.website_url})"
-            )
-        mdx_lines.append("")
-
-        # Professional Summary
-        mdx_lines.append("## Professional Summary")
-        mdx_lines.append(cv_profile.personal_info.summary)
-        mdx_lines.append("")
-
-        # Work Experience
-        if cv_profile.experience:
-            mdx_lines.append("## Work Experience")
-            mdx_lines.append("")
-
-            for exp in cv_profile.experience:
-                mdx_lines.append(f"### {exp.position}")
-                mdx_lines.append(f"**{exp.company}** | {exp.location}")
-                mdx_lines.append(
-                    f"*{exp.start_date.strftime('%B %Y')} - {exp.end_date.strftime('%B %Y') if exp.end_date else 'Present'}*"
-                )
-                mdx_lines.append("")
-                mdx_lines.append(exp.description)
-                mdx_lines.append("")
-
-                if request.include_achievements and exp.achievements:
-                    mdx_lines.append("**Key Achievements:**")
-                    for achievement in exp.achievements:
-                        mdx_lines.append(f"- {achievement}")
-                    mdx_lines.append("")
-
-                if request.include_technologies and exp.technologies:
-                    mdx_lines.append("**Technologies:**")
-                    for tech in exp.technologies:
-                        mdx_lines.append(f"- {tech}")
-                    mdx_lines.append("")
-
-        # Education
-        if cv_profile.education:
-            mdx_lines.append("## Education")
-            mdx_lines.append("")
-
-            for edu in cv_profile.education:
-                mdx_lines.append(f"### {edu.degree}")
-                mdx_lines.append(f"**{edu.institution}** | {edu.field_of_study}")
-                mdx_lines.append(
-                    f"*{edu.start_date.strftime('%B %Y')} - {edu.end_date.strftime('%B %Y') if edu.end_date else 'Present'}*"
-                )
-                if edu.gpa:
-                    mdx_lines.append(f"**GPA:** {edu.gpa}")
-                if edu.honors:
-                    mdx_lines.append(f"**Honors:** {edu.honors}")
-                if edu.description:
-                    mdx_lines.append(edu.description)
-                mdx_lines.append("")
-
-        # Skills
-        if cv_profile.skills:
-            mdx_lines.append("## Skills")
-            mdx_lines.append("")
-
-            # Programming Languages
-            if cv_profile.skills.programming_languages:
-                mdx_lines.append("### Programming Languages")
-                for skill in cv_profile.skills.programming_languages:
-                    level_text = (
-                        f" ({skill.level.value})" if request.include_scores else ""
-                    )
-                    mdx_lines.append(f"- {skill.name}{level_text}")
-                mdx_lines.append("")
-
-            # Machine Learning
-            if cv_profile.skills.machine_learning:
-                mdx_lines.append("### Machine Learning & AI")
-                for skill in cv_profile.skills.machine_learning:
-                    level_text = (
-                        f" ({skill.level.value})" if request.include_scores else ""
-                    )
-                    mdx_lines.append(f"- {skill.name}{level_text}")
-                mdx_lines.append("")
-
-            # Other skill categories
-            other_categories = [
-                ("frameworks_libraries", "Frameworks & Libraries"),
-                ("databases", "Databases"),
-                ("cloud_platforms", "Cloud Platforms"),
-                ("devops_tools", "DevOps & Tools"),
-                ("mathematical", "Mathematical Skills"),
-                ("soft_skills", "Soft Skills"),
-            ]
-
-            for category, title in other_categories:
-                skills = getattr(cv_profile.skills, category, [])
-                if skills:
-                    mdx_lines.append(f"### {title}")
-                    for skill in skills:
-                        level_text = (
-                            f" ({skill.level.value})" if request.include_scores else ""
-                        )
-                        mdx_lines.append(f"- {skill.name}{level_text}")
-                    mdx_lines.append("")
-
-        # Certifications
-        if cv_profile.certifications:
-            mdx_lines.append("## Certifications")
-            mdx_lines.append("")
-
-            for cert in cv_profile.certifications:
-                mdx_lines.append(f"### {cert.name}")
-                mdx_lines.append(f"**{cert.issuing_organization}**")
-                mdx_lines.append(f"*Issued: {cert.issue_date.strftime('%B %Y')}*")
-                if cert.expiry_date:
-                    mdx_lines.append(f"*Expires: {cert.expiry_date.strftime('%B %Y')}*")
-                if cert.description:
-                    mdx_lines.append(cert.description)
-                mdx_lines.append("")
-
-        # Languages
-        if cv_profile.languages:
-            mdx_lines.append("## Languages")
-            mdx_lines.append("")
-
-            for lang in cv_profile.languages:
-                mdx_lines.append(f"- **{lang.name}:** {lang.proficiency}")
-                if lang.reading and lang.writing and lang.speaking:
-                    mdx_lines.append(
-                        f"  - Reading: {lang.reading}, Writing: {lang.writing}, Speaking: {lang.speaking}"
-                    )
-            mdx_lines.append("")
-
-        # Footer
-        mdx_lines.append("---")
-        mdx_lines.append(
-            f"*Last updated: {cv_profile.last_updated.strftime('%B %d, %Y at %H:%M UTC')}*"
-        )
-        mdx_lines.append(f"*Version: {cv_profile.version}*")
-
-        return "\n".join(mdx_lines)
+        return render_mdx(cv_profile, request)
 
     def _detect_changes(
         self, old_profile: CVProfile, new_profile: CVProfile
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Detect changes between old and new CV profiles."""
         changes = {}
 
@@ -516,48 +368,24 @@ class CVService:
             return changes if changes else None
 
         except Exception as e:
-            logger.error(f"Error detecting changes: {str(e)}")
+            logger.error(f"Error detecting changes: {e!s}")
             return None
 
-    async def _load_cv_from_storage(self) -> Optional[CVProfile]:
-        """Load CV profile from storage."""
-        try:
-            if not self.cv_data_file.exists():
-                logger.info("No CV profile found in storage")
-                return None
+    async def _load_cv_from_storage(self) -> CVProfile | None:
+        return await asyncio.to_thread(self._read_snapshot)
 
-            with open(self.cv_data_file, "r", encoding="utf-8") as f:
-                cv_data = json.load(f)
-
-            cv_profile = CVProfile.model_validate(cv_data)
-            logger.info("CV profile loaded from storage")
-            return cv_profile
-
-        except Exception as e:
-            logger.error(f"Error loading CV from storage: {str(e)}")
-            return None
+    def _read_snapshot(self) -> CVProfile | None:
+        with self._storage_lock:
+            return load_profile(self.cv_data_file)
 
     async def _save_cv_to_storage(self, cv_profile: CVProfile) -> bool:
-        """Atomically persist typed JSON, retaining the previous file on failure."""
-        temporary_path: Optional[Path] = None
-        try:
-            content = cv_profile.model_dump_json(indent=2)
-            with NamedTemporaryFile(
-                mode="w", encoding="utf-8", dir=self.cv_data_dir, delete=False
-            ) as temporary:
-                temporary_path = Path(temporary.name)
-                temporary.write(content)
-            temporary_path.replace(self.cv_data_file)
-            logger.info("CV profile saved to storage")
-            return True
-        except Exception as e:
-            logger.error(f"Error saving CV to storage: {str(e)}")
-            return False
-        finally:
-            if temporary_path is not None:
-                temporary_path.unlink(missing_ok=True)
+        return await asyncio.to_thread(self._write_snapshot, cv_profile)
 
-    def get_sync_status(self) -> Dict[str, Any]:
+    def _write_snapshot(self, cv_profile: CVProfile) -> bool:
+        with self._storage_lock:
+            return save_profile(cv_profile, self.cv_data_dir, self.cv_data_file)
+
+    def get_sync_status(self) -> dict[str, Any]:
         """Get CV sync status."""
         linkedin_status = linkedin_service.get_sync_status()
 

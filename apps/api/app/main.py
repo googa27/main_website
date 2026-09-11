@@ -1,8 +1,11 @@
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+
 from app.core.config import settings
-from app.routers import health, projects, contact, ai, cv
+from app.routers import ai, contact, cv, health, projects
 
 app = FastAPI(
     title="Cristobal Portfolio API",
@@ -22,7 +25,11 @@ app.add_middleware(
 )
 
 # Mount static files
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
+app.mount(
+    "/static",
+    StaticFiles(directory=Path(__file__).resolve().parent / "static"),
+    name="static",
+)
 
 # Include routers
 app.include_router(health.router, prefix="/api", tags=["health"])

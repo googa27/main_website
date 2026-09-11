@@ -1,10 +1,12 @@
+import json
+from typing import Any
+
 import httpx
-from typing import List, Dict, Any
+from sqlalchemy.orm import Session
+
 from app.core.config import settings
 from app.core.time import parse_utc
 from app.services.project_service import ProjectService
-from sqlalchemy.orm import Session
-import json
 
 
 class GitHubService:
@@ -18,7 +20,7 @@ class GitHubService:
             "User-Agent": "Cristobal-Portfolio-Bot",
         }
 
-    async def fetch_user_repos(self) -> List[Dict[str, Any]]:
+    async def fetch_user_repos(self) -> list[dict[str, Any]]:
         """Fetch all public repositories for the user"""
         async with httpx.AsyncClient() as client:
             url = f"{self.base_url}/users/{self.username}/repos"
@@ -26,7 +28,7 @@ class GitHubService:
             response.raise_for_status()
             return response.json()
 
-    async def fetch_repo_details(self, repo_name: str) -> Dict[str, Any]:
+    async def fetch_repo_details(self, repo_name: str) -> dict[str, Any]:
         """Fetch detailed information about a specific repository"""
         async with httpx.AsyncClient() as client:
             url = f"{self.base_url}/repos/{self.username}/{repo_name}"
@@ -34,7 +36,7 @@ class GitHubService:
             response.raise_for_status()
             return response.json()
 
-    async def fetch_repo_topics(self, repo_name: str) -> List[str]:
+    async def fetch_repo_topics(self, repo_name: str) -> list[str]:
         """Fetch topics for a specific repository"""
         async with httpx.AsyncClient() as client:
             url = f"{self.base_url}/repos/{self.username}/{repo_name}/topics"
@@ -46,8 +48,8 @@ class GitHubService:
             return data.get("names", [])
 
     def transform_repo_data(
-        self, repo_data: Dict[str, Any], topics: List[str] = None
-    ) -> Dict[str, Any]:
+        self, repo_data: dict[str, Any], topics: list[str] | None = None
+    ) -> dict[str, Any]:
         """Transform GitHub repository data to our database format"""
         return {
             "github_id": repo_data["id"],
@@ -63,7 +65,7 @@ class GitHubService:
             "updated_at": parse_utc(repo_data.get("updated_at")),
         }
 
-    def _is_featured_repo(self, repo_data: Dict[str, Any], topics: List[str]) -> bool:
+    def _is_featured_repo(self, repo_data: dict[str, Any], topics: list[str]) -> bool:
         """Determine if a repository should be featured"""
         # Featured criteria: high stars, specific topics, or important names
         important_topics = {
@@ -98,7 +100,7 @@ class GitHubService:
 
         return False
 
-    async def sync_projects_to_database(self, db: Session) -> Dict[str, int]:
+    async def sync_projects_to_database(self, db: Session) -> dict[str, int]:
         """Sync all GitHub projects to the database"""
         try:
             # Fetch all repositories
@@ -148,7 +150,7 @@ class GitHubService:
 
     async def get_featured_projects(
         self, db: Session, limit: int = 6
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get featured projects from database"""
         projects = ProjectService.get_featured_projects(db, limit)
         return [

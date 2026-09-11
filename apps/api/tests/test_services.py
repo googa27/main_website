@@ -1,7 +1,7 @@
-from app.services.project_service import ProjectService
-from app.services.contact_service import ContactService
-from app.services.chat_service import ChatService
 from app.services.analytics_service import AnalyticsService
+from app.services.chat_service import ChatService
+from app.services.contact_service import ContactService
+from app.services.project_service import ProjectService
 
 
 class TestDatabaseService:

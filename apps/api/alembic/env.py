@@ -1,9 +1,8 @@
-from logging.config import fileConfig
-import sys
 import os
+import sys
+from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import engine_from_config, pool
 
 from alembic import context  # type: ignore[attr-defined]
 
@@ -20,6 +19,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
+# Alembic requires the repository path bootstrap before application imports.
 from app.core.database import Base  # noqa: E402
 
 target_metadata = Base.metadata

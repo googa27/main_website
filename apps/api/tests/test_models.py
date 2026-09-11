@@ -1,4 +1,4 @@
-from app.models.database import Project, Contact, ChatSession, ChatMessage
+from app.models.database import ChatMessage, ChatSession, Contact, Project
 
 
 class TestDatabaseModels:

@@ -1,5 +1,4 @@
 import json
-from typing import List, Optional
 
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
@@ -12,18 +11,18 @@ class ProjectService:
     """Service for project-related database operations."""
 
     @staticmethod
-    def get_featured_projects(db: Session, limit: int = 6) -> List[Project]:
+    def get_featured_projects(db: Session, limit: int = 6) -> list[Project]:
         """Return featured projects ordered by star count."""
         return (
             db.query(Project)
-            .filter(Project.is_featured == True)  # noqa: E712
+            .filter(Project.is_featured.is_(True))
             .order_by(desc(Project.stars))
             .limit(limit)
             .all()
         )
 
     @staticmethod
-    def get_all_projects(db: Session, skip: int = 0, limit: int = 100) -> List[Project]:
+    def get_all_projects(db: Session, skip: int = 0, limit: int = 100) -> list[Project]:
         """Return all projects ordered by last update."""
         return (
             db.query(Project)
@@ -34,12 +33,12 @@ class ProjectService:
         )
 
     @staticmethod
-    def get_project_by_github_id(db: Session, github_id: int) -> Optional[Project]:
+    def get_project_by_github_id(db: Session, github_id: int) -> Project | None:
         """Return a project matched by its GitHub identifier."""
         return db.query(Project).filter(Project.github_id == github_id).first()
 
     @staticmethod
-    def get_project_by_id(db: Session, project_id: int) -> Optional[Project]:
+    def get_project_by_id(db: Session, project_id: int) -> Project | None:
         """Return a project matched by its database identifier."""
         return db.query(Project).filter(Project.id == project_id).first()
 

@@ -1,5 +1,3 @@
-from typing import Optional
-
 from sqlalchemy.orm import Session
 
 from app.models.database import Contact
@@ -18,7 +16,7 @@ class ContactService:
         return new_contact
 
     @staticmethod
-    def get_contact_by_id(db: Session, contact_id: int) -> Optional[Contact]:
+    def get_contact_by_id(db: Session, contact_id: int) -> Contact | None:
         """Retrieve a contact by identifier."""
         return db.query(Contact).filter(Contact.id == contact_id).first()
 

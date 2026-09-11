@@ -210,14 +210,13 @@ def test_architecture_contract_documents_nullable_api_github_url() -> None:
 
     assert showcase_contract["schemas"] == SHOWCASE_CONTRACT_SCHEMA_PATHS
     assert showcase_contract["fields"] == {"github_url": SHOWCASE_GITHUB_URL_CONTRACT}
-    assert class_field_annotation("ProjectShowcase", "github_url") == (
-        "Optional[HttpUrl]",
-        "None",
-    )
-    assert class_field_annotation("ShowcaseProject", "github_url") == (
-        "Optional[HttpUrl]",
-        "required",
-    )
+    for class_name, expected_default in (
+        ("ProjectShowcase", "None"),
+        ("ShowcaseProject", "required"),
+    ):
+        annotation, default = class_field_annotation(class_name, "github_url")
+        assert annotation in {"Optional[HttpUrl]", "HttpUrl | None"}
+        assert default == expected_default
 
 
 def test_readme_documents_lockfile_based_pnpm_install() -> None:

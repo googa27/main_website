@@ -1,7 +1,7 @@
-from pydantic import BaseModel, HttpUrl, Field, ConfigDict
-from typing import List, Optional
 from datetime import datetime
 from enum import Enum
+
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
 
 class ProjectType(str, Enum):
@@ -29,7 +29,7 @@ class ProjectShowcase(BaseModel):
     project_id: int
     name: str
     description: str
-    long_description: Optional[str] = None
+    long_description: str | None = None
     project_type: ProjectType
     status: ProjectStatus
     showcase_priority: int = Field(
@@ -37,25 +37,25 @@ class ProjectShowcase(BaseModel):
     )
 
     # Technical details
-    technologies: List[str] = Field(default_factory=list)
+    technologies: list[str] = Field(default_factory=list)
     complexity_score: float = Field(..., ge=0, le=10)
-    mathematical_complexity: Optional[str] = None
+    mathematical_complexity: str | None = None
 
     # Demo information
     has_live_demo: bool = False
-    demo_url: Optional[HttpUrl] = None
-    demo_type: Optional[str] = None  # "streamlit", "web", "api", etc.
+    demo_url: HttpUrl | None = None
+    demo_type: str | None = None  # "streamlit", "web", "api", etc.
 
     # Project outputs
-    outputs: List[str] = Field(
+    outputs: list[str] = Field(
         default_factory=list
     )  # ["pricing_models", "optimization_solver", "risk_metrics"]
-    key_features: List[str] = Field(default_factory=list)
+    key_features: list[str] = Field(default_factory=list)
 
     # Links
-    github_url: Optional[HttpUrl] = None
-    documentation_url: Optional[HttpUrl] = None
-    paper_url: Optional[HttpUrl] = None
+    github_url: HttpUrl | None = None
+    documentation_url: HttpUrl | None = None
+    paper_url: HttpUrl | None = None
 
     # Metrics
     stars: int = 0
@@ -91,12 +91,12 @@ class ProjectShowcase(BaseModel):
 
 class ProjectBase(BaseModel):
     name: str
-    description: Optional[str] = None
-    language: Optional[str] = None
+    description: str | None = None
+    language: str | None = None
     url: HttpUrl
     stars: int = 0
     forks: int = 0
-    topics: List[str] = []
+    topics: list[str] = []
     updated_at: datetime
 
 
@@ -111,7 +111,7 @@ class Project(ProjectBase):
 
 
 class ProjectList(BaseModel):
-    projects: List[Project]
+    projects: list[Project]
     total: int
 
 
@@ -124,14 +124,14 @@ class ShowcaseProject(BaseModel):
     project_type: ProjectType
     status: ProjectStatus
     showcase_priority: int
-    technologies: List[str]
+    technologies: list[str]
     complexity_score: float
     has_live_demo: bool
-    demo_url: Optional[HttpUrl]
-    demo_type: Optional[str]
-    outputs: List[str]
-    key_features: List[str]
-    github_url: Optional[HttpUrl]
+    demo_url: HttpUrl | None
+    demo_type: str | None
+    outputs: list[str]
+    key_features: list[str]
+    github_url: HttpUrl | None
     stars: int
     forks: int
     last_updated: datetime
@@ -148,8 +148,8 @@ class ShowcaseProject(BaseModel):
 class ShowcaseResponse(BaseModel):
     """Response for project showcase."""
 
-    featured_projects: List[ShowcaseProject]
-    all_projects: List[ShowcaseProject]
+    featured_projects: list[ShowcaseProject]
+    all_projects: list[ShowcaseProject]
     total_featured: int
     total_projects: int
     showcase_updated: datetime

@@ -1,10 +1,11 @@
-from fastapi import APIRouter, HTTPException, Depends, Request
-from app.schemas.contact import ContactCreate, ContactResponse
-from app.services.email_service import send_contact_email
-from app.services.contact_service import ContactService
-from app.core.database import get_db
-from app.core.contact_auth import require_contact_admin
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
+
+from app.core.contact_auth import require_contact_admin
+from app.core.database import get_db
+from app.schemas.contact import ContactCreate, ContactResponse
+from app.services.contact_service import ContactService
+from app.services.email_service import send_contact_email
 
 router = APIRouter()
 
@@ -46,7 +47,7 @@ async def submit_contact(
             )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {e!s}")
 
 
 @router.get("/contact/{contact_id}", dependencies=[Depends(require_contact_admin)])
@@ -69,7 +70,7 @@ async def get_contact(contact_id: int, db: Session = Depends(get_db)):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {e!s}")
 
 
 @router.put("/contact/{contact_id}/read", dependencies=[Depends(require_contact_admin)])
@@ -85,4 +86,4 @@ async def mark_contact_read(contact_id: int, db: Session = Depends(get_db)):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {e!s}")

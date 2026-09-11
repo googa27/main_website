@@ -7,18 +7,19 @@ This service provides:
 - Free, self-hosted AI capabilities
 """
 
-import asyncio
 import logging
 from pathlib import Path
+from typing import Any
+
 import aiohttp
-from typing import List, Optional, Dict, Any
+
+from app.core.config import settings
 from app.schemas.ai import (
     ChatMessage,
     ChatResponse,
     PredictionResponse,
     VisualizationResponse,
 )
-from app.core.config import settings
 from app.schemas.cv import CVProfile
 
 logger = logging.getLogger(__name__)
@@ -48,7 +49,7 @@ class LocalAIService:
         )
 
     async def _call_ollama(
-        self, prompt: str, model: str = None, *, question: Optional[str] = None
+        self, prompt: str, model: str | None = None, *, question: str | None = None
     ) -> str:
         """Call Ollama API for text generation."""
         if model is None:
@@ -78,11 +79,11 @@ class LocalAIService:
                             question if question is not None else prompt
                         )
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             logger.warning("Ollama API timeout, using fallback")
             return self._fallback_response(question if question is not None else prompt)
         except Exception as e:
-            logger.error(f"Error calling Ollama: {str(e)}")
+            logger.error(f"Error calling Ollama: {e!s}")
             return self._fallback_response(question if question is not None else prompt)
 
     def _fallback_response(self, prompt: str) -> str:
@@ -120,7 +121,7 @@ class LocalAIService:
         return profile.personal_info.summary
 
     async def chat_with_resume(
-        self, message: str, conversation_history: Optional[List[ChatMessage]] = None
+        self, message: str, conversation_history: list[ChatMessage] | None = None
     ) -> ChatResponse:
         """Chat with AI about resume and experience using local LLM."""
         try:
@@ -157,7 +158,7 @@ Response:"""
             )
 
         except Exception as e:
-            logger.error(f"Error in chat_with_resume: {str(e)}")
+            logger.error(f"Error in chat_with_resume: {e!s}")
             return ChatResponse(
                 message=self._fallback_response(message),
                 confidence=0.7,
@@ -220,7 +221,7 @@ Response:"""
             )
 
         except Exception as e:
-            logger.error(f"Error in make_prediction: {str(e)}")
+            logger.error(f"Error in make_prediction: {e!s}")
             return PredictionResponse(
                 prediction="error",
                 confidence=0.0,
@@ -228,7 +229,7 @@ Response:"""
             )
 
     async def create_visualization(
-        self, data: dict, chart_type: str, options: dict = {}
+        self, data: dict, chart_type: str, options: dict | None = None
     ) -> VisualizationResponse:
         """Create data visualizations with sample data or real data processing."""
         try:
@@ -306,7 +307,7 @@ Response:"""
             )
 
         except Exception as e:
-            logger.error(f"Error in create_visualization: {str(e)}")
+            logger.error(f"Error in create_visualization: {e!s}")
             # Return fallback visualization
             return VisualizationResponse(
                 chart_data={
@@ -319,25 +320,23 @@ Response:"""
                 options={"responsive": True, "maintainAspectRatio": False},
             )
 
-    async def check_ollama_status(self) -> Dict[str, Any]:
+    async def check_ollama_status(self) -> dict[str, Any]:
         """Check if Ollama is running and available."""
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    f"{self.ollama_base_url}/api/tags", timeout=5
-                ) as response:
-                    if response.status == 200:
-                        models = await response.json()
-                        return {
-                            "status": "running",
-                            "models": [
-                                model["name"] for model in models.get("models", [])
-                            ],
-                            "default_model": self.default_model,
-                            "base_url": self.ollama_base_url,
-                        }
-                    else:
-                        return {"status": "error", "message": f"HTTP {response.status}"}
+            async with (
+                aiohttp.ClientSession() as session,
+                session.get(f"{self.ollama_base_url}/api/tags", timeout=5) as response,
+            ):
+                if response.status == 200:
+                    models = await response.json()
+                    return {
+                        "status": "running",
+                        "models": [model["name"] for model in models.get("models", [])],
+                        "default_model": self.default_model,
+                        "base_url": self.ollama_base_url,
+                    }
+                else:
+                    return {"status": "error", "message": f"HTTP {response.status}"}
         except Exception as e:
             return {"status": "error", "message": str(e)}
 
@@ -348,7 +347,7 @@ ai_service = LocalAIService()
 
 # Backward compatibility functions
 async def chat_with_resume(
-    message: str, conversation_history: Optional[List[ChatMessage]] = None
+    message: str, conversation_history: list[ChatMessage] | None = None
 ) -> ChatResponse:
     """Chat with AI about resume and experience."""
     return await ai_service.chat_with_resume(message, conversation_history)
@@ -360,7 +359,7 @@ async def make_prediction(input_data: dict, model_type: str) -> PredictionRespon
 
 
 async def create_visualization(
-    data: dict, chart_type: str, options: dict = {}
+    data: dict, chart_type: str, options: dict | None = None
 ) -> VisualizationResponse:
     """Create data visualizations."""
     return await ai_service.create_visualization(data, chart_type, options)

@@ -8,26 +8,29 @@ This service handles:
 - Automatic synchronization scheduling
 """
 
-import os
+import asyncio
 import logging
-from datetime import datetime, timezone, timedelta
-from typing import Dict, List, Optional, Any
-import requests
+import os
+from datetime import UTC, datetime, timedelta
+from typing import Any
+
+import httpx
 
 from app.core.time import utc_now
 from app.schemas.cv import (
+    Certification,
     CVProfile,
-    PersonalInfo,
-    WorkExperience,
     Education,
-    Skills,
+    Language,
+    PersonalInfo,
     Skill,
     SkillLevel,
-    Certification,
-    Language,
+    Skills,
+    WorkExperience,
 )
 
 logger = logging.getLogger(__name__)
+ACQUISITION_DEADLINE_SECONDS = 30.0
 
 
 class LinkedInService:
@@ -61,9 +64,7 @@ class LinkedInService:
 
         return utc_now() - self.last_sync > self.sync_interval
 
-    async def sync_profile_data(
-        self, force_refresh: bool = False
-    ) -> Optional[CVProfile]:
+    async def sync_profile_data(self, force_refresh: bool = False) -> CVProfile | None:
         """
         Sync LinkedIn profile data and return CV profile.
 
@@ -100,80 +101,52 @@ class LinkedInService:
             return cv_profile
 
         except Exception as e:
-            logger.error(f"LinkedIn sync failed: {str(e)}")
+            logger.error(f"LinkedIn sync failed: {e!s}")
             return None
 
-    async def _fetch_profile_data(self) -> Optional[Dict[str, Any]]:
-        """Fetch profile data from LinkedIn API."""
+    async def _fetch_profile_data(self) -> dict[str, Any] | None:
+        """Fetch profile and optional sections within one finite acquisition deadline."""
         try:
             headers = {
                 "Authorization": f"Bearer {self.access_token}",
                 "Content-Type": "application/json",
             }
-
-            # Fetch basic profile information
-            profile_url = f"{self.api_base_url}/me"
-            profile_response = requests.get(profile_url, headers=headers)
-
-            if profile_response.status_code != 200:
-                logger.error(
-                    f"LinkedIn profile API error: {profile_response.status_code}"
-                )
-                return None
-
-            profile_data = profile_response.json()
-
-            # Fetch additional profile sections
-            additional_data = await self._fetch_additional_profile_data(headers)
-
-            # Merge all data
-            complete_profile = {**profile_data, **additional_data}
-
-            return complete_profile
-
+            async with (
+                asyncio.timeout(ACQUISITION_DEADLINE_SECONDS),
+                httpx.AsyncClient(
+                    timeout=httpx.Timeout(10.0, connect=5.0), follow_redirects=True
+                ) as client,
+            ):
+                response = await client.get(f"{self.api_base_url}/me", headers=headers)
+                if response.status_code != 200:
+                    logger.error(f"LinkedIn profile API error: {response.status_code}")
+                    return None
+                profile_data = response.json()
+                additional = await self._fetch_additional_profile_data(headers, client)
+                return {**profile_data, **additional}
         except Exception as e:
-            logger.error(f"Error fetching LinkedIn profile: {str(e)}")
+            logger.error(f"Error fetching LinkedIn profile: {e!s}")
             return None
 
     async def _fetch_additional_profile_data(
-        self, headers: Dict[str, str]
-    ) -> Dict[str, Any]:
-        """Fetch additional profile sections (experience, education, skills)."""
+        self, headers: dict[str, str], client: httpx.AsyncClient
+    ) -> dict[str, Any]:
+        """Retain successfully fetched optional sections if a later section fails."""
         additional_data = {}
-
         try:
-            # Fetch positions (work experience)
-            positions_url = f"{self.api_base_url}/me/positions"
-            positions_response = requests.get(positions_url, headers=headers)
-            if positions_response.status_code == 200:
-                additional_data["positions"] = positions_response.json()
-
-            # Fetch education
-            education_url = f"{self.api_base_url}/me/educations"
-            education_response = requests.get(education_url, headers=headers)
-            if education_response.status_code == 200:
-                additional_data["educations"] = education_response.json()
-
-            # Fetch skills
-            skills_url = f"{self.api_base_url}/me/skills"
-            skills_response = requests.get(skills_url, headers=headers)
-            if skills_response.status_code == 200:
-                additional_data["skills"] = skills_response.json()
-
-            # Fetch certifications
-            certifications_url = f"{self.api_base_url}/me/certifications"
-            certifications_response = requests.get(certifications_url, headers=headers)
-            if certifications_response.status_code == 200:
-                additional_data["certifications"] = certifications_response.json()
-
+            for section in ("positions", "educations", "skills", "certifications"):
+                response = await client.get(
+                    f"{self.api_base_url}/me/{section}", headers=headers
+                )
+                if response.status_code == 200:
+                    additional_data[section] = response.json()
         except Exception as e:
-            logger.warning(f"Error fetching additional profile data: {str(e)}")
-
+            logger.warning(f"Error fetching additional profile data: {e!s}")
         return additional_data
 
     async def _transform_to_cv_profile(
-        self, linkedin_data: Dict[str, Any]
-    ) -> Optional[CVProfile]:
+        self, linkedin_data: dict[str, Any]
+    ) -> CVProfile | None:
         """Transform LinkedIn API data to CV profile model."""
         try:
             # Extract personal information
@@ -217,10 +190,10 @@ class LinkedInService:
             return cv_profile
 
         except Exception as e:
-            logger.error(f"Error transforming LinkedIn data: {str(e)}")
+            logger.error(f"Error transforming LinkedIn data: {e!s}")
             return None
 
-    def _extract_personal_info(self, data: Dict[str, Any]) -> Optional[PersonalInfo]:
+    def _extract_personal_info(self, data: dict[str, Any]) -> PersonalInfo | None:
         """Extract personal information from LinkedIn data."""
         try:
             # Basic profile information
@@ -263,12 +236,12 @@ class LinkedInService:
             )
 
         except Exception as e:
-            logger.error(f"Error extracting personal info: {str(e)}")
+            logger.error(f"Error extracting personal info: {e!s}")
             return None
 
     def _extract_work_experience(
-        self, positions_data: Dict[str, Any]
-    ) -> List[WorkExperience]:
+        self, positions_data: dict[str, Any]
+    ) -> list[WorkExperience]:
         """Extract work experience from LinkedIn positions data."""
         experience = []
 
@@ -323,15 +296,15 @@ class LinkedInService:
                     experience.append(work_exp)
 
                 except Exception as e:
-                    logger.warning(f"Error processing position: {str(e)}")
+                    logger.warning(f"Error processing position: {e!s}")
                     continue
 
         except Exception as e:
-            logger.error(f"Error extracting work experience: {str(e)}")
+            logger.error(f"Error extracting work experience: {e!s}")
 
         return experience
 
-    def _extract_education(self, education_data: Dict[str, Any]) -> List[Education]:
+    def _extract_education(self, education_data: dict[str, Any]) -> list[Education]:
         """Extract education from LinkedIn education data."""
         education = []
 
@@ -368,15 +341,15 @@ class LinkedInService:
                     education.append(edu_entry)
 
                 except Exception as e:
-                    logger.warning(f"Error processing education: {str(e)}")
+                    logger.warning(f"Error processing education: {e!s}")
                     continue
 
         except Exception as e:
-            logger.error(f"Error extracting education: {str(e)}")
+            logger.error(f"Error extracting education: {e!s}")
 
         return education
 
-    def _extract_skills(self, skills_data: Dict[str, Any]) -> Skills:
+    def _extract_skills(self, skills_data: dict[str, Any]) -> Skills:
         """Extract and categorize skills from LinkedIn skills data."""
         try:
             # Initialize skill categories
@@ -427,7 +400,7 @@ class LinkedInService:
                         soft_skills.append(skill)
 
                 except Exception as e:
-                    logger.warning(f"Error processing skill: {str(e)}")
+                    logger.warning(f"Error processing skill: {e!s}")
                     continue
 
             return Skills(
@@ -442,7 +415,7 @@ class LinkedInService:
             )
 
         except Exception as e:
-            logger.error(f"Error extracting skills: {str(e)}")
+            logger.error(f"Error extracting skills: {e!s}")
             return Skills()
 
     def _categorize_skill(self, skill_name: str) -> tuple[str, SkillLevel]:
@@ -546,8 +519,8 @@ class LinkedInService:
             return "soft_skills", SkillLevel.INTERMEDIATE
 
     def _extract_certifications(
-        self, certifications_data: Dict[str, Any]
-    ) -> List[Certification]:
+        self, certifications_data: dict[str, Any]
+    ) -> list[Certification]:
         """Extract certifications from LinkedIn data."""
         certifications = []
 
@@ -583,15 +556,15 @@ class LinkedInService:
                     certifications.append(cert_entry)
 
                 except Exception as e:
-                    logger.warning(f"Error processing certification: {str(e)}")
+                    logger.warning(f"Error processing certification: {e!s}")
                     continue
 
         except Exception as e:
-            logger.error(f"Error extracting certifications: {str(e)}")
+            logger.error(f"Error extracting certifications: {e!s}")
 
         return certifications
 
-    def _extract_languages(self, data: Dict[str, Any]) -> List[Language]:
+    def _extract_languages(self, data: dict[str, Any]) -> list[Language]:
         """Extract language proficiencies."""
         # Default languages for Chile
         languages = [
@@ -661,15 +634,15 @@ class LinkedInService:
                         )
 
                 except Exception as e:
-                    logger.warning(f"Error processing language: {str(e)}")
+                    logger.warning(f"Error processing language: {e!s}")
                     continue
 
         except Exception as e:
-            logger.warning(f"Error extracting languages: {str(e)}")
+            logger.warning(f"Error extracting languages: {e!s}")
 
         return languages
 
-    def _parse_linkedin_date(self, date_data: Dict[str, Any]) -> Optional[datetime]:
+    def _parse_linkedin_date(self, date_data: dict[str, Any]) -> datetime | None:
         """Parse LinkedIn date format to datetime."""
         try:
             if not date_data:
@@ -681,13 +654,13 @@ class LinkedInService:
             if not year:
                 return None
 
-            return datetime(year=year, month=month, day=1, tzinfo=timezone.utc)
+            return datetime(year=year, month=month, day=1, tzinfo=UTC)
 
         except Exception as e:
-            logger.warning(f"Error parsing LinkedIn date: {str(e)}")
+            logger.warning(f"Error parsing LinkedIn date: {e!s}")
             return None
 
-    def get_sync_status(self) -> Dict[str, Any]:
+    def get_sync_status(self) -> dict[str, Any]:
         """Get current sync status."""
         return {
             "configured": self.is_configured(),

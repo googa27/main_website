@@ -1,13 +1,14 @@
 """UTC timestamp and deprecation contract regressions for the optional API."""
 
 import ast
+from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
-from typing import Callable, cast
+from typing import cast
 
 from sqlalchemy import text
 
-from app.models.database import CVDownload, ChatMessage, ChatSession, Contact, Project
+from app.models.database import ChatMessage, ChatSession, Contact, CVDownload, Project
 from app.schemas.cv import CVProfile, Skills
 
 API_ROOT = Path(__file__).resolve().parents[1]
@@ -144,6 +145,6 @@ def test_pydantic_helpers_are_warning_free() -> None:
 
 
 def test_starlette_testclient_uses_httpx2() -> None:
-    import starlette.testclient as testclient
+    from starlette import testclient
 
     assert testclient.httpx.__name__ == "httpx2"

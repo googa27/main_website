@@ -9,15 +9,15 @@ This service manages showcase information for key projects:
 """
 
 import logging
-from datetime import datetime, timezone
-from typing import List, Dict, Any, Optional
+from datetime import UTC, datetime
+from typing import Any
 
 from app.core.time import utc_now
 from app.schemas.project import (
     ProjectShowcase,
-    ShowcaseProject,
-    ProjectType,
     ProjectStatus,
+    ProjectType,
+    ShowcaseProject,
     ShowcaseResponse,
 )
 
@@ -32,7 +32,7 @@ class ShowcaseService:
         self.showcase_projects = self._initialize_showcase_projects()
         self.last_updated = utc_now()
 
-    def _initialize_showcase_projects(self) -> List[ProjectShowcase]:
+    def _initialize_showcase_projects(self) -> list[ProjectShowcase]:
         """Initialize showcase projects with detailed information."""
         return [
             ProjectShowcase(
@@ -86,7 +86,7 @@ class ShowcaseService:
                 paper_url=None,
                 stars=15,
                 forks=3,
-                last_updated=datetime(2024, 12, 15, tzinfo=timezone.utc),
+                last_updated=datetime(2024, 12, 15, tzinfo=UTC),
             ),
             ProjectShowcase(
                 project_id=2,
@@ -138,7 +138,7 @@ class ShowcaseService:
                 paper_url=None,
                 stars=8,
                 forks=2,
-                last_updated=datetime(2024, 11, 20, tzinfo=timezone.utc),
+                last_updated=datetime(2024, 11, 20, tzinfo=UTC),
             ),
             ProjectShowcase(
                 project_id=3,
@@ -183,7 +183,7 @@ class ShowcaseService:
                 paper_url=None,
                 stars=5,
                 forks=1,
-                last_updated=datetime(2024, 12, 10, tzinfo=timezone.utc),
+                last_updated=datetime(2024, 12, 10, tzinfo=UTC),
             ),
             ProjectShowcase(
                 project_id=4,
@@ -231,13 +231,13 @@ class ShowcaseService:
                 paper_url=None,
                 stars=0,
                 forks=0,
-                last_updated=datetime(2024, 12, 1, tzinfo=timezone.utc),
+                last_updated=datetime(2024, 12, 1, tzinfo=UTC),
             ),
         ]
 
     def get_showcase_projects(
         self, include_planned: bool = False
-    ) -> List[ShowcaseProject]:
+    ) -> list[ShowcaseProject]:
         """Get all showcase projects, optionally including planned ones."""
         projects = []
 
@@ -272,15 +272,13 @@ class ShowcaseService:
         projects.sort(key=lambda x: x.showcase_priority)
         return projects
 
-    def get_featured_projects(self, limit: int = 3) -> List[ShowcaseProject]:
+    def get_featured_projects(self, limit: int = 3) -> list[ShowcaseProject]:
         """Get featured projects for showcase."""
         all_projects = self.get_showcase_projects(include_planned=False)
         featured = [p for p in all_projects if p.is_featured]
         return featured[:limit]
 
-    def get_project_by_type(
-        self, project_type: ProjectType
-    ) -> Optional[ShowcaseProject]:
+    def get_project_by_type(self, project_type: ProjectType) -> ShowcaseProject | None:
         """Get a specific project by type."""
         for project in self.showcase_projects:
             if project.project_type == project_type:
@@ -347,7 +345,7 @@ class ShowcaseService:
                 )
                 break
 
-    def get_showcase_stats(self) -> Dict[str, Any]:
+    def get_showcase_stats(self) -> dict[str, Any]:
         """Get showcase statistics."""
         active_projects = [
             p for p in self.showcase_projects if p.status == ProjectStatus.ACTIVE

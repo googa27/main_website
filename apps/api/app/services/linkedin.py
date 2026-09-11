@@ -12,6 +12,7 @@ import asyncio
 import logging
 import os
 from datetime import UTC, datetime, timedelta
+from threading import Lock
 from typing import Any
 
 import httpx
@@ -43,6 +44,7 @@ class LinkedInService:
         self.access_token = os.getenv("LINKEDIN_ACCESS_TOKEN")
         self.api_base_url = "https://api.linkedin.com/v2"
         self.last_sync = None
+        self._completion_lock = Lock()
         self.sync_interval = timedelta(hours=24)  # Sync every 24 hours
 
         if not self.client_id or not self.client_secret:
@@ -59,17 +61,26 @@ class LinkedInService:
         if force_refresh:
             return True
 
-        if not self.last_sync:
-            return True
+        with self._completion_lock:
+            completed = self.last_sync
+        return completed is None or utc_now() - completed > self.sync_interval
 
-        return utc_now() - self.last_sync > self.sync_interval
+    def mark_sync_completed(self) -> None:
+        """Acknowledge completion without moving the published clock backward."""
+        with self._completion_lock:
+            completed = utc_now()
+            if self.last_sync is None or completed > self.last_sync:
+                self.last_sync = completed
 
-    async def sync_profile_data(self, force_refresh: bool = False) -> CVProfile | None:
+    async def sync_profile_data(
+        self, force_refresh: bool = False, *, defer_completion: bool = False
+    ) -> CVProfile | None:
         """
         Sync LinkedIn profile data and return CV profile.
 
         Args:
             force_refresh: Force refresh even if recently synced
+            defer_completion: A persistence owner acknowledges successful storage.
 
         Returns:
             CVProfile if successful, None otherwise
@@ -95,7 +106,8 @@ class LinkedInService:
                 logger.error("Failed to transform LinkedIn data to CV profile")
                 return None
 
-            self.last_sync = utc_now()
+            if not defer_completion:
+                self.mark_sync_completed()
 
             logger.info("LinkedIn profile sync completed successfully")
             return cv_profile
@@ -662,11 +674,13 @@ class LinkedInService:
 
     def get_sync_status(self) -> dict[str, Any]:
         """Get current sync status."""
+        with self._completion_lock:
+            completed = self.last_sync
         return {
             "configured": self.is_configured(),
-            "last_sync": self.last_sync.isoformat() if self.last_sync else None,
-            "next_sync": (self.last_sync + self.sync_interval).isoformat()
-            if self.last_sync
+            "last_sync": completed.isoformat() if completed else None,
+            "next_sync": (completed + self.sync_interval).isoformat()
+            if completed
             else None,
             "sync_interval_hours": self.sync_interval.total_seconds() / 3600,
         }

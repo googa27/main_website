@@ -177,6 +177,13 @@
         "https://fastapi.tiangolo.com/reference/security/#fastapi.security.HTTPBearer",
         "https://docs.python.org/3/library/secrets.html#secrets.compare_digest"
       ]
+    },
+    "cv_sync_completion": {
+      "issue": "https://github.com/googa27/main_website/issues/114",
+      "ownership": "CV defers provider completion until successful atomic storage and cache publication, then acknowledges within the same storage worker transaction.",
+      "compatibility": "LinkedInService.sync_profile_data keeps direct-call completion by default; keyword-only defer_completion=True is for persistence owners that subsequently call mark_sync_completed.",
+      "concurrency": "A provider lock publishes monotonically increasing completion timestamps and snapshots status consistently. Failed or cancelled-before-commit requests do not roll back another success. A scheduled cancelled worker may still commit and acknowledge together.",
+      "fitness": "apps/api/tests/test_cv_retry.py covers actual provider retry, successful throttle, direct-call compatibility, acquisition cancellation, successful/failed cancelled storage, older concurrent failure and backward concurrent clocks."
     }
   },
   "source_layout": {

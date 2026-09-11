@@ -96,6 +96,14 @@ failures retain earlier successful sections. Tests use synthetic HTTPX transport
 and controlled storage-thread events, including a cancelled first writer followed
 by a second update. No live provider or private data is needed.
 
+This follows HTTPX's [async client lifecycle](https://www.python-httpx.org/async/)
+and [phase timeout](https://www.python-httpx.org/advanced/timeouts/) contracts,
+with Python's [task deadlines and I/O offloading](https://docs.python.org/3.12/library/asyncio-task.html).
+HTTPX is already a runtime dependency, so the adapter needs no additional client
+library. Redirect behavior is retained, with a synthetic cross-origin redirect
+test verifying that authorization is not forwarded to the new origin. Domain
+code owns curated-field merging; the standard library owns locking and scheduling.
+
 The installed API gate builds a wheel with Setuptools' explicit package-data rule
 for the reviewed CV JSON, installs only the runtime package into a separate
 environment and runs `scripts/check_installed_api.py` with an isolated interpreter
@@ -104,3 +112,6 @@ and contact-redacted AI context. This protects against [#113](https://github.com
 where editable imports passed while the wheel omitted the startup fixture. Mypy's
 existing configuration excludes only generated `build/` copies to avoid duplicate
 module discovery after an artifact build; its existing type coverage is unchanged.
+The static mount is also module-relative. The packaging rule uses maintained
+[Setuptools package-data support](https://setuptools.pypa.io/en/latest/userguide/datafiles.html),
+and the real installed-wheel gate provides the regression oracle.

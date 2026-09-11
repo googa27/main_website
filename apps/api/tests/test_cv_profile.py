@@ -58,6 +58,16 @@ async def test_json_export_preserves_project_evidence_and_awards():
     assert exported["awards"][0]["title"] == "Eiffel Excellence Scholarship"
 
 
+async def test_json_export_uses_application_storage_from_unrelated_cwd(
+    monkeypatch, tmp_path
+):
+    monkeypatch.chdir(tmp_path)
+    result = await CVService().export_cv(CVExportRequest(format="json"))
+    exported = json.loads(result.content)
+    assert exported["projects"][0]["url"].endswith("/finite_element_options")
+    assert not (tmp_path / "app").exists()
+
+
 def test_resume_chat_context_and_offline_answers_use_verified_profile():
     service = LocalAIService()
     context = json.loads(service.cv_context)

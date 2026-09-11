@@ -32,7 +32,7 @@ class CVService:
 
     def __init__(self):
         """Initialize CV service."""
-        self.cv_data_dir = Path("app/static/cv")
+        self.cv_data_dir = Path(__file__).resolve().parents[1] / "static" / "cv"
         self.cv_data_dir.mkdir(parents=True, exist_ok=True)
 
         # CV data file

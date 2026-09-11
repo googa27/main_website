@@ -390,6 +390,7 @@
       "evidence": "Owner confirmation, reconciled LinkedIn/CV timeline and public repositories",
       "public_fields": "Professional history, public email and profile links; phone and private career preferences omitted",
       "validation": "JSON parse and API CVProfile validation; current and ended work records retain correct status",
+      "default_profile_storage": "CVService resolves app/static/cv relative to its application module, independently of the process working directory. A temporary-working-directory JSON export regression protects this contract (issue #105).",
       "claim_boundaries": "Research plans are not delivery evidence; benchmark is online-only synthetic repository evidence; expired credentials omitted",
       "test_compatibility_note": {
         "date": "2026-09-06",

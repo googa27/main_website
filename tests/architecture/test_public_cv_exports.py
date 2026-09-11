@@ -54,7 +54,11 @@ def test_export_projection_has_no_acquisition_or_database_owner():
 def test_pdf_stays_optional_and_profile_audit_includes_it():
     project = tomllib.loads((ROOT / "apps/api/pyproject.toml").read_text())["project"]
     assert not any(item.startswith("reportlab") for item in project["dependencies"])
-    assert project["optional-dependencies"]["pdf"] == ["reportlab==5.0.1"]
+    assert project["optional-dependencies"]["pdf"] == [
+        "reportlab==5.0.1",
+        "pillow==12.3.0",
+    ]
+    assert "pillow==12.3.0" in (ROOT / "apps/api/requirements-pdf.txt").read_text()
     for name in ("pdf", "export", "service"):
         tree = ast.parse((ROOT / f"apps/api/app/services/cv/{name}.py").read_text())
         assert not any(

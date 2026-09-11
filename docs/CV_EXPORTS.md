@@ -4,13 +4,13 @@ Tracking: [#116](https://github.com/googa27/main_website/issues/116). The curren
 
 ## Maintained libraries and source decisions
 
-| Capability | Selected boundary | Alternatives and reason |
-| --- | --- | --- |
-| Typed projection | Existing Pydantic 2.11.7 models, separate immutable export models and a named projection | Domain mapping owns evidence and date precision; general converters cannot infer those policies. |
-| JSON Resume conformance | jsonschema 4.26.0 and the exact MIT-licensed @jsonresume/schema 1.3.1 resource | The canonical package lives in `jsonresume/jsonresume.org/packages/schema`. Validation is offline with the packaged schema, without remote schema resolution. |
-| Optional PDF | ReportLab 5.0.1, BSD, with its packaged Vera font | fpdf2 2.8.8 is maintained but LGPL; browser/WeasyPrint engines add dependencies unnecessary for this text document. All supplied text is escaped before ReportLab paragraph markup. |
-| PDF verification | pypdf 6.18.1, BSD-3-Clause, development only | Independently parses actual document bytes, extracted Unicode text, page content and annotations. It is not a runtime renderer. |
-| Project fallback | Pure projection of current curated CV projects and explicit editorial ordering | Reject the prototype's GitHub sync, database writes and network retries during GET. Existing explicit sync remains separate. |
+| Capability              | Selected boundary                                                                        | Alternatives and reason                                                                                                                                                             |
+| ----------------------- | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Typed projection        | Existing Pydantic 2.11.7 models, separate immutable export models and a named projection | Domain mapping owns evidence and date precision; general converters cannot infer those policies.                                                                                    |
+| JSON Resume conformance | jsonschema 4.26.0 and the exact MIT-licensed @jsonresume/schema 1.3.1 resource           | The canonical package lives in `jsonresume/jsonresume.org/packages/schema`. Validation is offline with the packaged schema, without remote schema resolution.                       |
+| Optional PDF            | ReportLab 5.0.1, BSD, with its packaged Vera font                                        | fpdf2 2.8.8 is maintained but LGPL; browser/WeasyPrint engines add dependencies unnecessary for this text document. All supplied text is escaped before ReportLab paragraph markup. |
+| PDF verification        | pypdf 6.18.1, BSD-3-Clause, development only                                             | Independently parses actual document bytes, extracted Unicode text, page content and annotations. It is not a runtime renderer.                                                     |
+| Project fallback        | Pure projection of current curated CV projects and explicit editorial ordering           | Reject the prototype's GitHub sync, database writes and network retries during GET. Existing explicit sync remains separate.                                                        |
 
 Primary sources checked 2026-09-11: [JSON Resume repository structure](https://jsonresume.org/docs/002-repository-structure), [canonical schema package](https://registry.npmjs.org/@jsonresume/schema/1.3.1), [ReportLab releases](https://docs.reportlab.com/reportlab/changes/), [paragraph markup](https://docs.reportlab.com/reportlab/userguide/ch6_paragraphs/), [ReportLab distribution](https://pypi.org/project/reportlab/5.0.1/), [jsonschema](https://pypi.org/project/jsonschema/4.26.0/), [pypdf](https://pypi.org/project/pypdf/6.18.1/), [fpdf2](https://pypi.org/project/fpdf2/2.8.8/).
 
@@ -37,14 +37,14 @@ Use a real existing destination directory. Output is rendered and validated befo
 
 `--capabilities` reports schema version, input source and whether the optional PDF dependency is installed. Import availability alone does not prove successful rendering; the actual PDF command and installed artifact tests provide that evidence. Missing PDF support returns exit code 2 with a bounded diagnostic. The immutable public Python projection is `app.services.cv.resume.project_resume(profile, options)`; `resume_json(resume)` serializes the published aliases. `app.services.cv.CVService.get_public_resume()` and `render_public_pdf()` are asynchronous orchestration methods. CPU/render work runs in a worker thread.
 
-| HTTP route | Response |
-| --- | --- |
-| `GET /api/cv/resume` | Typed JSON Resume document |
-| `GET /api/cv/resume/download` | Same document as a UTF-8 JSON attachment |
-| `GET /api/cv/pdf` | Actual `application/pdf` attachment; 503 when the optional renderer is absent |
-| `GET /api/cv/download?format=pdf` | Same binary PDF route for existing download callers |
-| `POST /api/cv/export` with `format=jsonresume` | Existing export envelope containing JSON Resume text |
-| Existing PDF export envelope | Same-origin `download_path` when available; explicit unavailable content otherwise |
+| HTTP route                                     | Response                                                                           |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `GET /api/cv/resume`                           | Typed JSON Resume document                                                         |
+| `GET /api/cv/resume/download`                  | Same document as a UTF-8 JSON attachment                                           |
+| `GET /api/cv/pdf`                              | Actual `application/pdf` attachment; 503 when the optional renderer is absent      |
+| `GET /api/cv/download?format=pdf`              | Same binary PDF route for existing download callers                                |
+| `POST /api/cv/export` with `format=jsonresume` | Existing export envelope containing JSON Resume text                               |
+| Existing PDF export envelope                   | Same-origin `download_path` when available; explicit unavailable content otherwise |
 
 Existing JSON/MDX envelopes remain available. JSON Resume and PDF retain projects, awards and their evidence limitations. Career/certificate dates are emitted at month precision, education at year precision; original date-precision notes and profile revision timestamps are retained. This avoids presenting placeholder day 01 as a verified exact date. No publication, deployment or model calibration is inferred from a project entry. The public CV contains its reviewed contact fields; the separate chatbot context continues to omit phone, email and profile-picture data.
 
@@ -67,3 +67,5 @@ PDP acquisition, FPF mathematical formulation and ui_and_artifacts governed repo
 Fitness tests pin the offline schema/license and package resources, forbid acquisition/database imports in projection modules, preserve optional PDF ownership and require the static preview to reuse current content. API tests cover actual PDF bytes and escaped markup, concurrency, HTTP attachments, optional absence, atomic failure preservation, date/evidence semantics and database read-only fallback. `scripts/check_installed_api.py` exercises the runtime wheel and CLI from an isolated interpreter outside the source tree. Visual inspection additionally checks the generated public PDF's page breaks and glyphs. These are synthetic/local artifact checks, not live provider or deployed-browser acceptance.
 
 The isolated build also exposed [#117](https://github.com/googa27/main_website/issues/117), the deprecated API license-table syntax. The existing MIT expression now uses modern SPDX metadata with Setuptools >=77.0.3, following the [PyPA packaging guide](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license). This is a syntax migration, not a new root license claim. Wheel metadata and a warning-free build verify the actual result.
+
+The PDF extra explicitly pins Pillow 12.3.0, the version already used by the verified renderer environment. ReportLab's broader `Pillow>=9` requirement alone permits vulnerable historical versions: the actual PR OSV run identified 9.5.0 and prompted [#120](https://github.com/googa27/main_website/issues/120). The [upstream 12.3.0 security release](https://pillow.readthedocs.io/en/stable/releasenotes/12.3.0.html) addresses the reported parser, memory and font issues. Both distribution and requirements profiles enforce the same constraint, independently of the text-only renderer's asset refusal. An actual resolver must reject the old version; selecting a current version in one test environment alone does not enforce the supported dependency boundary.

@@ -213,7 +213,8 @@
       ],
       "optional_dependency": "portfolio-api[pdf] owns ReportLab; core JSON Resume projection must work without it",
       "schema_sha256": "a07eedd3d86ac5bb61d72e136d788269e35baf42c35391e15d0be39b3dc5a4bd",
-      "cli": "portfolio-cv --capabilities; portfolio-cv --format jsonresume; portfolio-cv --format pdf --output ./resume.pdf"
+      "cli": "portfolio-cv --capabilities; portfolio-cv --format jsonresume; portfolio-cv --format pdf --output ./resume.pdf",
+      "pdf_security_constraint": "pillow==12.3.0"
     },
     "local_hook_toolchain": {
       "config": ".pre-commit-config.yaml",

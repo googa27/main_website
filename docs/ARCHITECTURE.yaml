@@ -104,7 +104,18 @@
       "deterministic CLI/contracts",
       "capability registry",
       "adapters behind explicit protocols"
-    ]
+    ],
+    "node_peer_compatibility": {
+      "package_manager_policy": ".npmrc requires strict-peer-dependencies=true",
+      "workspace_split": "UI uses ESLint10 with the shared TypeScript-ESLint parser/plugin; web remains on ESLint9 because the maintained Next React/import/accessibility plugins exclude ESLint10. TypeScript remains5 within parser support.",
+      "evidence": [
+        "https://registry.npmjs.org/@typescript-eslint/parser/8.63.0",
+        "https://registry.npmjs.org/@typescript-eslint/eslint-plugin/8.63.0",
+        "https://github.com/googa27/main_website/pull/89#issuecomment-5638237070",
+        "https://github.com/googa27/main_website/pull/91#issuecomment-5638238178"
+      ],
+      "fitness": "Frozen pnpm install rejects unsupported peer combinations; workspace-specific lint and typecheck verify their public CLI behavior."
+    }
   },
   "source_layout": {
     "python_rules_applicable": true,

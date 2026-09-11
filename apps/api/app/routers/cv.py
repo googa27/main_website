@@ -9,6 +9,7 @@ This router provides endpoints for:
 """
 
 from fastapi import APIRouter, HTTPException, Query
+from fastapi.responses import Response
 
 from app.schemas.cv import (
     CVExportRequest,
@@ -17,10 +18,69 @@ from app.schemas.cv import (
     LinkedInSyncRequest,
     LinkedInSyncResponse,
 )
-from app.services.cv import cv_service
+from app.schemas.resume import PublicResume
+from app.services.cv import CVProfileUnavailableError, cv_service
+from app.services.cv.pdf import PDFUnavailableError
+from app.services.cv.resume import ResumeProjectionError, resume_json
 from app.services.linkedin import linkedin_service
 
 router = APIRouter()
+
+
+@router.get("/cv/resume", response_model=PublicResume, response_model_exclude_none=True)
+async def get_public_resume() -> PublicResume:
+    """Return JSON Resume from the current curated public CV snapshot."""
+    try:
+        return await cv_service.get_public_resume()
+    except CVProfileUnavailableError as error:
+        raise HTTPException(status_code=404, detail="Public CV unavailable") from error
+    except ResumeProjectionError as error:
+        raise HTTPException(
+            status_code=422, detail="Public CV export is invalid"
+        ) from error
+
+
+@router.get("/cv/resume/download")
+async def download_public_resume() -> Response:
+    """Download the same JSON Resume document as a UTF-8 attachment."""
+    resume = await get_public_resume()
+    return Response(
+        content=resume_json(resume),
+        media_type="application/json",
+        headers={"Content-Disposition": 'attachment; filename="resume.json"'},
+    )
+
+
+@router.get("/cv/pdf")
+async def download_public_pdf(
+    include_scores: bool = False,
+    include_achievements: bool = True,
+    include_technologies: bool = True,
+) -> Response:
+    """Return a real PDF, or an explicit unavailable/error HTTP response."""
+    options = CVExportRequest(
+        format="pdf",
+        include_scores=include_scores,
+        include_achievements=include_achievements,
+        include_technologies=include_technologies,
+    )
+    try:
+        content = await cv_service.render_public_pdf(options)
+    except CVProfileUnavailableError as error:
+        raise HTTPException(status_code=404, detail="Public CV unavailable") from error
+    except PDFUnavailableError as error:
+        raise HTTPException(
+            status_code=503, detail="PDF export is unavailable"
+        ) from error
+    except ResumeProjectionError as error:
+        raise HTTPException(
+            status_code=422, detail="Public CV export is invalid"
+        ) from error
+    return Response(
+        content=content,
+        media_type="application/pdf",
+        headers={"Content-Disposition": 'attachment; filename="resume.pdf"'},
+    )
 
 
 @router.get("/cv/profile", response_model=CVProfile)
@@ -134,6 +194,12 @@ async def download_cv(
     This endpoint provides a simple way to download CV data
     with configurable export options.
     """
+    if format.lower() == "pdf":
+        return await download_public_pdf(
+            include_scores=include_scores,
+            include_achievements=include_achievements,
+            include_technologies=include_technologies,
+        )
     try:
         request = CVExportRequest(
             format=format,
@@ -144,17 +210,13 @@ async def download_cv(
 
         response = await cv_service.export_cv(request)
 
-        # For now, return the content directly
-        # In a real implementation, you might want to:
-        # 1. Generate actual files (especially for PDF)
-        # 2. Store them temporarily with download URLs
-        # 3. Implement proper file download handling
-
+        # Preserve legacy text envelopes; binary PDF dispatch happens above.
         return {
             "format": response.format,
             "content": response.content,
             "file_size": response.file_size,
-            "download_note": "Content is returned directly. For file downloads, use the /cv/export endpoint.",
+            "download_path": response.download_path,
+            "download_note": "Text content is returned directly. JSON Resume attachments use /cv/resume/download.",
         }
 
     except Exception as e:

@@ -1,5 +1,6 @@
 from datetime import datetime
 from enum import Enum
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
@@ -106,6 +107,7 @@ class ProjectCreate(ProjectBase):
 
 class Project(ProjectBase):
     id: int
+    is_featured: bool = False
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -113,6 +115,11 @@ class Project(ProjectBase):
 class ProjectList(BaseModel):
     projects: list[Project]
     total: int
+    source: Literal["database", "curated_cv"] = "database"
+    metrics_available: bool = True
+    timestamp_kind: Literal["repository_updated_at", "profile_last_updated"] = (
+        "repository_updated_at"
+    )
 
 
 class ShowcaseProject(BaseModel):

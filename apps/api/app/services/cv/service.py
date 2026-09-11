@@ -12,9 +12,11 @@ import asyncio
 import json
 import logging
 from datetime import datetime
+from importlib.util import find_spec
 from pathlib import Path
 from threading import RLock
 from typing import Any
+from urllib.parse import urlencode
 
 from app.core.time import utc_now
 from app.schemas.cv import (
@@ -24,12 +26,19 @@ from app.schemas.cv import (
     LinkedInSyncRequest,
     LinkedInSyncResponse,
 )
+from app.schemas.resume import PublicResume
 from app.services.linkedin import linkedin_service
 
+from .pdf import render_pdf
 from .rendering import render_mdx
+from .resume import project_resume, resume_json
 from .storage import load_profile, save_profile
 
 logger = logging.getLogger(__name__)
+
+
+class CVProfileUnavailableError(LookupError):
+    """No current curated CV snapshot is available for export."""
 
 
 class CVService:
@@ -44,7 +53,7 @@ class CVService:
         self.cv_data_file = self.cv_data_dir / "cv_profile.json"
 
         # Export formats
-        self.supported_formats = ["json", "pdf", "mdx"]
+        self.supported_formats = ["json", "pdf", "mdx", "jsonresume"]
 
         # Current CV profile
         self._current_profile: CVProfile | None = None
@@ -52,6 +61,20 @@ class CVService:
 
     async def get_current_cv(self) -> CVProfile | None:
         return await asyncio.to_thread(self._current_snapshot)
+
+    async def get_public_resume(
+        self, options: CVExportRequest | None = None
+    ) -> PublicResume:
+        """Project the current typed snapshot without acquiring or persisting data."""
+        profile = await self.get_current_cv()
+        if profile is None:
+            raise CVProfileUnavailableError("Public CV profile unavailable")
+        return await asyncio.to_thread(project_resume, profile, options)
+
+    async def render_public_pdf(self, options: CVExportRequest | None = None) -> bytes:
+        """Generate optional binary PDF in a worker, without event-loop blocking."""
+        resume = await self.get_public_resume(options)
+        return await asyncio.to_thread(render_pdf, resume)
 
     def _current_snapshot(self) -> CVProfile | None:
         with self._storage_lock:
@@ -191,6 +214,14 @@ class CVService:
                 return await self._export_pdf(cv_profile, request)
             elif request.format.lower() == "mdx":
                 return await self._export_mdx(cv_profile, request)
+            elif request.format.lower() == "jsonresume":
+                resume = await asyncio.to_thread(project_resume, cv_profile, request)
+                content = resume_json(resume)
+                return CVExportResponse(
+                    format="jsonresume",
+                    content=content,
+                    file_size=len(content.encode("utf-8")),
+                )
             else:
                 return CVExportResponse(
                     format=request.format,
@@ -254,32 +285,17 @@ class CVService:
     async def _export_pdf(
         self, cv_profile: CVProfile, request: CVExportRequest
     ) -> CVExportResponse:
-        """Export CV as PDF."""
-        try:
-            # For now, return a placeholder response
-            # In a real implementation, you would use a library like reportlab or weasyprint
-            # to generate a proper PDF from the CV data
-
-            pdf_content = f"""
-            CV Export - {cv_profile.personal_info.first_name} {cv_profile.personal_info.last_name}
-            Format: PDF
-            Generated: {utc_now().strftime("%Y-%m-%d %H:%M:%S UTC")}
-            
-            Note: PDF export is not yet implemented.
-            Please use JSON or MDX format for now.
-            """
-
-            return CVExportResponse(
-                format="pdf",
-                download_url=None,
-                content=pdf_content,
-                file_size=len(pdf_content.encode("utf-8")),
-                expires_at=None,
-            )
-
-        except Exception as e:
-            logger.error(f"PDF export failed: {e!s}")
-            raise
+        """Return a binary download location, never placeholder text labelled PDF."""
+        if find_spec("reportlab") is None:
+            return CVExportResponse(format="pdf", content="PDF export is unavailable")
+        query = urlencode(
+            {
+                "include_scores": str(request.include_scores).lower(),
+                "include_achievements": str(request.include_achievements).lower(),
+                "include_technologies": str(request.include_technologies).lower(),
+            }
+        )
+        return CVExportResponse(format="pdf", download_path=f"/api/cv/pdf?{query}")
 
     async def _export_mdx(
         self, cv_profile: CVProfile, request: CVExportRequest

@@ -9,6 +9,7 @@
 - `README.md` where present
 - `docs/ARCHITECTURE.yaml` — machine-readable source of truth
 - `docs/ARCHITECTURE.md` — rationale and extension guidance
+- `docs/CV_EXPORTS.md` — typed JSON Resume, optional PDF, static preview and curated project read contracts
 
 <!-- PORTFOLIO-CONSTITUTION:START -->
 
@@ -84,7 +85,7 @@ React-folio consolidation evidence lives in `docs/REACT_FOLIO_CONSOLIDATION.md`.
 
 ### Exact commands
 
-- Setup: `corepack enable && pnpm install --frozen-lockfile && pnpm run check:dependency-build-policy && (cd apps/api && python -m pip install -e .[dev])`
+- Setup: `corepack enable && pnpm install --frozen-lockfile && pnpm run check:dependency-build-policy && (cd apps/api && python -m pip install -e '.[dev,pdf]')`
 - Tests: `pnpm test`
 - Lint/format: `pnpm run lint`
 - Build: `pnpm run build`
@@ -97,3 +98,13 @@ React-folio consolidation evidence lives in `docs/REACT_FOLIO_CONSOLIDATION.md`.
 If a command is declared unavailable, the activation trigger and replacement command belong in `docs/ARCHITECTURE.yaml`; do not fabricate successful output.
 
 <!-- PORTFOLIO-CONSTITUTION:END -->
+
+## Public CV export workflow
+
+Use the current typed public CV, never private draft history or raw exports. Install `python -m pip install './apps/api[dev,pdf]'` for the complete local API test profile; `python -m pip install ./apps/api` deliberately excludes PDF. Run `portfolio-cv --capabilities`, then actual JSON/PDF exports to verify the needed capability. Explicit output writes are atomic; provider acquisition is outside this CLI. The public API and exact boundaries are documented in `docs/CV_EXPORTS.md`.
+
+From the repository root, verify `python -m pytest tests/architecture`; from `apps/api`, run `python -m pytest`, `ruff check .`, `ruff format --check .` and `mypy .`. New export modules are type-checked despite the existing legacy mypy exclusions. Keep the official schema/license packaged, escape every PDF text field, preserve precision/evidence notes and contact-redacted chatbot context, and render/inspect every PDF page after layout changes. Use the pinned package manager via `corepack pnpm` if PATH selects another version.
+
+## Optional pre-commit workflow
+
+The hooks use `repo: local` and the same installed API and pnpm workspace tools as CI. Activate the chosen Python environment containing `apps/api[dev,pdf]`, then run `corepack pnpm install --frozen-lockfile` and `corepack pnpm run check:dependency-build-policy`. Run `uvx --from pre-commit==4.6.2 pre-commit run --all-files` for an explicit check. Hook installation is optional and is not performed by this command. The activated environment supplies the pinned Ruff/Mypy binaries; isolated mirror environments cannot resolve this workspace's shared ESLint config.

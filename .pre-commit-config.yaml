@@ -1,32 +1,35 @@
+# Use the same installed API and pinned workspace tools as CI.
+# Activate the API dev environment and run corepack pnpm install first.
 repos:
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.0
+  - repo: local
     hooks:
       - id: ruff
-        args: [--fix]
-      - id: ruff-format
-
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.7.0
-    hooks:
-      - id: mypy
+        name: Ruff (declared API policy)
+        language: system
+        entry: ruff check --fix
         files: ^apps/api/
-
-  - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: v9.33.0
-    hooks:
+        types: [python]
+      - id: ruff-format
+        name: Ruff format (declared API policy)
+        language: system
+        entry: ruff format
+        files: ^apps/api/
+        types: [python]
+      - id: mypy
+        name: Mypy (API environment and project config)
+        language: system
+        entry: corepack pnpm --filter api typecheck
+        files: ^apps/api/
+        pass_filenames: false
       - id: eslint
-        files: ^apps/web/
-        types: [file]
-        additional_dependencies:
-          - eslint@^9.33.0
-          - "@repo/config@workspace:*"
-
-  - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.0.0
-    hooks:
+        name: ESLint (installed workspace)
+        language: system
+        entry: corepack pnpm --filter web lint
+        files: ^(apps/web/|packages/config/)
+        pass_filenames: false
       - id: prettier
-        files: ^apps/web/
-        types: [file]
-        additional_dependencies:
-          - prettier@^3.0.0
+        name: Prettier (installed workspace)
+        language: system
+        entry: corepack pnpm exec prettier --write
+        files: ^(apps/web/|packages/ui/)
+        types_or: [javascript, jsx, ts, tsx, json, css, markdown, yaml]

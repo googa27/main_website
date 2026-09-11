@@ -111,7 +111,7 @@ outside the checkout. It verifies application imports, typed public fixture expo
 and contact-redacted AI context. This protects against [#113](https://github.com/googa27/main_website/issues/113),
 where editable imports passed while the wheel omitted the startup fixture. Mypy's
 existing configuration excludes only generated `build/` copies to avoid duplicate
-module discovery after an artifact build; its existing type coverage is unchanged.
+module discovery after an artifact build; new export owners now opt into type checking while legacy exclusions remain.
 The static mount is also module-relative. The packaging rule uses maintained
 [Setuptools package-data support](https://setuptools.pypa.io/en/latest/userguide/datafiles.html),
 and the real installed-wheel gate provides the regression oracle.
@@ -131,3 +131,15 @@ success. A provider lock protects completion publication and status snapshots, a
 timestamps never move backward even if wall-clock readings do. This in-process
 throttle does not claim cross-process coordination or durable scheduling. Actual
 provider interaction and controlled thread tests protect [#114](https://github.com/googa27/main_website/issues/114).
+
+### Public CV export and curated read boundaries
+
+[CV_EXPORTS.md](CV_EXPORTS.md) records the library decisions, installed CLI/API, date precision, optional capabilities and exact retained-draft disposition for issue #116. `CVProfile` feeds immutable typed JSON Resume projection, fixed offline schema validation and optional text-only ReportLab rendering. Separate modules own each responsibility; the service facade owns asynchronous orchestration. The renderer escapes all content and uses only packaged fonts. The CLI renders before atomic output replacement. Source and installed-wheel gates protect the official schema and license resources as well as the public fixture.
+
+Curated project fallback is a pure ordered projection with explicit source, metric availability and timestamp semantics. Its URL-derived negative IDs are display identities, not provider keys. GET performs database reads or current-fixture reads only; existing explicit sync remains separate. Static `/cv/preview` composes existing About content and exposes downloads only for a configured optional API, without build-time acquisition.
+
+### Shared local hook toolchain
+
+[Issue #118](https://github.com/googa27/main_website/issues/118) replaces the archived Prettier mirror and divergent isolated Ruff/Mypy/ESLint environments with [repository-local pre-commit hooks](https://pre-commit.com/#repository-local-hooks). The existing activated API environment owns Python tool versions; the frozen pnpm workspace owns ESLint/Prettier and shared configs. This follows [Prettier's workspace hook guidance](https://prettier.io/docs/precommit). Ruff and Prettier receive scoped filenames, while Mypy/ESLint run their complete configured project gates when related files change. The API package scripts now use Ruff formatting and expose the existing Mypy check. The hook runner does not install Git hooks or dependencies automatically. Explicit setup and runner commands are in AGENTS.md.
+
+Ruff discovers the closest configuration for each supplied API filename. Do not pass `--config apps/api/pyproject.toml` from the repository root: Ruff documents that explicit configuration paths resolve relative patterns against the current working directory, which changes the API's per-file exemptions and import classification. [Ruff configuration discovery](https://docs.astral.sh/ruff/configuration/) is used and native all-file hook execution verifies it.

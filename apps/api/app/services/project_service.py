@@ -23,14 +23,19 @@ class ProjectService:
 
     @staticmethod
     def get_all_projects(db: Session, skip: int = 0, limit: int = 100) -> list[Project]:
-        """Return all projects ordered by last update."""
+        """Return a stable page, with globally featured projects first."""
         return (
             db.query(Project)
-            .order_by(desc(Project.updated_at))
+            .order_by(desc(Project.is_featured), desc(Project.updated_at), Project.id)
             .offset(skip)
             .limit(limit)
             .all()
         )
+
+    @staticmethod
+    def count_projects(db: Session) -> int:
+        """Count the stored collection independently of the requested page."""
+        return db.query(Project).count()
 
     @staticmethod
     def get_project_by_github_id(db: Session, github_id: int) -> Project | None:

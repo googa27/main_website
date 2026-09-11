@@ -7,10 +7,11 @@
     "start": "uvicorn app.main:app --host 0.0.0.0 --port 8000",
     "test": "pytest",
     "lint": "ruff check .",
-    "format": "black .",
+    "format": "ruff format .",
     "db:setup": "python scripts/init_db.py",
     "db:migrate": "alembic upgrade head",
-    "db:revision": "alembic revision --autogenerate -m"
+    "db:revision": "alembic revision --autogenerate -m",
+    "typecheck": "mypy ."
   },
   "engines": {
     "python": ">=3.12"

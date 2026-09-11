@@ -12,7 +12,7 @@ Portfolio monorepo for Cristóbal Cortinez Duhalde, split into a Next.js fronten
 | API app          | FastAPI app with health, projects, showcase, contact, AI, and CV routers           | Several routes depend on database, SMTP, OpenAI/Ollama, or local static data.                                           |
 | Monorepo tooling | pnpm 10.34.5 workspaces + Turborepo, with managed Node 24.19.0                     | Native dependency fallback scripts are explicitly denied because locked optional binaries pass load/build verification. |
 | Project data     | SQLAlchemy project/contact models, GitHub sync service, hardcoded showcase service | Frontend `Project` interface does not match the `/api/projects` response shape yet.                                     |
-| CV data          | `apps/api/app/static/cv/cv_profile.json` served through CV service endpoints       | LinkedIn sync/export features are scaffolded, not a verified production integration.                                    |
+| CV data          | `apps/api/app/static/cv/cv_profile.json` served through CV service endpoints       | Typed JSON Resume and optional PDF exports are locally verified; LinkedIn remains an optional provider, not a verified production integration.                                    |
 | Deployment       | Dockerfiles and deployment-oriented docs exist                                     | No production host/URL is verified in this README.                                                                      |
 | License          | API package metadata says MIT                                                      | No root `LICENSE` file is tracked; do not advertise root MIT licensing until added.                                     |
 
@@ -151,7 +151,7 @@ Install API dependencies in a virtual environment of your choice:
 
 ```bash
 cd apps/api
-python -m pip install -e '.[dev]'
+python -m pip install -e '.[dev,pdf]'
 ```
 
 ## Development commands
@@ -239,3 +239,16 @@ Next.js environment variables, URL query strings, logs or source control. Rotate
 by replacing the server-side secret and restarting the API. This single-owner
 boundary is scoped to the contact inbox; it does not provide user accounts, roles
 or authorization for unrelated optional API routes. `SECRET_KEY` is not reused.
+
+## Public résumé exports
+
+The static [`/cv/preview`](apps/web/src/app/cv/preview/page.tsx) page reuses the current public About content. Optional download links require an explicitly configured API. JSON Resume comes from the current typed API CV fixture and preserves month/year precision and project evidence limits; PDF uses the optional ReportLab extra. No provider request runs during export or curated project fallback.
+
+```sh
+python -m pip install './apps/api[pdf]'
+portfolio-cv --capabilities
+portfolio-cv --format jsonresume --output ./resume.json
+portfolio-cv --format pdf --output ./resume.pdf
+```
+
+The destination directory must already exist. The CLI works outside the checkout and atomically replaces an output only after rendering succeeds. Install `./apps/api` without extras for JSON-only use. See [public contracts and prototype disposition](docs/CV_EXPORTS.md) for HTTP endpoints, stable curated project ordering, optional dependency limitations and verification commands.

@@ -9,6 +9,7 @@
 - `README.md` where present
 - `docs/ARCHITECTURE.yaml` — machine-readable source of truth
 - `docs/ARCHITECTURE.md` — rationale and extension guidance
+- `docs/PROJECT_API.md` — explicit database/GitHub read namespaces and legacy compatibility
 - `docs/CV_EXPORTS.md` — typed JSON Resume, optional PDF, static preview and curated project read contracts
 
 <!-- PORTFOLIO-CONSTITUTION:START -->

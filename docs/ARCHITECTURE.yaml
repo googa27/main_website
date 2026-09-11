@@ -274,20 +274,20 @@
         "capability": "HTTP clients and ASGI test transport",
         "selected": [
           "HTTPX 0.28.1 for the runtime GitHub adapter",
-          "HTTPX2 2.9.1 for the development-only Starlette TestClient backend",
+          "HTTPX2 2.12.0 for the development-only Starlette TestClient backend",
           "IDNA 3.18 shared security-compatible domain processing"
         ],
         "alternatives": [
           "Deprecated Starlette fallback to plain HTTPX",
           "Requests for ASGI in-process testing"
         ],
-        "evidence": "https://starlette.dev/testclient and https://pypi.org/project/httpx2/2.9.1/",
+        "evidence": "https://starlette.dev/testclient and https://pypi.org/project/httpx2/2.12.0/",
         "adapter_boundary": "HTTPX remains owned by apps/api/app/services/github_service.py; HTTPX2 is restricted to apps/api development tests.",
         "custom_code_reason": "No custom HTTP transport; maintained clients own runtime and in-process test semantics.",
-        "maintenance_evidence": "https://github.com/pydantic/httpx2/releases/tag/v2.9.1",
+        "maintenance_evidence": "https://github.com/pydantic/httpx2/releases/tag/v2.12.0",
         "api_stability_evidence": "https://httpx2.pydantic.dev/",
-        "license_evidence": "https://raw.githubusercontent.com/pydantic/httpx2/v2.9.1/LICENSE.md",
-        "api_license_evidence": "https://raw.githubusercontent.com/pydantic/httpx2/v2.9.1/LICENSE.md",
+        "license_evidence": "https://raw.githubusercontent.com/pydantic/httpx2/v2.12.0/LICENSE.md",
+        "api_license_evidence": "https://raw.githubusercontent.com/pydantic/httpx2/v2.12.0/LICENSE.md",
         "oracle_or_reference_tests": [
           "apps/api/tests/test_datetime_contracts.py::test_starlette_testclient_uses_httpx2",
           "tests/architecture/test_dependency_security_floors.py"
@@ -384,7 +384,25 @@
     "flow": "React-folio resume/source registry -> phone-redacted checked-in copy with intentionally public email -> typed curated public content -> static Next.js pages; optional dynamic adapters remain separately validated.",
     "timestamp_semantics": "Optional API timestamps are generated as timezone-aware UTC values and declared timezone-aware in SQLAlchemy metadata. Existing naive values remain readable as UTC until a real Alembic baseline and deployment-specific migration exist.",
     "storage_and_replay": "Immutable raw/content-addressed inputs; canonical typed products; idempotent replay by source identity and effective/vintage time where applicable.",
-    "quality_and_lineage": "Validate schema, grain, units, classification, lineage, freshness, licence, and content identity before consumption; fail closed on missing evidence."
+    "quality_and_lineage": "Validate schema, grain, units, classification, lineage, freshness, licence, and content identity before consumption; fail closed on missing evidence.",
+    "profile_content_refresh": {
+      "date": "2026-09-06",
+      "evidence": "Owner confirmation, reconciled LinkedIn/CV timeline and public repositories",
+      "public_fields": "Professional history, public email and profile links; phone and private career preferences omitted",
+      "validation": "JSON parse and API CVProfile validation; current and ended work records retain correct status",
+      "default_profile_storage": "CVService resolves app/static/cv relative to its application module, independently of the process working directory. A temporary-working-directory JSON export regression protects this contract (issue #105).",
+      "claim_boundaries": "Research plans are not delivery evidence; benchmark is online-only synthetic repository evidence; expired credentials omitted",
+      "test_compatibility_note": {
+        "date": "2026-09-06",
+        "issue": "Starlette 1.6.0 TestClient imports an alias deprecated in AnyIO 4.15; reproducible without project imports",
+        "scope": "Ignore only the exact BlockingPortal alias message from starlette.testclient; all other deprecations remain errors",
+        "removal_trigger": "Remove once the resolved Starlette TestClient uses anyio.from_thread.BlockingPortal"
+      },
+      "presentation": "Visitor copy foregrounds modelling, evidence and role fit; grouped skills come from the reconciled CV, with foundational tools labelled. No hard-coded additional delivery-stack claims.",
+      "curated_projects": "Finite Element Options leads the public project selection; benchmark scope and experimental boundaries remain explicit. Unverified live-demo link omitted.",
+      "review_followup": "Public social links map all four verified accounts; empty volunteer card omitted; education score intentionally omitted from public copy. API projects and awards are typed and survive JSON export. Optional resume chat loads the public CV fixture at startup for prompts and fallback responses; contact details are omitted from the model prompt. Current role is derived from end_date even when is_current is absent.",
+      "date_precision": "Public API profile and chat context preserve an explicit note about month/year precision and placeholder days."
+    }
   },
   "governance": {
     "architecture_source": "docs/ARCHITECTURE.yaml",
@@ -505,5 +523,15 @@
       "accepted_ceiling": 584,
       "refactoring_trigger": "Any new CV behavior must extract smaller parser/normalizer/output modules or keep the line count at/below this ceiling."
     }
-  ]
+  ],
+  "cv_sync_contract": {
+    "preserve_when_omitted": [
+      "projects",
+      "awards",
+      "date_precision_note"
+    ],
+    "explicit_empty_policy": "Provider fields explicitly supplied through CVProfile.model_fields_set replace curated values.",
+    "storage": "Pydantic typed JSON serialized before same-directory temporary write and atomic replacement; failed persistence retains prior file/cache.",
+    "fitness_test": "apps/api/tests/test_cv_sync.py"
+  }
 }

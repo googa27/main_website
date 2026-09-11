@@ -42,7 +42,8 @@ export default function HomePage() {
         <div className="mb-10 text-center">
           <h2 className="text-3xl font-bold text-slate-950">Technical Focus</h2>
           <p className="mt-3 text-slate-600">
-            A static-first view of the curated React-folio resume content.
+            Scientific Python tools for modelling, experimentation and numerical
+            validation.
           </p>
         </div>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -64,8 +65,8 @@ export default function HomePage() {
               Featured Projects
             </h2>
             <p className="mt-3 max-w-2xl text-slate-600">
-              Curated project evidence is now rendered from checked-in content
-              before any optional backend integration.
+              Mathematical methods made concrete through open-source software,
+              reproducible experiments and careful validation.
             </p>
           </div>
           <Link
@@ -104,12 +105,12 @@ export default function HomePage() {
 
       <section className="rounded-3xl bg-blue-50 p-10 text-center">
         <h2 className="mb-4 text-3xl font-bold text-slate-950">
-          Static-first by default
+          From mathematical formulation to useful software
         </h2>
         <p className="mx-auto mb-8 max-w-2xl text-slate-700">
-          The public site now builds from local typed content. Backend APIs
-          remain available only where a dynamic feature is explicitly justified
-          and tested.
+          I am interested in applied ML and quantitative development roles with
+          technical ownership, thoughtful experimentation and close
+          collaboration between research and engineering.
         </p>
         <Link
           href="/about"

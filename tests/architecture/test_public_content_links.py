@@ -16,6 +16,7 @@ ARCHITECTURE_CONTRACT = ROOT / "docs" / "ARCHITECTURE.yaml"
 README = ROOT / "README.md"
 
 FRONTEND_PROJECT_GITHUB_URLS = {
+    "Finite Element Options Pricing": "https://github.com/googa27/finite_element_options",
     "Finite Difference Options Pricing": "https://github.com/googa27/finite_difference_options",
     "Django Optimization App": "https://github.com/googa27/django-optimization-app",
     "Static-first Portfolio Site": "https://github.com/googa27/main_website",

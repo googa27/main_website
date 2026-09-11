@@ -2,314 +2,420 @@
   "personal_info": {
     "first_name": "Cristobal",
     "last_name": "Cortinez Duhalde",
-    "email": "cristobal@example.com",
-    "phone": "+56 9 XXXX XXXX",
+    "email": "ccortinezduhalde@gmail.com",
+    "phone": null,
     "location": "Santiago, Chile",
-    "linkedin_url": "https://linkedin.com/in/cristobal-cortinez-duhalde",
+    "linkedin_url": "https://www.linkedin.com/in/cristobal-cortinez-duhalde/",
     "github_url": "https://github.com/googa27",
-    "website_url": "https://cristobalcortinez.com",
-    "summary": "Data Scientist and ML Engineer with expertise in quantitative finance, machine learning, and mathematical modeling. Specialized in finite difference methods, optimization algorithms, and MLOps pipelines.",
-    "profile_picture_url": null
+    "website_url": null,
+    "summary": "Data scientist and applied mathematician with experience developing and validating financial and ML models in Chile and Canada. Combines Python, Bayesian inference, time-series methods and numerical PDEs with open-source scientific software development. Work spans credit-card limit optimisation, real-estate and mortgage-portfolio haircuts, IFRS 9 expected credit loss, inflation forecasting and NLP."
   },
   "experience": [
     {
-      "company": "Quantitative Finance Solutions",
-      "position": "Senior Data Scientist",
-      "location": "Santiago, Chile",
-      "start_date": "2023-01-01T00:00:00",
+      "company": "Deloitte",
+      "position": "Consultant, Regulatory and Financial Risk",
+      "location": "Santiago, Santiago Metropolitan Region, Chile",
+      "start_date": "2024-03-01T00:00:00",
       "end_date": null,
-      "description": "Leading quantitative finance projects using advanced mathematical methods including finite difference schemes, Monte Carlo simulations, and optimization algorithms.",
+      "description": "Financial and AI/ML model development and validation.",
       "achievements": [
-        "Developed finite difference option pricing library with PDE methods",
-        "Implemented optimization algorithms for portfolio management",
-        "Built ML pipelines for financial risk assessment"
+        "Validate market-risk, credit-risk and AI/ML models, assessing their assumptions, implementation and limitations.",
+        "Develop machine-learning models for credit-card limit optimisation.",
+        "Develop PDE-based models for real-estate and mortgage-portfolio haircut estimation.",
+        "Develop Bayesian expected credit loss models for project finance, corporate debt, private debt and real estate funds under IFRS 9."
       ],
-      "technologies": ["Python", "NumPy", "SciPy", "Pandas", "Scikit-learn", "TensorFlow", "Docker", "MLflow"],
       "is_current": true
     },
     {
-      "company": "Machine Learning Consulting",
-      "position": "ML Engineer",
-      "location": "Remote",
-      "start_date": "2022-06-01T00:00:00",
-      "end_date": "2022-12-31T00:00:00",
-      "description": "Developed machine learning solutions and MLOps pipelines for various clients across finance and technology sectors.",
-      "achievements": [
-        "Implemented MLflow for experiment tracking and model versioning",
-        "Built automated ML pipelines with CI/CD integration",
-        "Optimized model performance for production deployment"
-      ],
-      "technologies": ["Python", "MLflow", "Kubernetes", "Docker", "AWS", "TensorFlow", "PyTorch", "Scikit-learn"],
+      "company": "Deloitte",
+      "position": "Consultant, Financial Engineering & Modelling",
+      "location": "Toronto, Ontario, Canada",
+      "start_date": "2023-09-01T00:00:00",
+      "end_date": "2024-03-01T00:00:00",
+      "description": "International secondment with Deloitte Financial Engineering & Modelling in Toronto.",
+      "achievements": [],
       "is_current": false
     },
     {
-      "company": "Financial Technology Startup",
-      "position": "Quantitative Developer",
-      "location": "Santiago, Chile",
-      "start_date": "2021-03-01T00:00:00",
-      "end_date": "2022-05-31T00:00:00",
-      "description": "Developed quantitative models and algorithms for financial derivatives pricing and risk management.",
+      "company": "Deloitte",
+      "position": "Consultant, Financial Engineering & Modelling",
+      "location": "Santiago, Santiago Metropolitan Region, Chile",
+      "start_date": "2023-04-01T00:00:00",
+      "end_date": "2023-09-01T00:00:00",
+      "description": "Market-risk and credit-risk model validation.",
+      "achievements": [],
+      "is_current": false
+    },
+    {
+      "company": "Pacifico Research",
+      "position": "Quant",
+      "location": "Santiago, Metropolitan Region, Chile",
+      "start_date": "2020-11-01T00:00:00",
+      "end_date": "2022-11-01T00:00:00",
+      "description": "Quantitative research, forecasting and automation.",
       "achievements": [
-        "Implemented finite element methods for complex derivative pricing",
-        "Built real-time risk calculation engines",
-        "Developed optimization algorithms for trading strategies"
+        "Developed inflation forecasting and financial risk-estimation models.",
+        "Analysed interest-rate curves.",
+        "Automated data collection, model predictions and report generation with Python."
       ],
-      "technologies": ["Python", "C++", "NumPy", "SciPy", "Pandas", "PostgreSQL", "Redis", "Docker"],
+      "is_current": false
+    },
+    {
+      "company": "Pontificia Universidad Católica de Chile",
+      "position": "Teaching Assistant, Simulation",
+      "location": "Santiago, Región Metropolitana de Santiago, Chile",
+      "start_date": "2020-03-01T00:00:00",
+      "end_date": "2020-08-01T00:00:00",
+      "description": "Supported teaching in stochastic simulation and process optimisation.",
+      "achievements": [],
+      "is_current": false
+    },
+    {
+      "company": "Banco Santander Chile",
+      "position": "Summer Intern",
+      "location": "Santiago Province, Chile",
+      "start_date": "2020-01-01T00:00:00",
+      "end_date": "2020-02-01T00:00:00",
+      "description": "Worked with natural language processing models.",
+      "achievements": [],
+      "is_current": false
+    },
+    {
+      "company": "Dataforce",
+      "position": "Data Scientist",
+      "location": "Santiago, Chile",
+      "start_date": "2019-04-01T00:00:00",
+      "end_date": "2019-12-01T00:00:00",
+      "description": "Worked on dimensionality reduction, feature selection, time-series analysis and optimisation algorithms.",
+      "achievements": [],
+      "is_current": false
+    },
+    {
+      "company": "WebEngineering",
+      "position": "Data Scientist",
+      "location": "France",
+      "start_date": "2018-10-01T00:00:00",
+      "end_date": "2018-11-01T00:00:00",
+      "description": "Developed algorithms for CV analysis using natural language processing and convolutional neural networks.",
+      "achievements": [],
+      "is_current": false
+    },
+    {
+      "company": "WebEngineering",
+      "position": "Data Science Intern",
+      "location": "Boulogne-Billancourt Area, France",
+      "start_date": "2018-03-01T00:00:00",
+      "end_date": "2018-08-01T00:00:00",
+      "description": "Developed algorithms for CV analysis using natural language processing and convolutional neural networks.",
+      "achievements": [],
+      "is_current": false
+    },
+    {
+      "company": "Pacifico Research",
+      "position": "Data analyst intern",
+      "location": "Santiago Province, Chile",
+      "start_date": "2017-06-01T00:00:00",
+      "end_date": "2017-08-01T00:00:00",
+      "description": "Implemented regression models for inflation forecasting; integrated and cleaned Excel data with Python.",
+      "achievements": [],
+      "is_current": false
+    },
+    {
+      "company": "Pontificia Universidad Católica de Chile",
+      "position": "Research Assistant",
+      "location": "Santiago, Chile",
+      "start_date": "2015-03-01T00:00:00",
+      "end_date": "2015-12-01T00:00:00",
+      "description": "Research on peripheral nerve stimulation modelling using a multiple-trace formulation and boundary element methods.",
+      "achievements": [],
+      "is_current": false
+    },
+    {
+      "company": "Pontificia Universidad Católica de Chile",
+      "position": "Teaching Assistant, Linear Algebra",
+      "location": "Pontificia Universidad Catolica de Chile",
+      "start_date": "2015-03-01T00:00:00",
+      "end_date": "2015-06-01T00:00:00",
+      "description": "Led exercise sessions and marked assessments in linear algebra.",
+      "achievements": [],
+      "is_current": false
+    },
+    {
+      "company": "GreenLibros",
+      "position": "Employee",
+      "location": "",
+      "start_date": "2015-01-01T00:00:00",
+      "end_date": "2015-02-01T00:00:00",
+      "description": "Maintained book inventory records and supported book collection operations.",
+      "achievements": [],
+      "is_current": false
+    },
+    {
+      "company": "Pontificia Universidad Católica de Chile",
+      "position": "Teaching Assistant, Linear Algebra",
+      "location": "Pontificia Universidad Catolica de Chile",
+      "start_date": "2014-08-01T00:00:00",
+      "end_date": "2014-11-01T00:00:00",
+      "description": "Led exercise sessions and marked assessments in linear algebra.",
+      "achievements": [],
       "is_current": false
     }
   ],
   "education": [
     {
-      "institution": "Universidad de Chile",
-      "degree": "Master of Science in Applied Mathematics",
-      "field_of_study": "Applied Mathematics with focus on Financial Mathematics",
-      "start_date": "2019-03-01T00:00:00",
-      "end_date": "2021-12-31T00:00:00",
-      "gpa": 3.8,
-      "honors": "Distinction",
-      "description": "Specialized in partial differential equations, numerical methods, and their applications in quantitative finance."
+      "institution": "École Polytechnique",
+      "degree": "Ingénieur polytechnicien (X2015)",
+      "field_of_study": "General engineering, applied mathematics and data science",
+      "start_date": "2016-01-01T00:00:00",
+      "end_date": "2018-01-01T00:00:00"
     },
     {
-      "institution": "Universidad de Chile",
-      "degree": "Bachelor of Science in Mathematics",
-      "field_of_study": "Mathematics",
-      "start_date": "2015-03-01T00:00:00",
-      "end_date": "2019-12-31T00:00:00",
-      "gpa": 3.7,
-      "honors": "Honors",
-      "description": "Comprehensive mathematics education with focus on analysis, algebra, and mathematical modeling."
+      "institution": "Pontificia Universidad Católica de Chile",
+      "degree": "Ingeniero Civil de Industrias, especialidad en Ingeniería Matemática",
+      "field_of_study": "Industrial engineering and applied mathematics",
+      "start_date": "2013-03-01T00:00:00",
+      "end_date": "2020-07-01T00:00:00"
     }
   ],
   "skills": {
     "programming_languages": [
       {
         "name": "Python",
-        "level": "expert",
-        "category": "Programming",
-        "years_experience": 5,
-        "description": "Primary language for data science, ML, and quantitative finance"
-      },
-      {
-        "name": "C++",
         "level": "advanced",
-        "category": "Programming",
-        "years_experience": 3,
-        "description": "High-performance computing for numerical methods"
+        "category": "programming_languages"
       },
       {
-        "name": "JavaScript/TypeScript",
-        "level": "intermediate",
-        "category": "Programming",
-        "years_experience": 2,
-        "description": "Web development and frontend applications"
+        "name": "SQL",
+        "level": "beginner",
+        "category": "programming_languages"
       }
     ],
     "frameworks_libraries": [
       {
         "name": "NumPy",
-        "level": "expert",
-        "category": "Frameworks",
-        "years_experience": 5,
-        "description": "Numerical computing and array operations"
+        "level": "advanced",
+        "category": "frameworks_libraries"
       },
       {
         "name": "SciPy",
-        "level": "expert",
-        "category": "Frameworks",
-        "years_experience": 5,
-        "description": "Scientific computing and optimization"
+        "level": "advanced",
+        "category": "frameworks_libraries"
       },
       {
-        "name": "Pandas",
-        "level": "expert",
-        "category": "Frameworks",
-        "years_experience": 5,
-        "description": "Data manipulation and analysis"
+        "name": "pandas",
+        "level": "advanced",
+        "category": "frameworks_libraries"
+      },
+      {
+        "name": "Polars",
+        "level": "advanced",
+        "category": "frameworks_libraries"
+      },
+      {
+        "name": "scikit-fem",
+        "level": "intermediate",
+        "category": "frameworks_libraries"
+      },
+      {
+        "name": "Streamlit",
+        "level": "intermediate",
+        "category": "frameworks_libraries"
+      },
+      {
+        "name": "pyMOR",
+        "level": "intermediate",
+        "category": "frameworks_libraries"
       },
       {
         "name": "Django",
-        "level": "intermediate",
-        "category": "Frameworks",
-        "years_experience": 2,
-        "description": "Web framework for optimization applications"
+        "level": "beginner",
+        "category": "frameworks_libraries"
       }
     ],
     "machine_learning": [
       {
-        "name": "Scikit-learn",
-        "level": "expert",
-        "category": "ML",
-        "years_experience": 4,
-        "description": "Machine learning algorithms and pipelines"
+        "name": "Machine learning",
+        "level": "advanced",
+        "category": "machine_learning"
       },
       {
-        "name": "TensorFlow",
+        "name": "Model validation",
         "level": "advanced",
-        "category": "ML",
-        "years_experience": 3,
-        "description": "Deep learning and neural networks"
+        "category": "machine_learning"
       },
       {
-        "name": "MLflow",
-        "level": "advanced",
-        "category": "ML",
-        "years_experience": 2,
-        "description": "ML lifecycle management and experiment tracking"
+        "name": "scikit-learn",
+        "level": "intermediate",
+        "category": "machine_learning"
       },
       {
         "name": "PyTorch",
         "level": "intermediate",
-        "category": "ML",
-        "years_experience": 2,
-        "description": "Deep learning framework"
-      }
-    ],
-    "databases": [
-      {
-        "name": "PostgreSQL",
-        "level": "advanced",
-        "category": "Databases",
-        "years_experience": 3,
-        "description": "Relational database management"
+        "category": "machine_learning"
       },
       {
-        "name": "Redis",
+        "name": "TensorFlow",
         "level": "intermediate",
-        "category": "Databases",
-        "years_experience": 2,
-        "description": "In-memory data structure store"
-      }
-    ],
-    "cloud_platforms": [
-      {
-        "name": "AWS",
-        "level": "intermediate",
-        "category": "Cloud",
-        "years_experience": 2,
-        "description": "Cloud computing and services"
+        "category": "machine_learning"
       },
       {
-        "name": "Docker",
+        "name": "Bayesian inference",
+        "level": "intermediate",
+        "category": "machine_learning"
+      },
+      {
+        "name": "NLP",
+        "level": "intermediate",
+        "category": "machine_learning"
+      },
+      {
+        "name": "Time series",
+        "level": "intermediate",
+        "category": "machine_learning"
+      },
+      {
+        "name": "PyMC",
+        "level": "intermediate",
+        "category": "machine_learning"
+      },
+      {
+        "name": "ArviZ",
+        "level": "intermediate",
+        "category": "machine_learning"
+      },
+      {
+        "name": "JAX",
+        "level": "intermediate",
+        "category": "machine_learning"
+      },
+      {
+        "name": "NumPyro",
+        "level": "intermediate",
+        "category": "machine_learning"
+      }
+    ],
+    "mathematical": [
+      {
+        "name": "Numerical PDEs",
         "level": "advanced",
-        "category": "Cloud",
-        "years_experience": 3,
-        "description": "Containerization and deployment"
+        "category": "mathematical"
+      },
+      {
+        "name": "Finite elements",
+        "level": "advanced",
+        "category": "mathematical"
+      },
+      {
+        "name": "Finite differences",
+        "level": "advanced",
+        "category": "mathematical"
+      },
+      {
+        "name": "Optimisation",
+        "level": "advanced",
+        "category": "mathematical"
+      },
+      {
+        "name": "Stochastic simulation",
+        "level": "advanced",
+        "category": "mathematical"
       }
     ],
     "devops_tools": [
       {
         "name": "Git",
-        "level": "expert",
-        "category": "DevOps",
-        "years_experience": 5,
-        "description": "Version control and collaboration"
-      },
-      {
-        "name": "Docker",
-        "level": "advanced",
-        "category": "DevOps",
-        "years_experience": 3,
-        "description": "Containerization and deployment"
-      },
-      {
-        "name": "CI/CD",
         "level": "intermediate",
-        "category": "DevOps",
-        "years_experience": 2,
-        "description": "Continuous integration and deployment"
+        "category": "devops_tools"
+      },
+      {
+        "name": "Automated testing",
+        "level": "intermediate",
+        "category": "devops_tools"
+      },
+      {
+        "name": "Python packaging",
+        "level": "intermediate",
+        "category": "devops_tools"
       }
     ],
-    "mathematical": [
-      {
-        "name": "Partial Differential Equations",
-        "level": "expert",
-        "category": "Mathematics",
-        "years_experience": 5,
-        "description": "PDE methods for financial derivatives"
-      },
-      {
-        "name": "Numerical Methods",
-        "level": "expert",
-        "category": "Mathematics",
-        "years_experience": 5,
-        "description": "Finite difference, finite element methods"
-      },
-      {
-        "name": "Optimization",
-        "level": "advanced",
-        "category": "Mathematics",
-        "years_experience": 4,
-        "description": "Linear and nonlinear optimization algorithms"
-      },
-      {
-        "name": "Stochastic Processes",
-        "level": "advanced",
-        "category": "Mathematics",
-        "years_experience": 4,
-        "description": "Brownian motion, Ito calculus for finance"
-      }
-    ],
-    "soft_skills": [
-      {
-        "name": "Problem Solving",
-        "level": "expert",
-        "category": "Soft Skills",
-        "years_experience": 5,
-        "description": "Complex mathematical and technical problem solving"
-      },
-      {
-        "name": "Communication",
-        "level": "advanced",
-        "category": "Soft Skills",
-        "years_experience": 4,
-        "description": "Technical and non-technical communication"
-      },
-      {
-        "name": "Project Management",
-        "level": "intermediate",
-        "category": "Soft Skills",
-        "years_experience": 3,
-        "description": "Leading technical projects and teams"
-      }
-    ]
+    "databases": [],
+    "cloud_platforms": [],
+    "soft_skills": []
   },
-  "certifications": [
+  "projects": [
     {
-      "name": "AWS Certified Developer - Associate",
-      "issuing_organization": "Amazon Web Services",
-      "issue_date": "2023-06-01T00:00:00",
-      "expiry_date": "2026-06-01T00:00:00",
-      "credential_id": "AWS-DEV-12345",
-      "credential_url": "https://aws.amazon.com/verification",
-      "description": "AWS cloud development and deployment"
+      "name": "Finite Element Options",
+      "url": "https://github.com/googa27/finite_element_options",
+      "description": "Open-source Python toolkit for finite-element option-pricing PDEs and numerical validation.",
+      "highlights": [
+        "Implemented numerical pricing workflows with convergence, analytical price/Greek comparisons and explicit capability limits.",
+        "Repository benchmark recorded a 28.6x median online speedup for an experimental reduced-order Black-Scholes model on synthetic holdout cases; offline cost and parameter limits documented."
+      ],
+      "keywords": [
+        "Python",
+        "SciPy",
+        "scikit-fem",
+        "pyMOR",
+        "Numerical validation"
+      ],
+      "type": "Open-source project"
     },
     {
-      "name": "TensorFlow Developer Certificate",
-      "issuing_organization": "Google",
-      "issue_date": "2022-09-01T00:00:00",
-      "expiry_date": null,
-      "credential_id": "TF-DEV-67890",
-      "credential_url": "https://developers.google.com/certification",
-      "description": "TensorFlow machine learning development"
+      "name": "Finite Difference Options",
+      "url": "https://github.com/googa27/finite_difference_options",
+      "description": "Open-source Python project for option-pricing PDEs using finite-difference methods.",
+      "highlights": [
+        "Explores derivative valuation and sensitivities through numerical PDE methods."
+      ],
+      "keywords": [
+        "Python",
+        "Finite differences",
+        "Option pricing"
+      ],
+      "type": "Open-source project"
+    },
+    {
+      "name": "Django Optimisation App",
+      "url": "https://github.com/googa27/django-optimization-app",
+      "description": "Web application for solving a linear programming problem.",
+      "keywords": [
+        "Python",
+        "Django",
+        "Linear programming"
+      ],
+      "type": "Personal project"
+    }
+  ],
+  "certifications": [
+    {
+      "name": "MLOps Culture",
+      "issuing_organization": "Workera",
+      "issue_date": "2025-07-01T00:00:00",
+      "credential_url": "https://skills.workera.ai/app/consumer/achievement/663c1bb3-6756-4d13-ad16-9aa4e24fdd70"
     }
   ],
   "languages": [
     {
       "name": "Spanish",
-      "proficiency": "Native",
-      "reading": "Native",
-      "writing": "Native",
-      "speaking": "Native"
+      "proficiency": "Native"
     },
     {
       "name": "English",
-      "proficiency": "Fluent",
-      "reading": "Fluent",
-      "writing": "Fluent",
-      "speaking": "Fluent"
+      "proficiency": "Bilingual"
+    },
+    {
+      "name": "French",
+      "proficiency": "Professional working proficiency"
     }
   ],
-  "last_updated": "2025-01-27T12:00:00",
-  "linkedin_url": "https://linkedin.com/in/cristobal-cortinez-duhalde",
-  "version": "1.0"
+  "awards": [
+    {
+      "title": "Eiffel Excellence Scholarship",
+      "date": "2015-12"
+    }
+  ],
+  "last_updated": "2026-09-06T00:00:00",
+  "version": "2.0",
+  "linkedin_url": "https://www.linkedin.com/in/cristobal-cortinez-duhalde/",
+  "date_precision_note": "Career and certificate dates are generally known only to the month; some education dates are known only to the year. Day 01 (and January for year-only dates) is a serialization placeholder, not a verified exact date. Describe these dates at month or year precision."
 }

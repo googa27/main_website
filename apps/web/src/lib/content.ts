@@ -67,6 +67,7 @@ interface SourceResume {
     summary?: string;
     email?: string;
     phone?: string;
+    profiles?: Array<{ network: string; username?: string; url: string }>;
     location?: { general?: string; full?: string; raw?: string };
   };
   work?: Array<{
@@ -165,27 +166,10 @@ export const publicResume = {
     summary: item.summary,
   })) satisfies VolunteerItem[],
   languages: resume.languages ?? [],
-  skills: [
-    {
-      name: "Migrated React-folio skills",
-      keywords: (resume.skills ?? [])
-        .map((skill) => skill.name)
-        .map(normalizeSkillName),
-    },
-    {
-      name: "Delivery stack",
-      keywords: [
-        "Python",
-        "TypeScript",
-        "React",
-        "Next.js",
-        "Django",
-        "REST APIs",
-        "PostgreSQL",
-        "MLflow",
-      ],
-    },
-  ] satisfies SkillGroup[],
+  skills: (resume.skills ?? []).map((skill) => ({
+    name: skill.name,
+    keywords: (skill.keywords ?? [skill.name]).map(normalizeSkillName),
+  })) satisfies SkillGroup[],
   source: {
     repository: "googa27/cristobal-react-folio",
     path: "src/data/resume.json",
@@ -195,52 +179,65 @@ export const publicResume = {
       "basics.phone is excluded from the checked-in main_website copy and public renderer",
     ],
   },
-  social: {
-    github: "https://github.com/googa27",
-    linkedin: "https://www.linkedin.com/in/cristobal-cortinez-duhalde",
-    evidence:
-      "React-folio normalizer supplied these profile defaults when basics.profiles was empty.",
-  },
+  social: (resume.basics.profiles ?? []).map((profile) => ({
+    name: profile.network,
+    url: profile.url,
+  })),
 } as const;
 
 export const curatedProjects: PortfolioProject[] = [
   {
+    id: "finite-element-options",
+    title: "Finite Element Options Pricing",
+    summary:
+      "Scientific Python software for option-pricing PDEs, with convergence checks, analytical price/Greek comparisons and experiments in reduced-order modelling.",
+    tags: ["Python", "Finite Elements", "Numerical PDEs", "Model Validation"],
+    links: {
+      github: "https://github.com/googa27/finite_element_options",
+      documentation:
+        "https://github.com/googa27/finite_element_options/blob/master/docs/BLACK_SCHOLES_PYMOR_ROM.md",
+    },
+    evidence:
+      "Repository benchmark: 28.6x median online speedup on six synthetic Black-Scholes holdout cases. Offline preparation is excluded; accuracy gates and parameter limits are documented. Experimental integrations are not general production claims.",
+    lastVerified: "2026-09-06",
+  },
+  {
     id: "finite-difference-options",
     title: "Finite Difference Options Pricing",
     summary:
-      "PDE-based derivatives pricing work using finite-difference schemes, convergence checks, Greeks, and risk analysis dashboards.",
+      "Numerical option pricing and sensitivities with Black-Scholes analytical checks, Rannacher smoothing and one-dimensional early-exercise reference cases.",
     tags: ["Python", "NumPy", "SciPy", "Streamlit", "Quant Finance"],
     links: {
       github: "https://github.com/googa27/finite_difference_options",
-      live: "https://finite-diff-options.streamlit.app",
     },
     evidence:
-      "Consolidated from main_website FastAPI showcase service and React-folio portfolio content inventory.",
-    lastVerified: "2026-07-13",
+      "Public repository documents validation cases and the limits of experimental model support.",
+    lastVerified: "2026-09-06",
   },
   {
     id: "django-optimization-app",
     title: "Django Optimization App",
     summary:
-      "Web optimization solver for linear-programming style workflows, combining mathematical modeling with a practical Django interface.",
+      "An educational application connecting a continuous linear-programming model to a Django interface, with PuLP and CSV input/output.",
     tags: ["Django", "Python", "Optimization", "Linear Programming"],
     links: {
       github: "https://github.com/googa27/django-optimization-app",
     },
-    evidence: "Consolidated from main_website project showcase service.",
-    lastVerified: "2026-07-13",
+    evidence:
+      "Small educational model and implementation example, not an enterprise optimisation platform.",
+    lastVerified: "2026-09-06",
   },
   {
     id: "portfolio-site",
     title: "Static-first Portfolio Site",
     summary:
-      "This Next.js portfolio now consumes checked-in, redacted React-folio resume content first; the FastAPI backend remains optional for demonstrably dynamic needs.",
+      "A personal portfolio presenting professional experience, selected projects and their documented limitations.",
     tags: ["Next.js", "TypeScript", "Static Export", "Content Governance"],
     links: {
       github: "https://github.com/googa27/main_website",
     },
     evidence:
-      "Project #24 consolidation: React-folio resume JSON copied into apps/web/src/data and rendered by static pages.",
-    lastVerified: "2026-07-13",
+      "Built with Next.js and TypeScript. Public contact details and project links are curated separately from private career notes.",
+    lastVerified: "2026-09-06",
   },
 ];

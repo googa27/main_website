@@ -115,3 +115,19 @@ module discovery after an artifact build; its existing type coverage is unchange
 The static mount is also module-relative. The packaging rule uses maintained
 [Setuptools package-data support](https://setuptools.pypa.io/en/latest/userguide/datafiles.html),
 and the real installed-wheel gate provides the regression oracle.
+
+### CV completion and retry ownership
+
+The CV orchestration passes `defer_completion=True` to the existing provider sync
+method and acknowledges completion only after atomic storage and cache publication
+succeed in the same worker transaction. A failed save leaves ordinary retries
+eligible. Cancellation during acquisition records no completion; cancelling an
+already scheduled worker may still complete persistence and acknowledgement together.
+Failed older requests never reset another successful request's completion.
+
+Direct `LinkedInService.sync_profile_data` callers retain acquisition-level completion
+by default. Persistence owners that defer it must call `mark_sync_completed` after
+success. A provider lock protects completion publication and status snapshots, and
+timestamps never move backward even if wall-clock readings do. This in-process
+throttle does not claim cross-process coordination or durable scheduling. Actual
+provider interaction and controlled thread tests protect [#114](https://github.com/googa27/main_website/issues/114).

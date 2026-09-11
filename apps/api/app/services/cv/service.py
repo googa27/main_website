@@ -86,7 +86,7 @@ class CVService:
 
             # Perform LinkedIn sync
             cv_profile = await linkedin_service.sync_profile_data(
-                force_refresh=request.force_refresh
+                force_refresh=request.force_refresh, defer_completion=True
             )
 
             if not cv_profile:
@@ -149,6 +149,7 @@ class CVService:
             if not save_profile(cv_profile, self.cv_data_dir, self.cv_data_file):
                 raise OSError("CV storage update failed")
             self._current_profile = cv_profile
+            linkedin_service.mark_sync_completed()
             return changes
 
     async def export_cv(self, request: CVExportRequest) -> CVExportResponse:

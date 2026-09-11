@@ -30,10 +30,10 @@ def test_react_folio_resume_copy_is_redacted_and_structured() -> None:
 
     assert "phone" not in resume["basics"]
     assert len(resume["work"]) == 14
-    assert len(resume["education"]) == 4
-    assert len(resume["skills"]) >= 100
-    assert len(resume["awards"]) == 2
-    assert len(resume["certificates"]) == 2
+    assert len(resume["education"]) == 2
+    assert len(resume["skills"]) == 7
+    assert len(resume["awards"]) == 1
+    assert len(resume["certificates"]) == 1
     assert "awards:" in content
     assert "certificates:" in content
     assert "volunteer:" in content
@@ -49,9 +49,10 @@ def test_public_adapter_renders_all_migrated_work_and_skills() -> None:
     about = about_page.read_text(encoding="utf-8")
 
     assert len(resume["work"]) == 14
-    assert len(resume["skills"]) == 100
+    assert all(group["keywords"] for group in resume["skills"])
     assert "work: (resume.work ?? []).map" in content
     assert ".slice(0, 8).map((job)" not in content
-    assert "Migrated React-folio skills" in content
+    assert "skills: (resume.skills ?? []).map" in content
+    assert "skill.keywords ?? [skill.name]" in content
     assert ".filter((name, index, names)" not in content
     assert "group.keywords.map((skill, index)" in about

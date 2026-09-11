@@ -6,15 +6,15 @@ Portfolio monorepo for Cristóbal Cortinez Duhalde, split into a Next.js fronten
 
 ## Current status at a glance
 
-| Area | Implemented today | Caveat |
-|---|---|---|
-| Web app | Next.js 15 App Router with Home, About, Projects, Contact pages | Some content is static in page files. |
-| API app | FastAPI app with health, projects, showcase, contact, AI, and CV routers | Several routes depend on database, SMTP, OpenAI/Ollama, or local static data. |
-| Monorepo tooling | pnpm workspaces + Turborepo | `pnpm format` writes changes; use package-level `--check` commands for CI-style verification. |
-| Project data | SQLAlchemy project/contact models, GitHub sync service, hardcoded showcase service | Frontend `Project` interface does not match the `/api/projects` response shape yet. |
-| CV data | `apps/api/app/static/cv/cv_profile.json` served through CV service endpoints | LinkedIn sync/export features are scaffolded, not a verified production integration. |
-| Deployment | Dockerfiles and deployment-oriented docs exist | No production host/URL is verified in this README. |
-| License | API package metadata says MIT | No root `LICENSE` file is tracked; do not advertise root MIT licensing until added. |
+| Area             | Implemented today                                                                  | Caveat                                                                                                                  |
+| ---------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Web app          | Next.js 16.2.11 App Router with Home, About, Projects, Contact pages               | Some content is static in page files.                                                                                   |
+| API app          | FastAPI app with health, projects, showcase, contact, AI, and CV routers           | Several routes depend on database, SMTP, OpenAI/Ollama, or local static data.                                           |
+| Monorepo tooling | pnpm 10.34.5 workspaces + Turborepo, with managed Node 24.19.0                     | Native dependency fallback scripts are explicitly denied because locked optional binaries pass load/build verification. |
+| Project data     | SQLAlchemy project/contact models, GitHub sync service, hardcoded showcase service | Frontend `Project` interface does not match the `/api/projects` response shape yet.                                     |
+| CV data          | `apps/api/app/static/cv/cv_profile.json` served through CV service endpoints       | LinkedIn sync/export features are scaffolded, not a verified production integration.                                    |
+| Deployment       | Dockerfiles and deployment-oriented docs exist                                     | No production host/URL is verified in this README.                                                                      |
+| License          | API package metadata says MIT                                                      | No root `LICENSE` file is tracked; do not advertise root MIT licensing until added.                                     |
 
 ## Architecture
 
@@ -49,7 +49,7 @@ Important caveats:
 
 ### Web (`apps/web`)
 
-- Next.js 15.4.x App Router.
+- Next.js 16.2.11 App Router.
 - React 19 and TypeScript.
 - Tailwind CSS 4 via PostCSS.
 - Pages:
@@ -64,14 +64,14 @@ Important caveats:
 
 FastAPI app mounted in `apps/api/app/main.py`:
 
-| Router | Prefix | Implemented routes include |
-|---|---|---|
-| `health` | `/api` | `/health`, `/health/db` |
-| `projects` | `/api` | `/projects`, `/projects/featured`, `/projects/sync`, `/projects/{id}`, `/projects/{id}/score`, `/projects/showcase*` |
-| `contact` | `/api` | `POST /contact`, contact lookup/read admin-style helpers |
-| `ai` | `/api` | `/ai/status`, `POST /chat`, `POST /predict`, `POST /visualize` |
-| `cv` | `/api` | `/cv/profile`, `/cv/export*`, `/cv/status`, `/cv/formats`, `/cv/linkedin/status`, `/cv/download` |
-| static files | `/static` | Serves `apps/api/app/static` |
+| Router       | Prefix    | Implemented routes include                                                                                           |
+| ------------ | --------- | -------------------------------------------------------------------------------------------------------------------- |
+| `health`     | `/api`    | `/health`, `/health/db`                                                                                              |
+| `projects`   | `/api`    | `/projects`, `/projects/featured`, `/projects/sync`, `/projects/{id}`, `/projects/{id}/score`, `/projects/showcase*` |
+| `contact`    | `/api`    | `POST /contact`, contact lookup/read admin-style helpers                                                             |
+| `ai`         | `/api`    | `/ai/status`, `POST /chat`, `POST /predict`, `POST /visualize`                                                       |
+| `cv`         | `/api`    | `/cv/profile`, `/cv/export*`, `/cv/status`, `/cv/formats`, `/cv/linkedin/status`, `/cv/download`                     |
+| static files | `/static` | Serves `apps/api/app/static`                                                                                         |
 
 ### Data sources
 
@@ -114,14 +114,17 @@ packages/
 
 Prerequisites:
 
-- Node.js compatible with the lockfile and `packageManager` (`pnpm@10.14.0`).
+- Corepack or pnpm bootstrap capable of honoring `packageManager` (`pnpm@10.34.5`).
+- Network access on first install so pnpm can cache the managed development runtime (`node@24.19.0`); subsequent scripts use that runtime even when the host Node is newer.
 - Python 3.12+ for `apps/api`.
 - PostgreSQL if you want database-backed project/contact routes instead of import/build smoke checks.
 
 Install frontend/monorepo dependencies from the lockfile:
 
 ```bash
+corepack enable
 pnpm install --frozen-lockfile
+pnpm run check:dependency-build-policy
 ```
 
 Create frontend environment file:
@@ -157,10 +160,11 @@ From the repo root:
 
 ```bash
 pnpm dev          # Turborepo dev across workspaces
-pnpm build        # Build workspaces
+pnpm build        # Build artifact-producing workspaces (currently the Next.js web app)
 pnpm lint         # Lint workspaces
 pnpm typecheck    # Type-check workspaces
 pnpm test         # Run workspace tests; web currently echoes "No tests yet"
+pnpm run check:dependency-build-policy  # Verify denied versions, script hashes, and pending-build state
 ```
 
 Individual apps:

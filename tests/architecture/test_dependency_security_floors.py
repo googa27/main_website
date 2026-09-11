@@ -14,7 +14,7 @@ def test_python_security_floors_are_synchronized_across_manifests() -> None:
     pyproject = tomllib.loads((API / "pyproject.toml").read_text(encoding="utf-8"))
 
     runtime_floors = {"idna==3.18", "Mako==1.3.12", "httpx==0.28.1"}
-    dev_floors = {"Pygments==2.20.0", "httpx2==2.9.1"}
+    dev_floors = {"Pygments==2.20.0", "httpx2==2.12.0"}
     project_runtime = set(pyproject["project"]["dependencies"])
     project_dev = set(pyproject["project"]["optional-dependencies"]["dev"])
 

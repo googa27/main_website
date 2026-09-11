@@ -154,6 +154,7 @@ async def get_project(project_id: int, db: Session = Depends(get_db)):
             "forks": project.forks,
             "topics": json.loads(project.topics) if project.topics else [],
             "updated_at": project.updated_at,
+            "is_featured": bool(project.is_featured),
         }
 
         return Project(**project_data)

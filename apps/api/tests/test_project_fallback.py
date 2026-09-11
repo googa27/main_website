@@ -156,3 +156,26 @@ async def test_database_pagination_has_stable_featured_order_and_no_false_fallba
     assert last.total == 3 and not last.projects[0].is_featured
     beyond = await projects.get_projects(skip=5, limit=1, db=db_session)
     assert beyond.total == 3 and beyond.projects == []
+
+
+@pytest.mark.parametrize("featured", [True, False])
+async def test_database_featured_state_matches_collection_and_detail(
+    db_session, sample_project_data, featured
+):
+    sample_project_data["is_featured"] = featured
+    stored = ProjectService.create_or_update_project(db_session, sample_project_data)
+    app.dependency_overrides[get_db] = lambda: db_session
+    try:
+        async with httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=app), base_url="http://test"
+        ) as client:
+            collection = await client.get("/api/projects")
+            # Preserve the existing detail route's GitHub-ID lookup contract.
+            detail = await client.get(f"/api/projects/{stored.github_id}")
+        assert collection.status_code == detail.status_code == 200
+        item = collection.json()["projects"][0]
+        assert item["id"] == detail.json()["id"] == stored.id
+        assert item["is_featured"] is featured
+        assert detail.json()["is_featured"] is featured
+    finally:
+        app.dependency_overrides.pop(get_db, None)

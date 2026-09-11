@@ -207,3 +207,18 @@ python -m compileall -q app tests scripts
 ## License
 
 No root `LICENSE` file is present in this clone. The API package metadata declares MIT, but the repository README should not claim root MIT licensing until a license file is added.
+
+### Optional contact administration
+
+Public contact submission remains anonymous. Reading a saved contact and marking it
+as read require `Authorization: Bearer <token>`. Configure `CONTACT_ADMIN_TOKEN`
+only on the API server using a unique cryptographically random secret of at least
+32 characters, stored in the deployment secret manager. Missing, empty, short or
+whitespace-only configuration disables both administrative routes (503); missing
+or incorrect credentials return 401 before database access.
+
+Use HTTPS for any remote API access. Never place this token in browser code, public
+Next.js environment variables, URL query strings, logs or source control. Rotate it
+by replacing the server-side secret and restarting the API. This single-owner
+boundary is scoped to the contact inbox; it does not provide user accounts, roles
+or authorization for unrelated optional API routes. `SECRET_KEY` is not reused.

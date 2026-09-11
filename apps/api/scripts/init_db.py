@@ -3,12 +3,12 @@
 Database initialization script for Cristobal Portfolio API
 """
 
-import sys
 import os
+import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from app.core.database import engine, SessionLocal
+from app.core.database import SessionLocal, engine
 from app.models.database import Base
 from app.services.github_service import GitHubService
 

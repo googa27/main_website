@@ -67,7 +67,7 @@ After the dependency route is sound, apply SOLID, DRY knowledge ownership, suita
 - `packageManager` pins pnpm 10.34.5; `devEngines.runtime` pins managed Node 24.19.0 for project scripts. Do not bypass the managed runtime with a newer host Node.
 - `@tailwindcss/oxide@4.1.12` and `unrs-resolver@1.11.1` lifecycle scripts are deliberately denied after exact script review. The locked optional native bindings load and the full lint/build matrix passes without network download fallbacks.
 - Run `pnpm run check:dependency-build-policy` after every workspace install. Any lock-version, deny-list, reviewed script-byte, support-package, or pending-build drift fails until the exact new lifecycle path is reviewed.
-- The optional FastAPI package has no build artifact and therefore no placeholder `build` task; root `pnpm build` targets only artifact-producing workspaces.
+- Root `pnpm build` targets the frontend. The optional FastAPI wheel is built and installed separately in CI; `scripts/check_installed_api.py --python /absolute/path/to/wheel-venv/bin/python` verifies its packaged public fixture without source-tree imports.
 
 ### Data and core-repository boundaries
 

@@ -9,10 +9,11 @@ This router provides endpoints for:
 """
 
 from fastapi import APIRouter, HTTPException, Query
+
 from app.schemas.cv import (
-    CVProfile,
     CVExportRequest,
     CVExportResponse,
+    CVProfile,
     LinkedInSyncRequest,
     LinkedInSyncResponse,
 )
@@ -37,7 +38,7 @@ async def get_cv_profile():
         raise
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Failed to retrieve CV profile: {str(e)}"
+            status_code=500, detail=f"Failed to retrieve CV profile: {e!s}"
         )
 
 
@@ -48,7 +49,7 @@ async def sync_cv_from_linkedin(request: LinkedInSyncRequest):
         response = await cv_service.sync_from_linkedin(request)
         return response
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"LinkedIn sync failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"LinkedIn sync failed: {e!s}")
 
 
 @router.post("/cv/export", response_model=CVExportResponse)
@@ -58,7 +59,7 @@ async def export_cv(request: CVExportRequest):
         response = await cv_service.export_cv(request)
         return response
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"CV export failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"CV export failed: {e!s}")
 
 
 @router.get("/cv/export/{format}")
@@ -80,7 +81,7 @@ async def export_cv_simple(
         response = await cv_service.export_cv(request)
         return response
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"CV export failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"CV export failed: {e!s}")
 
 
 @router.get("/cv/status")
@@ -90,9 +91,7 @@ async def get_cv_status():
         status = cv_service.get_sync_status()
         return status
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get CV status: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to get CV status: {e!s}")
 
 
 @router.get("/cv/formats")
@@ -106,7 +105,7 @@ async def get_supported_formats():
         }
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Failed to get supported formats: {str(e)}"
+            status_code=500, detail=f"Failed to get supported formats: {e!s}"
         )
 
 
@@ -118,7 +117,7 @@ async def get_linkedin_status():
         return status
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Failed to get LinkedIn status: {str(e)}"
+            status_code=500, detail=f"Failed to get LinkedIn status: {e!s}"
         )
 
 
@@ -159,4 +158,4 @@ async def download_cv(
         }
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"CV download failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"CV download failed: {e!s}")

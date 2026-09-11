@@ -10,10 +10,10 @@ dependencies = [
     "uvicorn[standard]==0.35.0",
     "sqlalchemy==2.0.43",
     "psycopg2-binary==2.9.10",
-    "alembic==1.16.4",
+    "alembic==1.18.5",
     "pydantic==2.11.7",
     "pydantic-settings==2.10.1",
-    "email-validator==2.2.0",
+    "email-validator==2.3.0",
     "python-multipart==0.0.32",
     "passlib[bcrypt]==1.7.4",
     "python-dotenv==1.2.2",
@@ -26,7 +26,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "pytest==9.0.3",
+    "pytest==9.1.1",
     "pytest-asyncio==1.4.0",
     "httpx2==2.12.0",
     "black==26.3.1",
@@ -42,3 +42,20 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 include = ["app*"]
+
+[tool.ruff.lint]
+# Preserve established correctness checks and explicitly adopt focused modernization
+# and async/mutable-default checks, independent of changing Ruff defaults.
+select = ["E4", "E7", "E9", "F", "I", "UP", "B006", "B008", "RUF012", "RUF013", "ASYNC210", "ASYNC230"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI Depends objects declare dependency injection; they are not request state.
+extend-immutable-calls = ["fastapi.Depends"]
+
+[tool.ruff.lint.per-file-ignores]
+# Preserve public str(EnumMember) compatibility until an explicit API migration.
+"app/schemas/cv.py" = ["UP042"]
+"app/schemas/project.py" = ["UP042"]
+
+[tool.setuptools.package-data]
+app = ["static/cv/*.json"]

@@ -1,9 +1,7 @@
-from typing import List
-
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
-from app.models.database import ChatSession, ChatMessage
+from app.models.database import ChatMessage, ChatSession
 
 
 class ChatService:
@@ -41,7 +39,7 @@ class ChatService:
     @staticmethod
     def get_chat_history(
         db: Session, session_id: int, limit: int = 10
-    ) -> List[ChatMessage]:
+    ) -> list[ChatMessage]:
         """Retrieve chat history for a session."""
         return (
             db.query(ChatMessage)

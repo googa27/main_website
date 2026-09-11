@@ -1,16 +1,17 @@
+import json
+
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-import json
 
 from app.core.time import utc_now
 from app.models.database import (
     Base,
-    Project,  # noqa: F401
-    Contact,  # noqa: F401
-    ChatSession,  # noqa: F401
     ChatMessage,  # noqa: F401
+    ChatSession,  # noqa: F401
+    Contact,  # noqa: F401
     CVDownload,  # noqa: F401
+    Project,  # noqa: F401
 )
 
 # Test database configuration

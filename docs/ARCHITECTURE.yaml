@@ -104,7 +104,49 @@
       "deterministic CLI/contracts",
       "capability registry",
       "adapters behind explicit protocols"
-    ]
+    ],
+    "cv_service_decomposition": {
+      "issue": "https://github.com/googa27/main_website/issues/112",
+      "public_facade": "app.services.cv exports CVService and cv_service without changing import paths",
+      "modules": {
+        "service": "Provider orchestration, response contracts and serialized cache transactions",
+        "storage": "Typed JSON read and atomic replacement",
+        "rendering": "Pure existing MDX rendering"
+      },
+      "concurrency": "Thread-backed read/merge/write/cache transactions share one per-service RLock. Cancellation after scheduling may complete an atomic transaction, but cannot leave cache and disk published out of order. Provider HTTP remains outside this lock.",
+      "limits": "Each new CV module must stay below the normal 500-line ceiling; service-level fanout is unchanged by replacing one file with one package."
+    },
+    "python_lint_policy": {
+      "rules": "Explicit Ruff E4/E7/E9/F correctness, I imports, UP modernization, B006/B008 mutable/default calls, RUF012/RUF013 typed defaults, ASYNC210/ASYNC230 blocking I/O. Family selection is versioned; upgrading Ruff does not silently alter provider exception semantics.",
+      "exemptions": [
+        {
+          "path": "FastAPI Depends callable",
+          "reason": "Declarative injection marker is constructed at definition time; actual request dependencies are resolved per request. B008 remains enabled for other calls."
+        },
+        {
+          "path": "apps/api/app/schemas/cv.py and project.py / UP042",
+          "reason": "Retain established str(EnumMember) public representation until an explicit API migration; Pydantic value serialization is unchanged."
+        },
+        {
+          "path": "apps/api/alembic/env.py / one E402 import",
+          "reason": "Application metadata import follows Alembic repository-path bootstrap."
+        }
+      ],
+      "compatibility": "Existing broad optional-provider and API exception handlers are preserved, not redefined by new Ruff defaults."
+    },
+    "linkedin_acquisition": {
+      "issue": "https://github.com/googa27/main_website/issues/112",
+      "client": "Existing runtime HTTPX AsyncClient, shared across five profile/section GETs; no blocking Requests call.",
+      "timeouts": "30-second total acquisition deadline;10-second HTTP phases with5-second connection timeout.",
+      "partial_data": "Successfully fetched optional sections survive a subsequent section error; primary failure/overall timeout returns None.",
+      "tests": "apps/api/tests/test_async_provider_io.py uses only synthetic HTTPX MockTransport."
+    },
+    "installed_api_artifact": {
+      "issue": "https://github.com/googa27/main_website/issues/113",
+      "required_data": "Setuptools explicitly includes app/static/cv/*.json; application and CV public imports work from the installed wheel outside the source tree.",
+      "gate": "scripts/check_installed_api.py --python /absolute/path/to/wheel-venv/bin/python; isolated interpreter and temporary cwd; checks public fixture export and contact-redacted AI context.",
+      "generated_files": "Mypy excludes only the root build/ directory created by setuptools; runtime app source remains checked."
+    }
   },
   "source_layout": {
     "python_rules_applicable": true,
@@ -513,15 +555,6 @@
       "risk": "Large adapter is harder to review and should not grow.",
       "accepted_ceiling": 704,
       "refactoring_trigger": "Any functional change to this adapter must split acquisition, parsing, cache, and DTO responsibilities or keep the line count at/below this ceiling."
-    },
-    {
-      "rule": "python_module_max_lines",
-      "path": "apps/api/app/services/cv.py",
-      "reason": "Legacy CV service exceeds the 500-line budget and is not required for the static-first public site path.",
-      "owner": "googa27 Portfolio Project #24",
-      "risk": "Large service mixes resume parsing and API DTO concerns.",
-      "accepted_ceiling": 584,
-      "refactoring_trigger": "Any new CV behavior must extract smaller parser/normalizer/output modules or keep the line count at/below this ceiling."
     }
   ],
   "cv_sync_contract": {

@@ -7,7 +7,7 @@ This service implements a sophisticated scoring algorithm that considers:
 - Recency (20%): Recent updates and active development
 """
 
-from typing import Dict, List
+from typing import ClassVar
 
 from app.core.time import as_utc, utc_now
 from app.models.database import Project as DBProject
@@ -17,7 +17,7 @@ class ProjectScoringService:
     """Service for calculating project scores based on multiple factors."""
 
     # Technical complexity indicators with weights
-    ML_AI_TOOLS = {
+    ML_AI_TOOLS: ClassVar[dict[str, float]] = {
         "tensorflow": 1.0,
         "pytorch": 1.0,
         "scikit-learn": 0.8,
@@ -40,7 +40,7 @@ class ProjectScoringService:
         "tf": 0.9,
     }
 
-    PRODUCTION_TOOLS = {
+    PRODUCTION_TOOLS: ClassVar[dict[str, float]] = {
         "docker": 1.0,
         "kubernetes": 1.0,
         "k8s": 1.0,
@@ -66,7 +66,7 @@ class ProjectScoringService:
         "rabbitmq": 0.8,
     }
 
-    MATH_COMPLEXITY = {
+    MATH_COMPLEXITY: ClassVar[dict[str, float]] = {
         "pde": 1.0,
         "partial differential": 1.0,
         "optimization": 0.9,
@@ -90,7 +90,7 @@ class ProjectScoringService:
         "statistics": 0.7,
     }
 
-    FRAMEWORKS = {
+    FRAMEWORKS: ClassVar[dict[str, float]] = {
         "python": 0.6,
         "javascript": 0.6,
         "typescript": 0.6,
@@ -116,7 +116,6 @@ class ProjectScoringService:
 
     def __init__(self):
         """Initialize the scoring service."""
-        pass
 
     def calculate_project_score(self, project: DBProject) -> float:
         """
@@ -194,7 +193,7 @@ class ProjectScoringService:
         return min(10.0, max(0.0, normalized_score))
 
     def _calculate_category_score(
-        self, text_content: str, indicators: Dict[str, float]
+        self, text_content: str, indicators: dict[str, float]
     ) -> float:
         """
         Calculate score for a specific category based on indicator presence.
@@ -274,7 +273,7 @@ class ProjectScoringService:
 
         return min(10.0, recency_score)
 
-    def sort_projects_by_score(self, projects: List[DBProject]) -> List[DBProject]:
+    def sort_projects_by_score(self, projects: list[DBProject]) -> list[DBProject]:
         """
         Sort projects by their calculated scores in descending order.
 
@@ -294,7 +293,7 @@ class ProjectScoringService:
         scored_projects.sort(key=lambda x: x[1], reverse=True)
         return [project for project, score in scored_projects]
 
-    def get_project_score_breakdown(self, project: DBProject) -> Dict[str, float]:
+    def get_project_score_breakdown(self, project: DBProject) -> dict[str, float]:
         """
         Get detailed breakdown of project scoring components.
 

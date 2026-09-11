@@ -1,8 +1,10 @@
-from fastapi import APIRouter, HTTPException, Depends
 import json
+
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.schemas.project import Project, ProjectList, ShowcaseResponse
+
 from app.core.database import get_db
+from app.schemas.project import Project, ProjectList, ShowcaseResponse
 from app.services.github_service import GitHubService
 from app.services.project_service import ProjectService
 from app.services.scoring import scoring_service
@@ -40,7 +42,7 @@ async def get_projects(skip: int = 0, limit: int = 100, db: Session = Depends(ge
         return ProjectList(projects=project_list, total=len(project_list))
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {e!s}")
 
 
 @router.get("/projects/showcase", response_model=ShowcaseResponse)
@@ -50,7 +52,7 @@ async def get_showcase_projects():
         return showcase_service.get_showcase_response()
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Failed to get showcase projects: {str(e)}"
+            status_code=500, detail=f"Failed to get showcase projects: {e!s}"
         )
 
 
@@ -62,7 +64,7 @@ async def get_featured_showcase_projects(limit: int = 3):
         return {"featured_projects": featured, "total": len(featured), "limit": limit}
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Failed to get featured projects: {str(e)}"
+            status_code=500, detail=f"Failed to get featured projects: {e!s}"
         )
 
 
@@ -73,7 +75,7 @@ async def get_showcase_stats():
         return showcase_service.get_showcase_stats()
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Failed to get showcase stats: {str(e)}"
+            status_code=500, detail=f"Failed to get showcase stats: {e!s}"
         )
 
 
@@ -102,7 +104,7 @@ async def get_showcase_project_by_type(project_type: str):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get project: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get project: {e!s}")
 
 
 @router.get("/projects/featured")
@@ -113,7 +115,7 @@ async def get_featured_projects(limit: int = 6, db: Session = Depends(get_db)):
         return {"projects": featured_projects, "total": len(featured_projects)}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {e!s}")
 
 
 @router.get("/projects/{project_id}", response_model=Project)
@@ -141,7 +143,7 @@ async def get_project(project_id: int, db: Session = Depends(get_db)):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {e!s}")
 
 
 @router.post("/projects/sync")
@@ -152,7 +154,7 @@ async def sync_projects(db: Session = Depends(get_db)):
         return {"message": "Projects synced successfully", "result": result}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Sync failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Sync failed: {e!s}")
 
 
 @router.get("/projects/{project_id}/score")
@@ -173,4 +175,4 @@ async def get_project_score(project_id: int, db: Session = Depends(get_db)):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {e!s}")

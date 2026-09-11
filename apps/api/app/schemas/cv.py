@@ -9,9 +9,10 @@ These models define the structure for CV data that can be:
 """
 
 from datetime import datetime
-from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, HttpUrl, Field, field_validator, ConfigDict
 from enum import Enum
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator
 
 from app.core.time import as_utc, utc_now
 
@@ -31,15 +32,13 @@ class PersonalInfo(BaseModel):
     first_name: str = Field(..., description="First name")
     last_name: str = Field(..., description="Last name")
     email: str = Field(..., description="Email address")
-    phone: Optional[str] = Field(None, description="Phone number")
+    phone: str | None = Field(None, description="Phone number")
     location: str = Field(..., description="City, Country")
     linkedin_url: HttpUrl = Field(..., description="LinkedIn profile URL")
-    github_url: Optional[HttpUrl] = Field(None, description="GitHub profile URL")
-    website_url: Optional[HttpUrl] = Field(None, description="Personal website")
+    github_url: HttpUrl | None = Field(None, description="GitHub profile URL")
+    website_url: HttpUrl | None = Field(None, description="Personal website")
     summary: str = Field(..., description="Professional summary")
-    profile_picture_url: Optional[HttpUrl] = Field(
-        None, description="Profile picture URL"
-    )
+    profile_picture_url: HttpUrl | None = Field(None, description="Profile picture URL")
 
 
 class WorkExperience(BaseModel):
@@ -49,12 +48,12 @@ class WorkExperience(BaseModel):
     position: str = Field(..., description="Job title")
     location: str = Field(..., description="Work location")
     start_date: datetime = Field(..., description="Start date")
-    end_date: Optional[datetime] = Field(None, description="End date (null if current)")
+    end_date: datetime | None = Field(None, description="End date (null if current)")
     description: str = Field(..., description="Job description")
-    achievements: List[str] = Field(
+    achievements: list[str] = Field(
         default_factory=list, description="Key achievements"
     )
-    technologies: List[str] = Field(
+    technologies: list[str] = Field(
         default_factory=list, description="Technologies used"
     )
     is_current: bool = Field(
@@ -74,10 +73,10 @@ class Education(BaseModel):
     degree: str = Field(..., description="Degree obtained")
     field_of_study: str = Field(..., description="Field of study")
     start_date: datetime = Field(..., description="Start date")
-    end_date: Optional[datetime] = Field(None, description="End date")
-    gpa: Optional[float] = Field(None, description="GPA if available")
-    honors: Optional[str] = Field(None, description="Honors or awards")
-    description: Optional[str] = Field(None, description="Additional details")
+    end_date: datetime | None = Field(None, description="End date")
+    gpa: float | None = Field(None, description="GPA if available")
+    honors: str | None = Field(None, description="Honors or awards")
+    description: str | None = Field(None, description="Additional details")
 
 
 class Skill(BaseModel):
@@ -88,37 +87,37 @@ class Skill(BaseModel):
     category: str = Field(
         ..., description="Skill category (e.g., 'Programming', 'ML', 'Tools')"
     )
-    years_experience: Optional[int] = Field(None, description="Years of experience")
-    description: Optional[str] = Field(None, description="Skill description")
+    years_experience: int | None = Field(None, description="Years of experience")
+    description: str | None = Field(None, description="Skill description")
 
 
 class Skills(BaseModel):
     """Collection of skills organized by category."""
 
-    programming_languages: List[Skill] = Field(
+    programming_languages: list[Skill] = Field(
         default_factory=list, description="Programming languages"
     )
-    frameworks_libraries: List[Skill] = Field(
+    frameworks_libraries: list[Skill] = Field(
         default_factory=list, description="Frameworks and libraries"
     )
-    machine_learning: List[Skill] = Field(
+    machine_learning: list[Skill] = Field(
         default_factory=list, description="ML/AI skills"
     )
-    databases: List[Skill] = Field(
+    databases: list[Skill] = Field(
         default_factory=list, description="Database technologies"
     )
-    cloud_platforms: List[Skill] = Field(
+    cloud_platforms: list[Skill] = Field(
         default_factory=list, description="Cloud platforms"
     )
-    devops_tools: List[Skill] = Field(
+    devops_tools: list[Skill] = Field(
         default_factory=list, description="DevOps and tools"
     )
-    mathematical: List[Skill] = Field(
+    mathematical: list[Skill] = Field(
         default_factory=list, description="Mathematical skills"
     )
-    soft_skills: List[Skill] = Field(default_factory=list, description="Soft skills")
+    soft_skills: list[Skill] = Field(default_factory=list, description="Soft skills")
 
-    def get_all_skills(self) -> List[Skill]:
+    def get_all_skills(self) -> list[Skill]:
         """Get all skills as a flat list."""
         all_skills = []
         for field_name in type(self).model_fields:
@@ -127,7 +126,7 @@ class Skills(BaseModel):
                 all_skills.extend(skills)
         return all_skills
 
-    def get_skills_by_category(self, category: str) -> List[Skill]:
+    def get_skills_by_category(self, category: str) -> list[Skill]:
         """Get skills by category name."""
         category_map = {
             "programming_languages": self.programming_languages,
@@ -148,12 +147,12 @@ class Certification(BaseModel):
     name: str = Field(..., description="Certification name")
     issuing_organization: str = Field(..., description="Issuing organization")
     issue_date: datetime = Field(..., description="Issue date")
-    expiry_date: Optional[datetime] = Field(None, description="Expiry date")
-    credential_id: Optional[str] = Field(None, description="Credential ID")
-    credential_url: Optional[HttpUrl] = Field(
+    expiry_date: datetime | None = Field(None, description="Expiry date")
+    credential_id: str | None = Field(None, description="Credential ID")
+    credential_url: HttpUrl | None = Field(
         None, description="Credential verification URL"
     )
-    description: Optional[str] = Field(None, description="Certification description")
+    description: str | None = Field(None, description="Certification description")
 
 
 class Language(BaseModel):
@@ -163,9 +162,9 @@ class Language(BaseModel):
     proficiency: str = Field(
         ..., description="Proficiency level (e.g., 'Native', 'Fluent', 'Intermediate')"
     )
-    reading: Optional[str] = Field(None, description="Reading proficiency")
-    writing: Optional[str] = Field(None, description="Writing proficiency")
-    speaking: Optional[str] = Field(None, description="Speaking proficiency")
+    reading: str | None = Field(None, description="Reading proficiency")
+    writing: str | None = Field(None, description="Writing proficiency")
+    speaking: str | None = Field(None, description="Speaking proficiency")
 
 
 class ProfileProject(BaseModel):
@@ -174,38 +173,38 @@ class ProfileProject(BaseModel):
     name: str
     url: HttpUrl
     description: str
-    highlights: List[str] = Field(default_factory=list)
-    keywords: List[str] = Field(default_factory=list)
-    type: Optional[str] = None
+    highlights: list[str] = Field(default_factory=list)
+    keywords: list[str] = Field(default_factory=list)
+    type: str | None = None
 
 
 class ProfileAward(BaseModel):
     """Award with source date precision preserved."""
 
     title: str
-    date: Optional[str] = None
-    awarder: Optional[str] = None
-    summary: Optional[str] = None
+    date: str | None = None
+    awarder: str | None = None
+    summary: str | None = None
 
 
 class CVProfile(BaseModel):
     """Complete CV profile with all sections."""
 
     personal_info: PersonalInfo = Field(..., description="Personal information")
-    experience: List[WorkExperience] = Field(
+    experience: list[WorkExperience] = Field(
         default_factory=list, description="Work experience"
     )
-    education: List[Education] = Field(default_factory=list, description="Education")
+    education: list[Education] = Field(default_factory=list, description="Education")
     skills: Skills = Field(..., description="Skills organized by category")
-    certifications: List[Certification] = Field(
+    certifications: list[Certification] = Field(
         default_factory=list, description="Professional certifications"
     )
-    languages: List[Language] = Field(
+    languages: list[Language] = Field(
         default_factory=list, description="Language proficiencies"
     )
-    projects: List[ProfileProject] = Field(default_factory=list)
-    awards: List[ProfileAward] = Field(default_factory=list)
-    date_precision_note: Optional[str] = Field(
+    projects: list[ProfileProject] = Field(default_factory=list)
+    awards: list[ProfileAward] = Field(default_factory=list)
+    date_precision_note: str | None = Field(
         None, description="Source date precision and serialization placeholders"
     )
     last_updated: datetime = Field(
@@ -251,7 +250,7 @@ class CVExportRequest(BaseModel):
     include_technologies: bool = Field(
         default=True, description="Include technologies used"
     )
-    custom_sections: Optional[List[str]] = Field(
+    custom_sections: list[str] | None = Field(
         None, description="Custom sections to include"
     )
 
@@ -260,10 +259,10 @@ class CVExportResponse(BaseModel):
     """Response for CV export request."""
 
     format: str = Field(..., description="Export format")
-    download_url: Optional[HttpUrl] = Field(None, description="Download URL for file")
-    content: Optional[str] = Field(None, description="Content for inline display")
-    file_size: Optional[int] = Field(None, description="File size in bytes")
-    expires_at: Optional[datetime] = Field(
+    download_url: HttpUrl | None = Field(None, description="Download URL for file")
+    content: str | None = Field(None, description="Content for inline display")
+    file_size: int | None = Field(None, description="File size in bytes")
+    expires_at: datetime | None = Field(
         None, description="Expiration time for download"
     )
 
@@ -289,6 +288,4 @@ class LinkedInSyncResponse(BaseModel):
     message: str = Field(..., description="Sync result message")
     last_sync: datetime = Field(..., description="Last sync timestamp")
     data_updated: bool = Field(..., description="Whether data was actually updated")
-    changes: Optional[Dict[str, Any]] = Field(
-        None, description="Summary of changes made"
-    )
+    changes: dict[str, Any] | None = Field(None, description="Summary of changes made")

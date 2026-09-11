@@ -1,11 +1,11 @@
 """The checked-in public CV must load through the API's actual data model."""
 
-from pathlib import Path
 import json
+from pathlib import Path
 
 import pytest
 
-from app.schemas.cv import CVProfile, WorkExperience, CVExportRequest
+from app.schemas.cv import CVExportRequest, CVProfile, WorkExperience
 from app.services.ai_service import LocalAIService
 from app.services.cv import CVService
 

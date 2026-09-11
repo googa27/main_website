@@ -73,3 +73,34 @@ Probable extensions must cross named ports/capability registries rather than add
 LinkedIn sync preserves curated `projects`, `awards` and `date_precision_note` when the typed provider profile omits those fields. An explicitly supplied empty list or null replaces that section; Pydantic's `model_fields_set` defines this distinction. The merge creates a newly validated profile and leaves the provider object unchanged.
 
 The existing Pydantic serializer/validator owns URL, enum and date conversion ([serialization](https://docs.pydantic.dev/latest/concepts/serialization/), [model validation](https://docs.pydantic.dev/latest/concepts/models/)). Generic recursive date guessing is removed so date-looking text stays text. CVService serializes the full profile before writing a same-directory temporary file, then atomically replaces storage. Failed persistence retains the previous file and cache and returns a failed sync. Offline tests in `apps/api/tests/test_cv_sync.py` verify omitted/explicit fields, typed storage roundtrip and failed replacement; [#107](https://github.com/googa27/main_website/issues/107) tracks this correction.
+
+### Python tooling and asynchronous CV synchronization
+
+Ruff 0.16 uses an explicit rule policy in the API pyproject. Established correctness
+checks remain, with focused import/type modernization, mutable-default and blocking
+I/O checks. FastAPI dependency markers, public enum string representation and one
+Alembic bootstrap import have narrow documented exceptions. Existing optional-provider
+and application fallback contracts remain intact.
+
+The CV public import remains `app.services.cv`. Its package separates orchestration,
+typed atomic storage and the existing pure MDX renderer; each module is below 500
+lines and the old 584-line exception is retired. A per-instance thread lock serializes
+read/merge/atomic-write/cache publication. Cancelling a request after its storage
+transaction is scheduled may still complete that transaction; subsequent operations
+observe its completed state, preserving omitted curated sections and cache/disk
+agreement. Provider HTTP requests happen outside the storage lock.
+
+LinkedIn acquisition uses the already declared HTTPX async client with one 30-second
+acquisition deadline and finite connection/read/write/pool timeouts. Optional-section
+failures retain earlier successful sections. Tests use synthetic HTTPX transports
+and controlled storage-thread events, including a cancelled first writer followed
+by a second update. No live provider or private data is needed.
+
+The installed API gate builds a wheel with Setuptools' explicit package-data rule
+for the reviewed CV JSON, installs only the runtime package into a separate
+environment and runs `scripts/check_installed_api.py` with an isolated interpreter
+outside the checkout. It verifies application imports, typed public fixture export
+and contact-redacted AI context. This protects against [#113](https://github.com/googa27/main_website/issues/113),
+where editable imports passed while the wheel omitted the startup fixture. Mypy's
+existing configuration excludes only generated `build/` copies to avoid duplicate
+module discovery after an artifact build; its existing type coverage is unchanged.

@@ -1,8 +1,9 @@
 import smtplib
-from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from app.schemas.contact import ContactCreate
+from email.mime.text import MIMEText
+
 from app.core.config import settings
+from app.schemas.contact import ContactCreate
 
 
 async def send_contact_email(contact: ContactCreate) -> bool:

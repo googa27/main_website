@@ -104,7 +104,15 @@
       "deterministic CLI/contracts",
       "capability registry",
       "adapters behind explicit protocols"
-    ]
+    ],
+    "node_security_remediation": {
+      "issue": "https://github.com/googa27/main_website/issues/108",
+      "date": "2026-09-11",
+      "decision": "Pin Next and its ESLint config to 16.3.4; enforce fixed transitive minimums for sharp, baseline-browser-mapping, browserslist, js-yaml and nanoid in pnpm overrides. Retain ESLint 9 and TypeScript 5 within upstream plugin peer support.",
+      "source": "https://github.com/googa27/main_website/actions/runs/34626893359",
+      "validation": "Full lockfile vulnerability scan, frozen install, existing lifecycle policy, frontend lint/typecheck/static export and API/architecture regression gates.",
+      "deployment_boundary": "Static export and unoptimized images remain configured; package vulnerabilities do not alone establish deployment exploitability."
+    }
   },
   "source_layout": {
     "python_rules_applicable": true,

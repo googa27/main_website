@@ -223,6 +223,24 @@
       "runner": "pre-commit==4.6.2",
       "isolated_mirror_environments": false,
       "fitness_test": "tests/architecture/test_local_hook_toolchain.py"
+    },
+    "project_read_identity": {
+      "issue": "https://github.com/googa27/main_website/issues/123",
+      "projection_owner": "app.routers.projects._project_response",
+      "collection_id": "Local database primary key; curated negative IDs are display-only",
+      "provider_id": "Nullable github_id field; no provider identity is inferred from curated URLs",
+      "local_route": "/api/projects/by-id/{project_id}",
+      "provider_route": "/api/projects/by-github/{github_id}",
+      "legacy_route": "/api/projects/{project_id}",
+      "legacy_policy": "Deprecated OpenAPI operation; existing GitHub lookup preserved, never guess between namespaces",
+      "new_route_bounds": "Positive signed64-bit integer; invalid values refuse before lookup",
+      "reads": "Stored collection/detail reads do not acquire provider data or commit; existing explicit sync and separate featured-acquisition surface unchanged",
+      "documentation": "docs/PROJECT_API.md",
+      "fitness_tests": [
+        "apps/api/tests/test_project_identifiers.py",
+        "apps/api/tests/test_project_fallback.py",
+        "tests/architecture/test_project_identifiers.py"
+      ]
     }
   },
   "source_layout": {

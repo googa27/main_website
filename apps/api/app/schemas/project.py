@@ -106,7 +106,12 @@ class ProjectCreate(ProjectBase):
 
 
 class Project(ProjectBase):
-    id: int
+    id: int = Field(
+        description="Local database identifier; negative curated values are display-only"
+    )
+    github_id: int | None = Field(
+        default=None, description="GitHub repository identifier, when stored and known"
+    )
     is_featured: bool = False
 
     model_config = ConfigDict(from_attributes=True)

@@ -509,6 +509,10 @@ class CVService:
                     "new": new_cert_count,
                 }
 
+            for section in ("projects", "awards", "date_precision_note"):
+                if getattr(old_profile, section) != getattr(new_profile, section):
+                    changes[f"{section}_updated"] = True
+
             return changes if changes else None
 
         except Exception as e:

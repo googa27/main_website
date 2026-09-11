@@ -38,7 +38,8 @@ async def test_sync_preserves_omitted_curated_sections(
 ):
     service, current = stored_cv
     data = current.model_dump(exclude={"projects", "awards", "date_precision_note"})
-    data["personal_info"]["summary"] = "Updated provider summary"
+    if not explicit_empty:
+        data["personal_info"]["summary"] = "Updated provider summary"
     if explicit_empty:
         data.update(projects=[], awards=[], date_precision_note=None)
     incoming = CVProfile.model_validate(data)
@@ -49,7 +50,10 @@ async def test_sync_preserves_omitted_curated_sections(
     assert result.success
     assert result.data_updated
     saved = CVProfile.model_validate_json(service.cv_data_file.read_text())
-    assert saved.personal_info.summary == "Updated provider summary"
+    assert saved.personal_info.summary == data["personal_info"]["summary"]
+    if explicit_empty:
+        assert result.changes["projects_updated"]
+        assert result.changes["awards_updated"]
     assert saved.projects == ([] if explicit_empty else current.projects)
     assert saved.awards == ([] if explicit_empty else current.awards)
     assert saved.date_precision_note == (

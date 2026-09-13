@@ -6,15 +6,15 @@ Portfolio monorepo for Cristóbal Cortinez Duhalde, split into a Next.js fronten
 
 ## Current status at a glance
 
-| Area             | Implemented today                                                                  | Caveat                                                                                                                  |
-| ---------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| Web app          | Next.js 16.3.4 App Router with Home, About, Projects, Contact pages               | Some content is static in page files.                                                                                   |
-| API app          | FastAPI app with health, projects, showcase, contact, AI, and CV routers           | Several routes depend on database, SMTP, OpenAI/Ollama, or local static data.                                           |
-| Monorepo tooling | pnpm 10.34.5 workspaces + Turborepo, with managed Node 24.19.0                     | Native dependency fallback scripts are explicitly denied because locked optional binaries pass load/build verification. |
-| Project data     | SQLAlchemy project/contact models, GitHub sync service, hardcoded showcase service | Frontend `Project` interface does not match the `/api/projects` response shape yet.                                     |
-| CV data          | `apps/api/app/static/cv/cv_profile.json` served through CV service endpoints       | Typed JSON Resume and optional PDF exports are locally verified; LinkedIn remains an optional provider, not a verified production integration.                                    |
-| Deployment       | Dockerfiles and deployment-oriented docs exist                                     | No production host/URL is verified in this README.                                                                      |
-| License          | API package metadata says MIT                                                      | No root `LICENSE` file is tracked; do not advertise root MIT licensing until added.                                     |
+| Area             | Implemented today                                                                  | Caveat                                                                                                                                         |
+| ---------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Web app          | Next.js 16.3.4 App Router with Home, About, Projects, Contact pages                | Some content is static in page files.                                                                                                          |
+| API app          | FastAPI app with health, projects, showcase, contact, AI, and CV routers           | Several routes depend on database, SMTP, OpenAI/Ollama, or local static data.                                                                  |
+| Monorepo tooling | pnpm 10.34.5 workspaces + Turborepo, with managed Node 24.19.0                     | Native dependency fallback scripts are explicitly denied because locked optional binaries pass load/build verification.                        |
+| Project data     | SQLAlchemy project/contact models, GitHub sync service, hardcoded showcase service | Frontend `Project` interface does not match the `/api/projects` response shape yet.                                                            |
+| CV data          | `apps/api/app/static/cv/cv_profile.json` served through CV service endpoints       | Typed JSON Resume and optional PDF exports are locally verified; LinkedIn remains an optional provider, not a verified production integration. |
+| Deployment       | Dockerfiles and deployment-oriented docs exist                                     | No production host/URL is verified in this README.                                                                                             |
+| License          | API package metadata says MIT                                                      | No root `LICENSE` file is tracked; do not advertise root MIT licensing until added.                                                            |
 
 ## Architecture
 
@@ -126,6 +126,13 @@ corepack enable
 pnpm install --frozen-lockfile
 pnpm run check:dependency-build-policy
 ```
+
+Dependency updates are discovered from the repository root, which owns the one
+workspace lockfile. React runtime and declaration updates are grouped across web
+and UI packages; both currently resolve React 19.2.8 with
+`@types/react` 19.2.18 and `@types/react-dom` 19.2.7. Keep the declared
+TypeScript 5 and Node 24 families until their recorded compatibility triggers in
+`docs/ARCHITECTURE.yaml` are satisfied.
 
 Create frontend environment file:
 

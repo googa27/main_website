@@ -67,6 +67,8 @@ After the dependency route is sound, apply SOLID, DRY knowledge ownership, suita
 ### Node tooling and dependency lifecycle controls
 
 - `packageManager` pins pnpm 10.34.5; `devEngines.runtime` pins managed Node 24.19.0 for project scripts. Do not bypass the managed runtime with a newer host Node.
+- Dependabot discovers the pnpm workspace from `/`, where the single lockfile lives. Its React group must keep `react`, `react-dom`, `@types/react`, and `@types/react-dom` coordinated across production and development declarations without disabling security updates. Both web and UI must resolve the reviewed React 19.2.8 runtime with `@types/react` 19.2.18 and `@types/react-dom` 19.2.7.
+- Keep TypeScript 5 and `@types/node` 24 until the compiler API consumers and peer ranges support a reviewed candidate. Keep Node 24 until the documented Tailwind Node 26 warning-removal trigger is satisfied; verify either migration with managed install, lifecycle policy, lint, typecheck, and build.
 - `@tailwindcss/oxide@4.1.12` and `unrs-resolver@1.11.1` lifecycle scripts are deliberately denied after exact script review. The locked optional native bindings load and the full lint/build matrix passes without network download fallbacks.
 - Run `pnpm run check:dependency-build-policy` after every workspace install. Any lock-version, deny-list, reviewed script-byte, support-package, or pending-build drift fails until the exact new lifecycle path is reviewed.
 - Root `pnpm build` targets the frontend. The optional FastAPI wheel is built and installed separately in CI; `scripts/check_installed_api.py --python /absolute/path/to/wheel-venv/bin/python` verifies its packaged public fixture without source-tree imports.

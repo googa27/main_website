@@ -145,12 +145,8 @@ def test_dependabot_owns_the_root_workspace_and_groups_react_updates() -> None:
         (ROOT / "pnpm-workspace.yaml").read_text(encoding="utf-8")
     )
     updates = dependabot["updates"]
-    npm_updates = [
-        update for update in updates if update["package-ecosystem"] == "npm"
-    ]
-    pip_updates = [
-        update for update in updates if update["package-ecosystem"] == "pip"
-    ]
+    npm_updates = [update for update in updates if update["package-ecosystem"] == "npm"]
+    pip_updates = [update for update in updates if update["package-ecosystem"] == "pip"]
 
     assert set(workspace["packages"]) == {"apps/*", "packages/*"}
     assert (ROOT / "pnpm-lock.yaml").is_file()
@@ -162,16 +158,13 @@ def test_dependabot_owns_the_root_workspace_and_groups_react_updates() -> None:
     assert npm["directory"] == policy["npm_directory"]
     assert policy["workspace_lockfile"] == "pnpm-lock.yaml"
     assert npm["schedule"] == {"interval": policy["schedule"]["interval"]}
-    assert npm["cooldown"] == {
-        "default-days": policy["schedule"]["cooldown_days"]
-    }
+    assert npm["cooldown"] == {"default-days": policy["schedule"]["cooldown_days"]}
     assert "ignore" not in npm
 
     react_groups = [
         group
         for group in npm["groups"].values()
-        if set(group.get("patterns", []))
-        == set(policy["coupled_react_group"])
+        if set(group.get("patterns", [])) == set(policy["coupled_react_group"])
     ]
     assert len(react_groups) == 1
     assert policy["dependency_kinds"] == ["production", "development"]
@@ -186,6 +179,54 @@ def test_dependabot_owns_the_root_workspace_and_groups_react_updates() -> None:
             "cooldown": {"default-days": 7},
         }
     ]
+
+
+def test_react_runtime_and_declarations_resolve_as_one_reviewed_cohort() -> None:
+    expected = {
+        "runtime": {
+            "react": "19.2.8",
+            "react-dom": "19.2.8",
+        },
+        "declarations": {
+            "@types/react": "19.2.18",
+            "@types/react-dom": "19.2.7",
+        },
+        "importers": ["apps/web", "packages/ui"],
+    }
+    architecture = _json("docs/ARCHITECTURE.yaml")
+    policy = architecture["architecture"]["dependency_update_policy"]
+    lock = yaml.safe_load((ROOT / "pnpm-lock.yaml").read_text(encoding="utf-8"))
+    manifests = {
+        "apps/web": _json("apps/web/package.json"),
+        "packages/ui": _json("packages/ui/package.json"),
+    }
+
+    for importer, manifest in manifests.items():
+        runtime_dependencies = (
+            manifest["dependencies"]
+            if importer == "apps/web"
+            else manifest["devDependencies"]
+        )
+        assert {
+            name: runtime_dependencies[name] for name in expected["runtime"]
+        } == expected["runtime"]
+        assert {
+            name: manifest["devDependencies"][name] for name in expected["declarations"]
+        } == {name: f"^{version}" for name, version in expected["declarations"].items()}
+
+        locked = lock["importers"][importer]
+        assert {
+            name: locked[
+                "dependencies" if importer == "apps/web" else "devDependencies"
+            ][name]["version"].split("(", 1)[0]
+            for name in expected["runtime"]
+        } == expected["runtime"]
+        assert {
+            name: locked["devDependencies"][name]["version"].split("(", 1)[0]
+            for name in expected["declarations"]
+        } == expected["declarations"]
+
+    assert policy["react_cohort"] == expected
 
 
 def test_optional_api_has_no_placeholder_build_task() -> None:
@@ -206,9 +247,7 @@ def test_workflow_actions_use_reviewed_node24_releases() -> None:
         action: [] for action in EXPECTED_ACTIONS
     }
 
-    pattern = re.compile(
-        r"uses:\s*([\w.-]+/[\w.-]+)@([0-9a-f]{40})\s+#\s+(v[^\s]+)"
-    )
+    pattern = re.compile(r"uses:\s*([\w.-]+/[\w.-]+)@([0-9a-f]{40})\s+#\s+(v[^\s]+)")
     for path in workflow_paths:
         for action, sha, tag in pattern.findall(path.read_text(encoding="utf-8")):
             if action in seen:

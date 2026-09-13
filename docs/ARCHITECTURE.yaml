@@ -112,6 +112,20 @@
         "production",
         "development"
       ],
+      "react_cohort": {
+        "runtime": {
+          "react": "19.2.8",
+          "react-dom": "19.2.8"
+        },
+        "declarations": {
+          "@types/react": "19.2.18",
+          "@types/react-dom": "19.2.7"
+        },
+        "importers": [
+          "apps/web",
+          "packages/ui"
+        ]
+      },
       "schedule": {
         "interval": "weekly",
         "cooldown_days": 7

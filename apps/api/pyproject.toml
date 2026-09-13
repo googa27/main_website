@@ -34,7 +34,7 @@ dev = [
     "black==26.5.1",
     "ruff==0.16.0",
     "Pygments==2.20.0",
-    "types-requests==2.32.4.20250809",
+    "types-requests==2.33.0.20260906",
     "mypy==1.17.1",
     "pypdf==6.18.1",
 ]

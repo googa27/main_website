@@ -127,6 +127,11 @@ pnpm install --frozen-lockfile
 pnpm run check:dependency-build-policy
 ```
 
+Dependency updates are discovered from the repository root, which owns the one
+workspace lockfile. React runtime and declaration updates are grouped across web
+and UI packages. Keep the declared TypeScript 5 and Node 24 families until their
+recorded compatibility triggers in `docs/ARCHITECTURE.yaml` are satisfied.
+
 Create frontend environment file:
 
 ```bash

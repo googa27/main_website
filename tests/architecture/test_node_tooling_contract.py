@@ -6,6 +6,8 @@ import json
 import re
 from pathlib import Path
 
+import yaml
+
 ROOT = Path(__file__).resolve().parents[2]
 
 EXPECTED_ACTIONS = {
@@ -131,6 +133,59 @@ def test_ci_checks_dependency_build_policy_after_each_workspace_install() -> Non
     assert workflow.count("pnpm run check:dependency-build-policy") == 2
     assert workflow.count("version: 10.34.5") == 2
     assert workflow.count("node-version: 24.19.0") == 2
+
+
+def test_dependabot_owns_the_root_workspace_and_groups_react_updates() -> None:
+    architecture = _json("docs/ARCHITECTURE.yaml")
+    policy = architecture["architecture"]["dependency_update_policy"]
+    dependabot = yaml.safe_load(
+        (ROOT / ".github/dependabot.yml").read_text(encoding="utf-8")
+    )
+    workspace = yaml.safe_load(
+        (ROOT / "pnpm-workspace.yaml").read_text(encoding="utf-8")
+    )
+    updates = dependabot["updates"]
+    npm_updates = [
+        update for update in updates if update["package-ecosystem"] == "npm"
+    ]
+    pip_updates = [
+        update for update in updates if update["package-ecosystem"] == "pip"
+    ]
+
+    assert set(workspace["packages"]) == {"apps/*", "packages/*"}
+    assert (ROOT / "pnpm-lock.yaml").is_file()
+    assert not list((ROOT / "apps").glob("*/pnpm-lock.yaml"))
+    assert not list((ROOT / "packages").glob("*/pnpm-lock.yaml"))
+    assert len(npm_updates) == 1
+
+    npm = npm_updates[0]
+    assert npm["directory"] == policy["npm_directory"]
+    assert policy["workspace_lockfile"] == "pnpm-lock.yaml"
+    assert npm["schedule"] == {"interval": policy["schedule"]["interval"]}
+    assert npm["cooldown"] == {
+        "default-days": policy["schedule"]["cooldown_days"]
+    }
+    assert "ignore" not in npm
+
+    react_groups = [
+        group
+        for group in npm["groups"].values()
+        if set(group.get("patterns", []))
+        == set(policy["coupled_react_group"])
+    ]
+    assert len(react_groups) == 1
+    assert policy["dependency_kinds"] == ["production", "development"]
+    assert "dependency-type" not in react_groups[0]
+    assert "applies-to" not in react_groups[0]
+
+    assert pip_updates == [
+        {
+            "package-ecosystem": "pip",
+            "directory": "/apps/api",
+            "schedule": {"interval": "weekly"},
+            "cooldown": {"default-days": 7},
+        }
+    ]
 
 
 def test_optional_api_has_no_placeholder_build_task() -> None:

@@ -57,10 +57,26 @@ This split avoids a risky application-wide HTTP-client migration while removing 
 | Resolver fallback | Deny `unrs-resolver@1.11.1` postinstall                                                                  | The reviewed checker can invoke npm or download a native binding; the locked optional binding already loads and lint/build pass                                        | `pnpm.ignoredBuiltDependencies`; lock/version checker |
 | API build         | Remove the echo-only package build task                                                                  | FastAPI is a runtime service and produces no build artifact; claiming a successful build created a Turborepo cache warning and false evidence                          | absence asserted by architecture test                 |
 | GitHub Actions    | Full-SHA pins for checkout v7.0.1, setup-node v7.0.0, setup-python v7.0.0, and pnpm/action-setup v6.0.10 | These reviewed releases use Node 24 internally and eliminate GitHub's Node 20 action-runtime annotation                                                                | architecture test, Pinact, Zizmor, native CI          |
+| Dependency updates | Discover npm from the repository root and group React runtime/declaration packages                    | The workspace owns one root lock; child-directory updates cannot independently reconcile coupled importers                                                            | parsed Dependabot architecture regression             |
 
 No lifecycle script is silently approved. Future lock changes remain denied by pnpm and fail `pnpm run check:dependency-build-policy` until the exact new version, package manifest, lifecycle entrypoint, support-package implementation, and pending-build state are reviewed.
 
 The Node 26 warning is tracked upstream at https://github.com/tailwindlabs/tailwindcss/issues/19893. Remove the managed Node 24 constraint only after a stable Tailwind release replaces `module.register()` and an uncached Node 26 build is warning-free; do not suppress `DEP0205`.
+
+Dependabot's single npm entry starts at `/`, where `pnpm-lock.yaml` owns the
+workspace. Its React group spans `react`, `react-dom`, `@types/react`, and
+`@types/react-dom` without restricting production or development dependencies;
+the pip updater, weekly cadence, seven-day cooldown, and security updates remain
+enabled. The parsed configuration regression checks that ownership rather than a
+group label or YAML formatting.
+
+TypeScript remains on major 5 because the locked TypeScript-ESLint 8.63.0 peer
+range is `>=4.8.4 <6.1.0`, and TypeScript 7.0 does not yet provide the stable
+programmatic API required by tooling consumers. Revisit the compiler only when
+those consumers and peer ranges support the candidate and lint, typecheck, and
+build pass. Node and its declarations remain on major 24 until the Tailwind
+removal trigger above is satisfied and the managed install plus lifecycle,
+lint, typecheck, and build gates pass.
 
 ### Extension and exception discipline
 

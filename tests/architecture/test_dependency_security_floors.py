@@ -130,6 +130,19 @@ def manifests(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """Exercise the real repository checker against owned manifest copies."""
     for name in ("requirements.txt", "requirements-dev.txt", "pyproject.toml"):
         (tmp_path / name).write_bytes((API / name).read_bytes())
+    # Policy controls own exact minimum fixtures independently of selected pins.
+    project = tomllib.loads((tmp_path / "pyproject.toml").read_text())["project"]
+    for owner, declarations in (
+        ("runtime", project["dependencies"]),
+        ("dev", project["optional-dependencies"]["dev"]),
+    ):
+        for declaration in declarations:
+            requirement = Requirement(declaration)
+            minimum = _SECURITY_MINIMUMS[owner].get(canonicalize_name(requirement.name))
+            if minimum is not None:
+                _replace_declaration(
+                    tmp_path, declaration, f"{requirement.name}=={minimum}", owner
+                )
     monkeypatch.setitem(globals(), "API", tmp_path)
     return tmp_path
 
@@ -288,5 +301,15 @@ def test_development_include_must_be_the_single_owned_runtime_file(
 ) -> None:
     path = manifests / "requirements-dev.txt"
     path.write_text(path.read_text().replace("-r requirements.txt", include))
+    with pytest.raises(AssertionError):
+        test_python_security_floors_are_synchronized_across_manifests()
+
+
+@pytest.mark.parametrize("directive", ["-r requirements.txt", "-c constraints.txt"])
+def test_runtime_requirements_refuse_recursive_or_constraint_directives(
+    manifests: Path, directive: str
+) -> None:
+    path = manifests / "requirements.txt"
+    path.write_text(path.read_text() + directive + "\n")
     with pytest.raises(AssertionError):
         test_python_security_floors_are_synchronized_across_manifests()

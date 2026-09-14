@@ -457,7 +457,7 @@
         "selected": [
           "HTTPX 0.28.1 for the runtime GitHub adapter",
           "HTTPX2 2.12.0 for the development-only Starlette TestClient backend",
-          "IDNA 3.18 shared security-compatible domain processing"
+          "IDNA 3.19 shared security-compatible domain processing"
         ],
         "alternatives": [
           "Deprecated Starlette fallback to plain HTTPX",
@@ -472,7 +472,8 @@
         "api_license_evidence": "https://raw.githubusercontent.com/pydantic/httpx2/v2.12.0/LICENSE.md",
         "oracle_or_reference_tests": [
           "apps/api/tests/test_datetime_contracts.py::test_starlette_testclient_uses_httpx2",
-          "tests/architecture/test_dependency_security_floors.py"
+          "tests/architecture/test_dependency_security_floors.py",
+          "apps/api/tests/test_dependency_consumers.py"
         ]
       },
       {
@@ -493,6 +494,27 @@
         "api_license_evidence": "packaging 26.3, Python >=3.9, Apache-2.0 OR BSD-2-Clause; PyPI release and installed distribution metadata/RECORD verified.",
         "oracle_or_reference_tests": [
           "tests/architecture/test_dependency_security_floors.py"
+        ]
+      },
+      {
+        "capability": "Alembic revision template rendering",
+        "selected": [
+          "Mako 1.4.1 used by Alembic 1.18.5"
+        ],
+        "alternatives": [
+          "Handwritten revision template rendering",
+          "Unreviewed Mako 1.4.0 distribution with stray tools package"
+        ],
+        "evidence": "apps/api/alembic/script.py.mako and apps/api/tests/test_dependency_consumers.py",
+        "adapter_boundary": "Existing Alembic script template; no application template engine or runtime custom parser added.",
+        "custom_code_reason": "Alembic generates revisions through maintained Mako; repository tests only assert selected-template compatibility and package ownership.",
+        "maintenance_evidence": "https://github.com/sqlalchemy/mako/releases/tag/rel_1_4_1",
+        "api_stability_evidence": "https://raw.githubusercontent.com/sqlalchemy/mako/rel_1_4_1/doc/build/changelog.rst",
+        "license_evidence": "https://github.com/sqlalchemy/mako/blob/rel_1_4_1/LICENSE",
+        "api_license_evidence": "Mako 1.4.1, Python>=3.10, MIT; exact release metadata and installed wheel/RECORD provenance are recorded in the task evidence.",
+        "oracle_or_reference_tests": [
+          "apps/api/tests/test_dependency_consumers.py::test_alembic_renders_real_revision_templates_without_database",
+          "apps/api/tests/test_dependency_consumers.py::test_mako_distribution_does_not_own_stray_tools_package"
         ]
       }
     ]
@@ -574,8 +596,15 @@
       "protected_form": "One unambiguous normalized name with one == stable public version at or above its minimum; no URL, wildcard, range/compound, arbitrary equality, marker, extras, prerelease/dev/local version.",
       "parity": "Every declaration is parsed before comparison; duplicate normalized names fail rather than disappearing into sets. Full runtime and dev declarations must match their pyproject arrays.",
       "include_policy": "Only one exact -r requirements.txt development include is allowed, without recursive expansion; comments and blank lines are supported.",
-      "oracles": "Actual manifests; synchronized newer IDNA/Mako pins; exact minima; each below-floor case; missing/duplicate protected declarations; unprotected full-parity mismatch; malformed/ambiguous forms and runtime include refusal.",
+      "oracles": "Actual selected manifests; independent exact-minimum copied fixtures; synchronized newer IDNA/Mako pins; each below-floor case; missing/duplicate declarations; full parity; malformed forms; explicit runtime and development include controls.",
       "ci_setup": "CI test job installs requirements-architecture.txt plus pytest before tests/architecture; all Python dependency audits remain required."
+    },
+    "python_dependency_consumers": {
+      "owner": "apps/api/tests/test_dependency_consumers.py",
+      "idna": "Actual ContactCreate/EmailStr and email-validator normalize Unicode and reject invalid/noncanonical labels; runtime HTTPX Request preparation verifies wire hosts without sending. Entirely ASCII HTTPX hosts bypass IDNA, so the noncanonical HTTPX negative includes a Unicode label.",
+      "mako": "Actual installed Alembic generic template and repository script.py.mako generate a temporary revision; metadata, upgrade/downgrade content and Python syntax are asserted. No database, env.py, autogeneration or post-write hooks. Mako distribution owns no top-level tools payload.",
+      "isolation": "Socket/DNS calls are refused in consumer tests; temporary paths are pytest-owned; minimum acceptance does not imply hosted or deployed behavior.",
+      "typing": "test_dependency_consumers explicitly requires typed definitions and resolved imports in Mypy; its actual module name is top-level."
     }
   },
   "data": {

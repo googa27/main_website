@@ -257,7 +257,22 @@
       "optional_dependency": "portfolio-api[pdf] owns ReportLab; core JSON Resume projection must work without it",
       "schema_sha256": "a07eedd3d86ac5bb61d72e136d788269e35baf42c35391e15d0be39b3dc5a4bd",
       "cli": "portfolio-cv --capabilities; portfolio-cv --format jsonresume; portfolio-cv --format pdf --output ./resume.pdf",
-      "pdf_security_constraint": "pillow==12.3.0"
+      "pdf_security_constraint": "pillow==12.3.0",
+      "pdf_concurrency": {
+        "issue": "https://github.com/googa27/main_website/issues/147",
+        "owner": "app.services.cv.pdf",
+        "shared_state": "ReportLab 5.0.1 registered TTFont face parser cursor is shared across document-specific subset states.",
+        "serialization": "One process-local context-managed lock covers optional imports, font registration, paragraph work and final document build; exception paths release the lock.",
+        "async_boundary": "CVService.render_public_pdf keeps rendering and lock waiting in its existing asyncio.to_thread worker.",
+        "throughput": "One PDF render at a time per process; no cross-process coordination or unbounded per-request font registration.",
+        "oracles": [
+          "Original real two-document text isolation",
+          "Controlled shared-face seek/subsetting overlap with real PDF byte and Unicode output equality",
+          "Subset exception followed by real successful rendering in another thread",
+          "Event-loop progress during actual subset work and a queued PDF request"
+        ],
+        "documentation": "docs/CV_EXPORTS.md"
+      }
     },
     "local_hook_toolchain": {
       "config": ".pre-commit-config.yaml",
@@ -457,7 +472,7 @@
         "selected": [
           "HTTPX 0.28.1 for the runtime GitHub adapter",
           "HTTPX2 2.12.0 for the development-only Starlette TestClient backend",
-          "IDNA 3.18 shared security-compatible domain processing"
+          "IDNA 3.19 shared security-compatible domain processing"
         ],
         "alternatives": [
           "Deprecated Starlette fallback to plain HTTPX",
@@ -472,7 +487,49 @@
         "api_license_evidence": "https://raw.githubusercontent.com/pydantic/httpx2/v2.12.0/LICENSE.md",
         "oracle_or_reference_tests": [
           "apps/api/tests/test_datetime_contracts.py::test_starlette_testclient_uses_httpx2",
+          "tests/architecture/test_dependency_security_floors.py",
+          "apps/api/tests/test_dependency_consumers.py"
+        ]
+      },
+      {
+        "capability": "Python dependency security minimum and manifest parity policy",
+        "selected": [
+          "packaging 26.3 (architecture testing only)"
+        ],
+        "alternatives": [
+          "Exact selected-version string equality",
+          "Handwritten requirement parser or lexical version ordering"
+        ],
+        "evidence": "requirements-architecture.txt and https://pypi.org/project/packaging/26.3/",
+        "adapter_boundary": "Private helpers in tests/architecture/test_dependency_security_floors.py; no application runtime dependency or public validator API.",
+        "custom_code_reason": "PyPA owns Requirement parsing, canonical names and PEP440 Version ordering; repository code owns the deliberately strict protected-pin policy.",
+        "maintenance_evidence": "https://github.com/pypa/packaging/releases/tag/26.3",
+        "api_stability_evidence": "https://packaging.pypa.io/en/stable/requirements.html and https://packaging.pypa.io/en/stable/version.html",
+        "license_evidence": "https://github.com/pypa/packaging/blob/26.3/LICENSE",
+        "api_license_evidence": "packaging 26.3, Python >=3.9, Apache-2.0 OR BSD-2-Clause; PyPI release and installed distribution metadata/RECORD verified.",
+        "oracle_or_reference_tests": [
           "tests/architecture/test_dependency_security_floors.py"
+        ]
+      },
+      {
+        "capability": "Alembic revision template rendering",
+        "selected": [
+          "Mako 1.4.1 used by Alembic 1.18.5"
+        ],
+        "alternatives": [
+          "Handwritten revision template rendering",
+          "Unreviewed Mako 1.4.0 distribution with stray tools package"
+        ],
+        "evidence": "apps/api/alembic/script.py.mako and apps/api/tests/test_dependency_consumers.py",
+        "adapter_boundary": "Existing Alembic script template; no application template engine or runtime custom parser added.",
+        "custom_code_reason": "Alembic generates revisions through maintained Mako; repository tests only assert selected-template compatibility and package ownership.",
+        "maintenance_evidence": "https://github.com/sqlalchemy/mako/releases/tag/rel_1_4_1",
+        "api_stability_evidence": "https://raw.githubusercontent.com/sqlalchemy/mako/rel_1_4_1/doc/build/changelog.rst",
+        "license_evidence": "https://github.com/sqlalchemy/mako/blob/rel_1_4_1/LICENSE",
+        "api_license_evidence": "Mako 1.4.1, Python>=3.10, MIT; exact release metadata and installed wheel/RECORD provenance are recorded in the task evidence.",
+        "oracle_or_reference_tests": [
+          "apps/api/tests/test_dependency_consumers.py::test_alembic_renders_real_revision_templates_without_database",
+          "apps/api/tests/test_dependency_consumers.py::test_mako_distribution_does_not_own_stray_tools_package"
         ]
       }
     ]
@@ -535,7 +592,9 @@
       "typecheck": "pnpm run typecheck",
       "build": "pnpm run build",
       "dependency_build_policy": "pnpm run check:dependency-build-policy",
-      "architecture": "python scripts/check_portfolio_architecture.py"
+      "architecture": "python scripts/check_portfolio_architecture.py",
+      "architecture_setup": "python -m pip install -r requirements-architecture.txt pytest",
+      "architecture_test": "python -m pytest tests/architecture"
     },
     "database_health_contract": {
       "statement": "The existing constant SELECT 1 probe is an explicit SQLAlchemy text statement executed through Session.",
@@ -544,8 +603,24 @@
       "resource_policy": "Tests restore dependency overrides and close sessions, connections and owned engines.",
       "scope": "Local SQLite and in-process HTTP route compatibility only; no live PostgreSQL, provider, deployment or production-availability claim."
     },
-    "ci_workflow": ".github/workflows/portfolio-architecture.yml",
-    "mirror_source": "where pertinent"
+    "ci_workflow": ".github/workflows/ci.yml",
+    "mirror_source": "where pertinent",
+    "python_dependency_policy": {
+      "minimum_owner": "_SECURITY_MINIMUMS in tests/architecture/test_dependency_security_floors.py is the sole minimum-version policy mapping.",
+      "selected_pin_owner": "apps/api/requirements*.txt and apps/api/pyproject.toml select exact versions; a reviewed newer stable pin may satisfy a minimum but still needs separate consumer/API validation.",
+      "protected_form": "One unambiguous normalized name with one == stable public version at or above its minimum; no URL, wildcard, range/compound, arbitrary equality, marker, extras, prerelease/dev/local version.",
+      "parity": "Every declaration is parsed before comparison; duplicate normalized names fail rather than disappearing into sets. Full runtime and dev declarations must match their pyproject arrays.",
+      "include_policy": "Only one exact -r requirements.txt development include is allowed, without recursive expansion; comments and blank lines are supported.",
+      "oracles": "Actual selected manifests; independent exact-minimum copied fixtures; synchronized newer IDNA/Mako pins; each below-floor case; missing/duplicate declarations; full parity; malformed forms; explicit runtime and development include controls.",
+      "ci_setup": "CI test job installs requirements-architecture.txt plus pytest before tests/architecture; all Python dependency audits remain required."
+    },
+    "python_dependency_consumers": {
+      "owner": "apps/api/tests/test_dependency_consumers.py",
+      "idna": "Actual ContactCreate/EmailStr and email-validator normalize Unicode and reject invalid/noncanonical labels; runtime HTTPX Request preparation verifies wire hosts without sending. Entirely ASCII HTTPX hosts bypass IDNA, so the noncanonical HTTPX negative includes a Unicode label.",
+      "mako": "Actual installed Alembic generic template and repository script.py.mako generate a temporary revision; metadata, upgrade/downgrade content and Python syntax are asserted. No database, env.py, autogeneration or post-write hooks. Mako distribution owns no top-level tools payload.",
+      "isolation": "Socket/DNS calls are refused in consumer tests; temporary paths are pytest-owned; minimum acceptance does not imply hosted or deployed behavior.",
+      "typing": "test_dependency_consumers explicitly requires typed definitions and resolved imports in Mypy; its actual module name is top-level."
+    }
   },
   "data": {
     "consumes_data": true,

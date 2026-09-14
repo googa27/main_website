@@ -226,3 +226,136 @@ def test_cli_atomic_replacement_failure_preserves_previous_output(
         _write_atomic(output, b"new")
     assert output.read_bytes() == b"previous"
     assert list(tmp_path.iterdir()) == [output]
+
+
+def test_pdf_serializes_shared_font_cursor_and_preserves_documents(
+    profile, monkeypatch
+):
+    """Pause a real subset after seek; another document must not move its cursor."""
+    from threading import Event, Lock, local
+
+    from reportlab.pdfbase.ttfonts import TTFontFace
+
+    first_profile = profile.model_copy(deep=True)
+    first_profile.personal_info.summary = "FIRST résumé Àéñ"
+    second_profile = profile.model_copy(deep=True)
+    second_profile.personal_info.first_name = "Öther"
+    second_profile.personal_info.summary = "SECOND façade Üçß"
+    resumes = [project_resume(first_profile), project_resume(second_profile)]
+    expected = [render_pdf(resume) for resume in resumes]
+    entered, second_finished = Event(), Event()
+    state, bookkeeping = local(), Lock()
+    active, maximum = {}, {}
+    original_subset, original_seek = TTFontFace.makeSubset, TTFontFace.seek
+
+    def subset(face, codes):
+        key = id(face)
+        with bookkeeping:
+            active[key] = active.get(key, 0) + 1
+            maximum[key] = max(maximum.get(key, 0), active[key])
+        state.in_subset = True
+        try:
+            return original_subset(face, codes)
+        finally:
+            state.in_subset = False
+            with bookkeeping:
+                active[key] -= 1
+
+    def seek(face, position):
+        original_seek(face, position)
+        if state.in_subset and state.first and not entered.is_set():
+            entered.set()
+            # A bounded rendezvous opens the real race on the old renderer.
+            # A serialized second render cannot finish until this wait expires.
+            # The oracle is real output identity and observed shared-face overlap,
+            # not elapsed time, retries, artificial cursor writes or fake PDFs.
+            second_finished.wait(2)
+
+    def render(index):
+        state.first, state.in_subset = index == 0, False
+        try:
+            return render_pdf(resumes[index])
+        finally:
+            if index == 1:
+                second_finished.set()
+
+    monkeypatch.setattr(TTFontFace, "makeSubset", subset)
+    monkeypatch.setattr(TTFontFace, "seek", seek)
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        first = pool.submit(render, 0)
+        assert entered.wait(5), "first actual subset did not reach its seek"
+        second = pool.submit(render, 1)
+        pdfs = [first.result(timeout=10), second.result(timeout=10)]
+    assert maximum and set(maximum.values()) == {1}
+    assert pdfs == expected
+    texts = [
+        "\n".join(p.extract_text() for p in PdfReader(BytesIO(raw), strict=True).pages)
+        for raw in pdfs
+    ]
+    assert "FIRST résumé Àéñ" in texts[0] and "SECOND façade Üçß" not in texts[0]
+    assert "SECOND façade Üçß" in texts[1] and "FIRST résumé Àéñ" not in texts[1]
+
+
+def test_pdf_renderer_exception_releases_shared_state_for_another_thread(
+    profile, monkeypatch
+):
+    from reportlab.pdfbase.ttfonts import TTFontFace
+
+    resume = project_resume(profile)
+    expected = render_pdf(resume)
+    original = TTFontFace.makeSubset
+    fail_once = True
+
+    def subset(face, codes):
+        nonlocal fail_once
+        if fail_once:
+            fail_once = False
+            raise RuntimeError("synthetic subset failure")
+        return original(face, codes)
+
+    monkeypatch.setattr(TTFontFace, "makeSubset", subset)
+    with pytest.raises(RuntimeError, match="synthetic subset failure"):
+        render_pdf(resume)
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        recovered = pool.submit(render_pdf, resume).result(timeout=10)
+    assert recovered == expected
+    assert "Éva Example" in "\n".join(
+        p.extract_text() for p in PdfReader(BytesIO(recovered)).pages
+    )
+
+
+async def test_real_pdf_contention_keeps_event_loop_responsive(profile, monkeypatch):
+    from threading import Event, get_ident
+
+    from reportlab.pdfbase.ttfonts import TTFontFace
+
+    entered, release = Event(), Event()
+    original = TTFontFace.makeSubset
+    loop_thread = get_ident()
+
+    def subset(face, codes):
+        assert get_ident() != loop_thread
+        entered.set()
+        assert release.wait(5)
+        return original(face, codes)
+
+    monkeypatch.setattr(TTFontFace, "makeSubset", subset)
+    service = CVService()
+    service._current_profile = profile
+    first = asyncio.create_task(service.render_public_pdf())
+    second = None
+    try:
+        assert await asyncio.to_thread(entered.wait, 5)
+        second = asyncio.create_task(service.render_public_pdf())
+        # A separate worker roundtrip proves the loop can service other work
+        # while real font work and another PDF request are pending.
+        assert await asyncio.wait_for(asyncio.to_thread(lambda: True), timeout=2)
+        assert not first.done() and not second.done()
+    finally:
+        release.set()
+    pdfs = await asyncio.gather(first, second)
+    assert pdfs[0] == pdfs[1]
+    for raw in pdfs:
+        assert "Éva Example" in "\n".join(
+            p.extract_text() for p in PdfReader(BytesIO(raw), strict=True).pages
+        )

@@ -259,3 +259,7 @@ portfolio-cv --format pdf --output ./resume.pdf
 ```
 
 The destination directory must already exist. The CLI works outside the checkout and atomically replaces an output only after rendering succeeds. Install `./apps/api` without extras for JSON-only use. See [public contracts and prototype disposition](docs/CV_EXPORTS.md) for HTTP endpoints, stable curated project ordering, optional dependency limitations and verification commands.
+
+## Repository architecture checks
+
+Install the declared governance dependencies with `python -m pip install -r requirements-architecture.txt pytest`, then run `python -m pytest tests/architecture` and `python scripts/check_portfolio_architecture.py`. These checks enforce complete API manifest parity and security minimums using packaging; newer selected pins still need their own compatibility review. No application runtime dependency is added by this tooling profile.

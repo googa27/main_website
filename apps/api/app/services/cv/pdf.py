@@ -7,7 +7,7 @@ from threading import Lock
 
 from app.schemas.resume import PublicResume
 
-_FONT_LOCK = Lock()
+_RENDER_LOCK = Lock()
 _FONT_NAME = "PortfolioVera"
 
 
@@ -17,6 +17,14 @@ class PDFUnavailableError(RuntimeError):
 
 def render_pdf(resume: PublicResume) -> bytes:
     """Render escaped literal text; no caller markup, links or assets are loaded."""
+    # ReportLab's registered TTFont shares a mutable face parser across documents.
+    # Keep registration, paragraph work and final subsetting in one transaction.
+    with _RENDER_LOCK:
+        return _render_pdf(resume)
+
+
+def _render_pdf(resume: PublicResume) -> bytes:
+    """Render while the caller holds the process-local ReportLab state lock."""
     try:
         from reportlab.lib.pagesizes import A4
         from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
@@ -29,10 +37,9 @@ def render_pdf(resume: PublicResume) -> bytes:
         ) from error
 
     # The font ships with the pinned renderer; do not read host fonts or download.
-    with _FONT_LOCK:
-        if _FONT_NAME not in pdfmetrics.getRegisteredFontNames():
-            with as_file(files("reportlab").joinpath("fonts/Vera.ttf")) as path:
-                pdfmetrics.registerFont(TTFont(_FONT_NAME, str(path)))
+    if _FONT_NAME not in pdfmetrics.getRegisteredFontNames():
+        with as_file(files("reportlab").joinpath("fonts/Vera.ttf")) as path:
+            pdfmetrics.registerFont(TTFont(_FONT_NAME, str(path)))
 
     styles = getSampleStyleSheet()
     for name in ("Normal", "Title", "Heading2"):

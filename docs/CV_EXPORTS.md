@@ -37,6 +37,31 @@ Use a real existing destination directory. Output is rendered and validated befo
 
 `--capabilities` reports schema version, input source and whether the optional PDF dependency is installed. Import availability alone does not prove successful rendering; the actual PDF command and installed artifact tests provide that evidence. Missing PDF support returns exit code 2 with a bounded diagnostic. The immutable public Python projection is `app.services.cv.resume.project_resume(profile, options)`; `resume_json(resume)` serializes the published aliases. `app.services.cv.CVService.get_public_resume()` and `render_public_pdf()` are asynchronous orchestration methods. CPU/render work runs in a worker thread.
 
+### Concurrent PDF requests
+
+[Issue #147](https://github.com/googa27/main_website/issues/147) records an actual
+ReportLab 5.0.1 concurrent-subsetting failure. The registered TrueType font has
+per-document subset assignments, but its shared face parser moves a mutable read
+cursor during final font subsetting. The exact 5.0.1 source distribution's
+`testParallelConstruction` interleaves documents sequentially; it is not a
+simultaneous-thread rendering guarantee. See the [maintained release artifact](https://pypi.org/project/reportlab/5.0.1/)
+and [font API guidance](https://docs.reportlab.com/reportlab/userguide/ch3_fonts/).
+
+The existing PDF owner therefore serializes the entire render operation within
+one process, from optional imports and font registration through paragraph work
+and final document build. Context-managed locking releases on failure. Both active
+rendering and waiting for this lock stay inside the existing worker-thread path;
+other event-loop work remains responsive. The tradeoff is one PDF render at a time
+per application process; this is not a cross-process queue or a throughput gain.
+Independent application processes retain their own font state. No per-request font
+registry entries, host fonts, network assets or ReportLab internal patches are added.
+
+Real PDF regressions retain the original concurrent text-isolation check and add a
+controlled shared-face seek/subsetting overlap, exact document-byte and Unicode
+markers, exception recovery from another thread, and event-loop progress during
+real rendering contention. The lock does not change text, layout, public
+signatures, optional installation or CLI atomic replacement semantics.
+
 | HTTP route                                     | Response                                                                           |
 | ---------------------------------------------- | ---------------------------------------------------------------------------------- |
 | `GET /api/cv/resume`                           | Typed JSON Resume document                                                         |

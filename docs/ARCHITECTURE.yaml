@@ -257,7 +257,22 @@
       "optional_dependency": "portfolio-api[pdf] owns ReportLab; core JSON Resume projection must work without it",
       "schema_sha256": "a07eedd3d86ac5bb61d72e136d788269e35baf42c35391e15d0be39b3dc5a4bd",
       "cli": "portfolio-cv --capabilities; portfolio-cv --format jsonresume; portfolio-cv --format pdf --output ./resume.pdf",
-      "pdf_security_constraint": "pillow==12.3.0"
+      "pdf_security_constraint": "pillow==12.3.0",
+      "pdf_concurrency": {
+        "issue": "https://github.com/googa27/main_website/issues/147",
+        "owner": "app.services.cv.pdf",
+        "shared_state": "ReportLab 5.0.1 registered TTFont face parser cursor is shared across document-specific subset states.",
+        "serialization": "One process-local context-managed lock covers optional imports, font registration, paragraph work and final document build; exception paths release the lock.",
+        "async_boundary": "CVService.render_public_pdf keeps rendering and lock waiting in its existing asyncio.to_thread worker.",
+        "throughput": "One PDF render at a time per process; no cross-process coordination or unbounded per-request font registration.",
+        "oracles": [
+          "Original real two-document text isolation",
+          "Controlled shared-face seek/subsetting overlap with real PDF byte and Unicode output equality",
+          "Subset exception followed by real successful rendering in another thread",
+          "Event-loop progress during actual subset work and a queued PDF request"
+        ],
+        "documentation": "docs/CV_EXPORTS.md"
+      }
     },
     "local_hook_toolchain": {
       "config": ".pre-commit-config.yaml",

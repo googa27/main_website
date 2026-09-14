@@ -115,7 +115,7 @@ jobs:
 
       - name: Run repository architecture tests
         run: |
-          python -m pip install pytest
+          python -m pip install -r requirements-architecture.txt pytest
           pytest tests/architecture
 
   security:

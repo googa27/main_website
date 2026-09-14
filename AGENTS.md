@@ -95,7 +95,7 @@ React-folio consolidation evidence lives in `docs/REACT_FOLIO_CONSOLIDATION.md`.
 - Typecheck: `pnpm run typecheck`
 - Dependency build policy: `pnpm run check:dependency-build-policy`
 - Portfolio architecture: `python scripts/check_portfolio_architecture.py`
-- Governance setup: `python3 -m pip install -r requirements-architecture.txt`
+- Governance setup: `python3 -m pip install -r requirements-architecture.txt pytest`
 - AI/hierarchy policy: `python3 scripts/check_ai_hierarchy_policy.py`
 
 If a command is declared unavailable, the activation trigger and replacement command belong in `docs/ARCHITECTURE.yaml`; do not fabricate successful output.

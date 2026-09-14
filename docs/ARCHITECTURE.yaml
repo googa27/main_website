@@ -474,6 +474,26 @@
           "apps/api/tests/test_datetime_contracts.py::test_starlette_testclient_uses_httpx2",
           "tests/architecture/test_dependency_security_floors.py"
         ]
+      },
+      {
+        "capability": "Python dependency security minimum and manifest parity policy",
+        "selected": [
+          "packaging 26.3 (architecture testing only)"
+        ],
+        "alternatives": [
+          "Exact selected-version string equality",
+          "Handwritten requirement parser or lexical version ordering"
+        ],
+        "evidence": "requirements-architecture.txt and https://pypi.org/project/packaging/26.3/",
+        "adapter_boundary": "Private helpers in tests/architecture/test_dependency_security_floors.py; no application runtime dependency or public validator API.",
+        "custom_code_reason": "PyPA owns Requirement parsing, canonical names and PEP440 Version ordering; repository code owns the deliberately strict protected-pin policy.",
+        "maintenance_evidence": "https://github.com/pypa/packaging/releases/tag/26.3",
+        "api_stability_evidence": "https://packaging.pypa.io/en/stable/requirements.html and https://packaging.pypa.io/en/stable/version.html",
+        "license_evidence": "https://github.com/pypa/packaging/blob/26.3/LICENSE",
+        "api_license_evidence": "packaging 26.3, Python >=3.9, Apache-2.0 OR BSD-2-Clause; PyPI release and installed distribution metadata/RECORD verified.",
+        "oracle_or_reference_tests": [
+          "tests/architecture/test_dependency_security_floors.py"
+        ]
       }
     ]
   },
@@ -535,7 +555,9 @@
       "typecheck": "pnpm run typecheck",
       "build": "pnpm run build",
       "dependency_build_policy": "pnpm run check:dependency-build-policy",
-      "architecture": "python scripts/check_portfolio_architecture.py"
+      "architecture": "python scripts/check_portfolio_architecture.py",
+      "architecture_setup": "python -m pip install -r requirements-architecture.txt pytest",
+      "architecture_test": "python -m pytest tests/architecture"
     },
     "database_health_contract": {
       "statement": "The existing constant SELECT 1 probe is an explicit SQLAlchemy text statement executed through Session.",
@@ -544,8 +566,17 @@
       "resource_policy": "Tests restore dependency overrides and close sessions, connections and owned engines.",
       "scope": "Local SQLite and in-process HTTP route compatibility only; no live PostgreSQL, provider, deployment or production-availability claim."
     },
-    "ci_workflow": ".github/workflows/portfolio-architecture.yml",
-    "mirror_source": "where pertinent"
+    "ci_workflow": ".github/workflows/ci.yml",
+    "mirror_source": "where pertinent",
+    "python_dependency_policy": {
+      "minimum_owner": "_SECURITY_MINIMUMS in tests/architecture/test_dependency_security_floors.py is the sole minimum-version policy mapping.",
+      "selected_pin_owner": "apps/api/requirements*.txt and apps/api/pyproject.toml select exact versions; a reviewed newer stable pin may satisfy a minimum but still needs separate consumer/API validation.",
+      "protected_form": "One unambiguous normalized name with one == stable public version at or above its minimum; no URL, wildcard, range/compound, arbitrary equality, marker, extras, prerelease/dev/local version.",
+      "parity": "Every declaration is parsed before comparison; duplicate normalized names fail rather than disappearing into sets. Full runtime and dev declarations must match their pyproject arrays.",
+      "include_policy": "Only one exact -r requirements.txt development include is allowed, without recursive expansion; comments and blank lines are supported.",
+      "oracles": "Actual manifests; synchronized newer IDNA/Mako pins; exact minima; each below-floor case; missing/duplicate protected declarations; unprotected full-parity mismatch; malformed/ambiguous forms and runtime include refusal.",
+      "ci_setup": "CI test job installs requirements-architecture.txt plus pytest before tests/architecture; all Python dependency audits remain required."
+    }
   },
   "data": {
     "consumes_data": true,

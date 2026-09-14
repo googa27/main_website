@@ -537,6 +537,13 @@
       "dependency_build_policy": "pnpm run check:dependency-build-policy",
       "architecture": "python scripts/check_portfolio_architecture.py"
     },
+    "database_health_contract": {
+      "statement": "The existing constant SELECT 1 probe is an explicit SQLAlchemy text statement executed through Session.",
+      "healthy_oracle": "FastAPI TestClient with a real Session and thread-safe in-memory SQLite engine supplied through get_db.",
+      "unhealthy_oracle": "FastAPI TestClient with a real Session bound to a closed SQLAlchemy Connection.",
+      "resource_policy": "Tests restore dependency overrides and close sessions, connections and owned engines.",
+      "scope": "Local SQLite and in-process HTTP route compatibility only; no live PostgreSQL, provider, deployment or production-availability claim."
+    },
     "ci_workflow": ".github/workflows/portfolio-architecture.yml",
     "mirror_source": "where pertinent"
   },

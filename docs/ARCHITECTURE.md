@@ -38,6 +38,21 @@ Source of truth: `docs/ARCHITECTURE.yaml`. Tracking: [Project #24](https://githu
 - Consolidation evidence: `docs/REACT_FOLIO_CONSOLIDATION.md` records the one-way React-folio to main_website migration, phone redaction, static export posture, and explicit source-repository retention.
 - CV storage: `CVService` resolves its default `app/static/cv` directory relative to the application module. Importing and exporting from another working directory uses the same public profile and creates no `app/` directory in the caller's location; an API regression protects this behavior (issue #105).
 
+### Responsive site navigation
+
+`Navigation.tsx` owns the existing responsive links and a mobile disclosure,
+using React state and native button/link behavior. The named button exposes
+`aria-expanded` and `aria-controls`; Escape closes and restores button focus.
+Leaving navigation with Tab or selecting a link closes it. Desktop navigation
+keeps its existing layout. This follows the [WAI disclosure navigation pattern](https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/examples/disclosure-navigation/),
+without imposing menu-widget keyboard behavior on ordinary site links.
+
+`tests/e2e/mobile-navigation.mjs` checks actual browser interactions against a
+built static site using a caller-provided Playwright Page. It is separate from
+the frontend `pnpm test` placeholder and does not add a runtime dependency.
+See `tests/e2e/README.md` for execution and evidence boundaries; browser,
+rendered-style and assistive-technology results must be recorded separately.
+
 ### Executive summary: optional API time and HTTP clients
 
 - **UTC timestamps:** `apps/api/app/core/time.py::utc_now` is the single clock factory for generated API timestamps. It returns aware UTC values; ORM timestamp columns declare `DateTime(timezone=True)`.

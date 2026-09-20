@@ -17,7 +17,12 @@ API = ROOT / "apps" / "api"
 
 # Minimum acceptable versions, not the currently selected dependency versions.
 _SECURITY_MINIMUMS = {
-    "runtime": {"idna": "3.18", "mako": "1.3.12", "httpx": "0.28.1"},
+    "runtime": {
+        "idna": "3.18",
+        "mako": "1.3.12",
+        "httpx": "0.28.1",
+        "anyio": "4.14.2",
+    },
     "dev": {"pygments": "2.20.0", "httpx2": "2.12.0"},
 }
 
@@ -163,7 +168,12 @@ def _replace_declaration(
 
 
 @pytest.mark.parametrize(
-    "old,new", [("idna==3.18", "idna==3.19"), ("Mako==1.3.12", "Mako==1.4.1")]
+    "old,new",
+    [
+        ("idna==3.18", "idna==3.19"),
+        ("Mako==1.3.12", "Mako==1.4.1"),
+        ("anyio==4.14.2", "anyio==4.15.1"),
+    ],
 )
 def test_synchronized_newer_pins_are_not_rejected_as_old_exact_pins(
     manifests: Path, old: str, new: str
@@ -182,6 +192,7 @@ def test_exact_minimum_pins_are_accepted(manifests: Path) -> None:
         ("runtime", "idna==3.18", "idna==3.17"),
         ("runtime", "Mako==1.3.12", "Mako==1.3.11"),
         ("runtime", "httpx==0.28.1", "httpx==0.28.0"),
+        ("runtime", "anyio==4.14.2", "anyio==4.14.1"),
         ("dev", "Pygments==2.20.0", "Pygments==2.19.2"),
         ("dev", "httpx2==2.12.0", "httpx2==2.11.0"),
     ],

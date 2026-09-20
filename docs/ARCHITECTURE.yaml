@@ -41,6 +41,15 @@
         ]
       }
     ],
+    "navigation_contract": {
+      "owner": "apps/web/src/components/Navigation.tsx",
+      "pattern": "React state controls a named native disclosure button and ordinary navigation links; no ARIA menu role or focus trap.",
+      "mobile_behavior": "Enter/Space toggle; Escape closes and returns focus to the button; selecting a link or moving focus outside navigation closes the panel.",
+      "responsive_behavior": "Existing desktop links remain visible from md; the disclosure and its panel are mobile-only.",
+      "browser_check": "tests/e2e/mobile-navigation.mjs::checkMobileNavigation",
+      "verification_boundary": "The browser assertion requires a real built static site and externally provisioned Playwright Page; pnpm test remains a frontend placeholder and does not run it. Assistive-technology and rendered-style inspection remain separate.",
+      "reference": "https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/examples/disclosure-navigation/"
+    },
     "time_contract": {
       "canonical_zone": "UTC",
       "generation": "apps/api/app/core/time.py::utc_now returns timezone-aware datetime values",

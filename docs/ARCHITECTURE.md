@@ -176,3 +176,21 @@ Run `python -m pip install -r requirements-architecture.txt pytest`, then `pytho
 Selected IDNA 3.19 and Mako 1.4.1 retain the independent security minimums. `apps/api/tests/test_dependency_consumers.py` exercises ContactCreate/EmailStr, email-validator and runtime HTTPX request preparation with Unicode, ASCII and invalid/noncanonical domains. EmailStr retains normalized Unicode; email-validator's ASCII email and HTTPX's raw host expose wire normalization. HTTPX bypasses IDNA for entirely ASCII hosts, so its canonical-label negative includes a Unicode label. Socket/DNS operations are refused by these tests.
 
 The same owner uses actual installed Alembic generic and repository revision templates to generate temporary revisions and verify metadata, upgrade/downgrade content and Python syntax, without database access, env.py, autogeneration or post-write hooks. It verifies that the Mako distribution does not own the stray top-level tools package fixed in 1.4.1. Policy controls normalize owned copies to minimum pins independently of selected versions; actual repository parity remains a separate test. Primary behavioral references are the [IDNA 3.19 history](https://raw.githubusercontent.com/kjd/idna/v3.19/HISTORY.md) and [Mako 1.4.1 changelog](https://raw.githubusercontent.com/sqlalchemy/mako/rel_1_4_1/doc/build/changelog.rst). These controls do not establish live provider, DNS, database or deployment behavior.
+
+
+AnyIO 4.15.1 is explicitly constrained in both runtime manifests as an existing
+transitive async dependency; dev/PDF requirements inherit the base declaration.
+[Upstream metadata](https://pypi.org/pypi/anyio/4.15.1/json) declares Python >=3.10
+and MIT licensing, compatible with this API's Python >=3.12 profile. The selected
+version was installed by the successful Python 3.12 backend job in
+[run 35538162830](https://github.com/googa27/main_website/actions/runs/35538162830).
+It exceeds the 4.14.2 fixes for
+[TLS hostname handling](https://github.com/agronholm/anyio/security/advisories/GHSA-82r6-8w77-94w6)
+and [process-worker stderr blocking](https://github.com/agronholm/anyio/security/advisories/GHSA-5p39-cfhj-2xmp).
+That run's full OSV scan independently inferred vulnerable AnyIO 4.9.0; it does
+not prove the tested or deployed application installed that version. The exact
+pin follows the manifest convention and makes this security constraint explicit,
+but does not establish what a fresh resolver will select or that the full scan
+will pass. Recheck backend tests, base/dev/PDF pip-audit and the real full OSV
+scan; retain any resolution failure without suppressing either advisory or
+transitive scanning.

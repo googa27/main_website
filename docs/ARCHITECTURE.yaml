@@ -491,7 +491,7 @@
           "tests/architecture/test_dependency_security_floors.py",
           "apps/api/tests/test_dependency_consumers.py"
         ],
-        "dependency_security_note": "AnyIO is constrained in both runtime manifests; dev/PDF requirements inherit the base file. Upstream GHSA-82r6-8w77-94w6 and GHSA-5p39-cfhj-2xmp are patched in 4.14.2. Selected 4.15.1 supports Python >=3.10, is MIT licensed, and was observed in successful Python 3.12 CI. This selection does not prove a fresh resolver or full OSV scan succeeds; retain backend tests, all three pip-audit inputs and the full dependency scan without advisory suppression. See docs/ARCHITECTURE.md and https://pypi.org/pypi/anyio/4.15.1/json."
+        "dependency_security_note": "AnyIO is constrained in both runtime manifests; dev/PDF requirements inherit the base file. Upstream GHSA-82r6-8w77-94w6 and GHSA-5p39-cfhj-2xmp are patched in 4.14.2. Selected 4.15.1 supports Python >=3.10, is MIT licensed, and was observed in successful Python 3.12 CI. This selection does not prove a fresh resolver or full OSV scan succeeds; retain backend tests, all three pip-audit inputs and the full dependency scan without advisory suppression. See docs/ARCHITECTURE.md and https://pypi.org/pypi/anyio/4.15.1/json. The existing _SECURITY_MINIMUMS policy enforces AnyIO >=4.14.2 independently of the selected pin, with copied-manifest downgrade and newer-pin controls in tests/architecture/test_dependency_security_floors.py."
       },
       {
         "capability": "Python dependency security minimum and manifest parity policy",

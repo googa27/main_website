@@ -167,7 +167,7 @@ Ruff discovers the closest configuration for each supplied API filename. Do not 
 
 ## Python dependency minimum policy
 
-The private architecture checker uses PyPA packaging 26.3 Requirement, canonical names and Version ordering. `_SECURITY_MINIMUMS` in `tests/architecture/test_dependency_security_floors.py` owns security minima; application manifests own selected versions. A newer synchronized stable exact pin can meet a minimum without proving API compatibility. Consumer tests and review remain required before selecting it.
+The private architecture checker uses PyPA packaging 26.3 Requirement, canonical names and Version ordering. `_SECURITY_MINIMUMS` in `tests/architecture/test_dependency_security_floors.py` owns security minima; application manifests own selected versions. A newer synchronized stable exact pin can meet a minimum without proving API compatibility. Consumer tests and review remain required before selecting it. AnyIO is protected at the upstream patched minimum 4.14.2, independently of its selected 4.15.1 pin. Copied-manifest controls reject a synchronized downgrade to 4.14.1 and accept a newer synchronized 4.15.1 pin.
 
 Protected pins reject ambiguous/conditional forms, extras, URL sources and prerelease/dev/local versions. Duplicate normalized names fail before full runtime/development manifest comparison. Requirements files permit comments/blank lines and the single existing development `-r requirements.txt` include; arbitrary recursive includes are not traversed. Real copied-manifest controls demonstrate newer pins, below-floor refusal, duplicates, malformed declarations and full parity.
 

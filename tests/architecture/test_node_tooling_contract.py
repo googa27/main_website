@@ -318,12 +318,12 @@ def test_dependabot_owns_the_root_workspace_and_groups_react_updates() -> None:
 def test_react_runtime_and_declarations_resolve_as_one_reviewed_cohort() -> None:
     expected = {
         "runtime": {
-            "react": "19.2.8",
-            "react-dom": "19.2.8",
+            "react": "19.3.0",
+            "react-dom": "19.3.0",
         },
         "declarations": {
-            "@types/react": "19.2.18",
-            "@types/react-dom": "19.2.7",
+            "@types/react": "19.3.0",
+            "@types/react-dom": "19.3.0",
         },
         "importers": ["apps/web", "packages/ui"],
     }

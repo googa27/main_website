@@ -69,12 +69,27 @@ This split avoids a risky application-wide HTTP-client migration while removing 
 | Package manager    | Pin `pnpm@10.34.5`                                                                                       | Current pnpm 10 maintenance release while preserving the existing lockfile major                                                                                       | `packageManager`; `test_node_tooling_contract.py`     |
 | Script runtime     | Let pnpm download and use `node@24.19.0` through `devEngines.runtime`                                    | Tailwind's current Node adapter emits `DEP0205` under Node 26; Node 24 is a maintained LTS and is warning-free for this build                                          | `pnpm install`; uncached `pnpm build`                 |
 | Oxide fallback     | Deny `@tailwindcss/oxide@4.1.12` postinstall                                                             | The reviewed script performs a registry download and archive extraction only when the locked optional binary is missing; direct load and production build already pass | `pnpm.ignoredBuiltDependencies`; lock/version checker |
-| Resolver fallback  | Deny `unrs-resolver@1.11.1` postinstall                                                                  | The reviewed checker can invoke npm or download a native binding; the locked optional binding already loads and lint/build pass                                        | `pnpm.ignoredBuiltDependencies`; lock/version checker |
+| Resolver fallback  | Deny `unrs-resolver@1.12.2` postinstall                                                                  | The reviewed local wrapper and napi-postinstall 0.3.4 can invoke npm or download a native binding; require the locked optional binding to load and lint/build to pass                                        | `pnpm.ignoredBuiltDependencies`; lock/version checker |
 | API build          | Remove the echo-only package build task                                                                  | FastAPI is a runtime service and produces no build artifact; claiming a successful build created a Turborepo cache warning and false evidence                          | absence asserted by architecture test                 |
 | GitHub Actions     | Full-SHA pins for checkout v7.0.1, setup-node v7.0.0, setup-python v7.0.0, and pnpm/action-setup v6.0.10 | These reviewed releases use Node 24 internally and eliminate GitHub's Node 20 action-runtime annotation                                                                | architecture test, Pinact, Zizmor, native CI          |
 | Dependency updates | Discover npm from the repository root and group React runtime/declaration packages                       | The workspace owns one root lock; child-directory updates cannot independently reconcile coupled importers                                                             | parsed Dependabot architecture regression             |
 
 No lifecycle script is silently approved. Future lock changes remain denied by pnpm and fail `pnpm run check:dependency-build-policy` until the exact new version, package manifest, lifecycle entrypoint, support-package implementation, and pending-build state are reviewed.
+
+Resolver 1.12.2 uses `node postinstall.js`, calling the published
+`napi-postinstall` API. The deny-only policy binds that wrapper separately from
+the support package manifest, CLI and complete executable `lib/*.js` tree.
+The support update adds platform detection; its download/install and fallback
+implementations remain byte-identical to 0.3.3. The resolver now limits its
+runtime install fallback to WebContainer, so ordinary Node fails if neither
+the native nor WASI binding loads. Frozen installation, direct native binding
+load, lifecycle policy, lint, typecheck and production build remain acceptance
+gates; policy metadata does not prove those executions. Sources:
+[resolver 1.12.2](https://registry.npmjs.org/unrs-resolver/1.12.2) and
+[napi-postinstall 0.3.4](https://registry.npmjs.org/napi-postinstall/0.3.4).
+The synthetic temporary-layout regression proves that altered wrapper, support
+CLI and support-library bytes are refused, along with lock and pending-build
+drift. It does not execute an installer or substitute for real package review.
 
 The Node 26 warning is tracked upstream at https://github.com/tailwindlabs/tailwindcss/issues/19893. Remove the managed Node 24 constraint only after a stable Tailwind release replaces `module.register()` and an uncached Node 26 build is warning-free; do not suppress `DEP0205`.
 

@@ -72,15 +72,15 @@
           "script_sha256": "df8750369bdc91787de5baec99eaaf27b7d8d2952acb25cf1a0b0aa511185b2a"
         },
         "unrs-resolver": {
-          "version": "1.11.1",
+          "version": "1.12.2",
           "decision": "deny",
-          "lifecycle_command": "napi-postinstall unrs-resolver 1.11.1 check",
-          "manifest_sha256": "0510c5611b2c4436d12364dff5ddd0f227dacd174cadd62141b226bce1fa4b19",
-          "script_sha256": "2d79f5b3ee7566309a587c267ab8363881f5ebe97a728b0271fb530569b1f356",
+          "lifecycle_command": "node postinstall.js",
+          "manifest_sha256": "3ef3f74675fe31a88dc490e4136178a5fd8f96142df0c565d66be9a894543adf",
+          "script_sha256": "446a0aeed55eeb28eadd9ac31f0b71654265aba8ca5a99dbc22dab0b26a02469",
           "support_package": {
             "name": "napi-postinstall",
-            "version": "0.3.3",
-            "manifest_sha256": "94d75d361fd158062dd3888ca0bd3abc90d67ef0f5f746d4b7b0de9065a384bd",
+            "version": "0.3.4",
+            "manifest_sha256": "1bc0ea8874adb494c2b21ec47b9a434ae067ad65d6908c090299b1aa9e266687",
             "lib_files": [
               "lib/cli.js",
               "lib/constants.js",
@@ -90,14 +90,15 @@
               "lib/target.js",
               "lib/types.js"
             ],
-            "lib_tree_sha256": "f2b5f747776727b0bf13220d49407cd0523d180842a09df3bc2e2f2e9116e3d8",
+            "lib_tree_sha256": "0bc066b4ad4eef5e5f4c5c8fee2fb6ab758acfcfd82d3021665cb560c295023d",
             "cli_sha256": "2d79f5b3ee7566309a587c267ab8363881f5ebe97a728b0271fb530569b1f356"
-          }
+          },
+          "script_path": "postinstall.js"
         }
       },
       "rationale": {
         "@tailwindcss/oxide": "The postinstall performs an unneeded registry download and archive extraction fallback when the locked optional binary is absent; direct load and production build pass while denied.",
-        "unrs-resolver": "The postinstall can invoke npm or download a native binary fallback; the locked optional binding loads and lint/build pass while denied."
+        "unrs-resolver": "The reviewed wrapper invokes napi-postinstall, which can invoke npm or download a missing native binding; keep it denied. Version 1.12.2 restricts the runtime install fallback to WebContainer. A frozen install, direct native binding load, lint and production build are required before accepting this cohort."
       },
       "verification_command": "pnpm run check:dependency-build-policy",
       "policy_source": "https://pnpm.io/settings#ignoredbuiltdependencies"

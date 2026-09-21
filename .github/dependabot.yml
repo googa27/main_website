@@ -13,6 +13,17 @@ updates:
           - "react-dom"
           - "@types/react"
           - "@types/react-dom"
+      typescript-eslint:
+        patterns:
+          - "@typescript-eslint/eslint-plugin"
+          - "@typescript-eslint/parser"
+    # Type-only holds apply to version updates, not security-only jobs.
+    # Remove when the documented compiler/ESLint peer gates admit the new major.
+    ignore:
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: "pip"
     directory: "/apps/api"
     schedule:

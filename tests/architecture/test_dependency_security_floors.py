@@ -273,17 +273,35 @@ def test_duplicate_normalized_names_cannot_hide_in_manifest_sets(
         test_python_security_floors_are_synchronized_across_manifests()
 
 
-@pytest.mark.parametrize(
-    "owner,pin", [("runtime", "fastapi==0.139.0"), ("dev", "ruff==0.16.0")]
-)
+@pytest.mark.parametrize("owner,name", [("runtime", "fastapi"), ("dev", "ruff")])
+@pytest.mark.parametrize("selected_version", [None, "999.0"])
 def test_full_manifest_parity_includes_unprotected_dependencies(
-    manifests: Path, owner: str, pin: str
+    manifests: Path, owner: str, name: str, selected_version: str | None
 ) -> None:
     path = manifests / (
         "requirements.txt" if owner == "runtime" else "requirements-dev.txt"
     )
-    path.write_text(path.read_text().replace(pin, pin.replace("==", ">=")))
-    with pytest.raises(AssertionError):
+    declarations = _requirements_lines(path.read_text(), include_runtime=owner == "dev")
+    matches = [
+        declaration
+        for declaration in declarations
+        if canonicalize_name(Requirement(declaration).name) == canonicalize_name(name)
+    ]
+    assert len(matches) == 1, f"Expected exactly one declaration for {name}"
+    pin = matches[0]
+    if selected_version is not None:
+        replacement = f"{Requirement(pin).name}=={selected_version}"
+        _replace_declaration(manifests, pin, replacement, owner)
+        pin = replacement
+    test_python_security_floors_are_synchronized_across_manifests()
+    before = Requirement(pin)
+    replacement = pin.replace("==", ">=", 1)
+    after = Requirement(replacement)
+    assert before.name == after.name and before.specifier != after.specifier
+    text = path.read_text()
+    assert text.count(pin) == 1
+    path.write_text(text.replace(pin, replacement, 1))
+    with pytest.raises(AssertionError, match=f"Full {owner} manifest parity differs"):
         test_python_security_floors_are_synchronized_across_manifests()
 
 

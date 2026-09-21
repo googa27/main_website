@@ -100,6 +100,22 @@ the pip updater, weekly cadence, seven-day cooldown, and security updates remain
 enabled. The parsed configuration regression checks that ownership rather than a
 group label or YAML formatting.
 
+The updater also groups the TypeScript-ESLint parser and plugin, because the
+plugin's same-family parser peer must advance together. Only semver-major
+version updates for `eslint` and `typescript` are held while current web plugin
+peers and compiler API consumers reject those proposals. Existing accepted
+major versions remain unchanged, including UI ESLint 10. Remove each hold when
+its documented compatibility gate passes. There are no name-only or explicit
+version-range exclusions. Dependabot ignores these update-type filters for
+security-only jobs; the parsed regression rejects broader filters and preserves
+the root workspace, React group, weekly schedule and seven-day cooldown.
+This config change is not proof that the full scheduled updater recovered;
+keep issue #136 open until that actual workflow succeeds.
+[Upstream security filtering](https://github.com/dependabot/dependabot-core/blob/6634a4a4b6e203f3afcd302052839d290e6e61bf/common/lib/dependabot/config/ignore_condition.rb#L40-L46)
+and its [regression](https://github.com/dependabot/dependabot-core/blob/6634a4a4b6e203f3afcd302052839d290e6e61bf/common/spec/dependabot/config/ignore_condition_spec.rb#L336-L342)
+record the distinction between update-type and explicit version filters.
+
+
 Web and UI resolve one reviewed React cohort: React and React DOM 19.3.0,
 `@types/react` 19.3.0, and `@types/react-dom` 19.3.0. The architecture
 regression reads both manifests and the parsed root lock, so a broad declaration

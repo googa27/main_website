@@ -140,7 +140,7 @@
         "interval": "weekly",
         "cooldown_days": 7
       },
-      "security_updates": "enabled without broad ignore exclusions",
+      "security_updates": "enabled; semver-type major holds do not apply to security-only updates",
       "typescript_compatibility": {
         "decision": "retain TypeScript 5",
         "reason": "The locked TypeScript-ESLint 8.63.0 peer range is >=4.8.4 <6.1.0 and TypeScript 7.0 lacks the stable programmatic API required by tooling consumers.",
@@ -150,6 +150,19 @@
         "decision": "retain managed Node 24.19.0 and @types/node 24",
         "reason": "Runtime declarations stay aligned while the documented Tailwind Node 26 blocker remains active.",
         "revisit_when": "The node_runtime_policy removal trigger is satisfied and the managed install, lifecycle policy, lint, typecheck and build pass."
+      },
+      "coupled_typescript_eslint_group": [
+        "@typescript-eslint/eslint-plugin",
+        "@typescript-eslint/parser"
+      ],
+      "version_update_major_holds": [
+        "eslint",
+        "typescript"
+      ],
+      "eslint_compatibility": {
+        "decision": "retain accepted ESLint majors per importer (web/config 9, UI 10)",
+        "reason": "The web import, React and JSX accessibility plugins do not admit ESLint 10 in their published peer ranges.",
+        "revisit_when": "All consuming plugin peer ranges admit the candidate and strict frozen install, lint, typecheck and build pass."
       }
     },
     "extension_points": [

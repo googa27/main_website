@@ -38,6 +38,21 @@ Source of truth: `docs/ARCHITECTURE.yaml`. Tracking: [Project #24](https://githu
 - Consolidation evidence: `docs/REACT_FOLIO_CONSOLIDATION.md` records the one-way React-folio to main_website migration, phone redaction, static export posture, and explicit source-repository retention.
 - CV storage: `CVService` resolves its default `app/static/cv` directory relative to the application module. Importing and exporting from another working directory uses the same public profile and creates no `app/` directory in the caller's location; an API regression protects this behavior (issue #105).
 
+### Responsive site navigation
+
+`Navigation.tsx` owns the existing responsive links and a mobile disclosure,
+using React state and native button/link behavior. The named button exposes
+`aria-expanded` and `aria-controls`; Escape closes and restores button focus.
+Leaving navigation with Tab or selecting a link closes it. Desktop navigation
+keeps its existing layout. This follows the [WAI disclosure navigation pattern](https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/examples/disclosure-navigation/),
+without imposing menu-widget keyboard behavior on ordinary site links.
+
+`tests/e2e/mobile-navigation.mjs` checks actual browser interactions against a
+built static site using a caller-provided Playwright Page. It is separate from
+the frontend `pnpm test` placeholder and does not add a runtime dependency.
+See `tests/e2e/README.md` for execution and evidence boundaries; browser,
+rendered-style and assistive-technology results must be recorded separately.
+
 ### Executive summary: optional API time and HTTP clients
 
 - **UTC timestamps:** `apps/api/app/core/time.py::utc_now` is the single clock factory for generated API timestamps. It returns aware UTC values; ORM timestamp columns declare `DateTime(timezone=True)`.
@@ -169,7 +184,7 @@ Ruff discovers the closest configuration for each supplied API filename. Do not 
 
 The private architecture checker uses PyPA packaging 26.3 Requirement, canonical names and Version ordering. `_SECURITY_MINIMUMS` in `tests/architecture/test_dependency_security_floors.py` owns security minima; application manifests own selected versions. A newer synchronized stable exact pin can meet a minimum without proving API compatibility. Consumer tests and review remain required before selecting it. AnyIO is protected at the upstream patched minimum 4.14.2, independently of its selected 4.15.1 pin. Copied-manifest controls reject a synchronized downgrade to 4.14.1 and accept a newer synchronized 4.15.1 pin.
 
-Protected pins reject ambiguous/conditional forms, extras, URL sources and prerelease/dev/local versions. Duplicate normalized names fail before full runtime/development manifest comparison. Requirements files permit comments/blank lines and the single existing development `-r requirements.txt` include; arbitrary recursive includes are not traversed. Real copied-manifest controls demonstrate newer pins, below-floor refusal, duplicates, malformed declarations and full parity.
+Protected pins reject ambiguous/conditional forms, extras, URL sources and prerelease/dev/local versions. Duplicate normalized names fail before full runtime/development manifest comparison. Requirements files permit comments/blank lines and the single existing development `-r requirements.txt` include; arbitrary recursive includes are not traversed. Real copied-manifest controls demonstrate newer pins, below-floor refusal, duplicates, malformed declarations and full parity. Unprotected-package parity controls select exactly one current declaration by canonical name, prove that the parsed constraint changes in only the requirements copy, and require the parity-specific rejection. The same controls exercise a synthetic selected version so ordinary Ruff/FastAPI updates cannot turn their mutation into a silent no-op.
 
 Run `python -m pip install -r requirements-architecture.txt pytest`, then `python -m pytest tests/architecture` and `python scripts/check_portfolio_architecture.py`. The CI test job uses that declared setup after its API profile. packaging is governance-only, explicitly declared rather than inherited from pip/pytest. The pinned PyPA release supports Python >=3.9 and is licensed Apache-2.0 OR BSD-2-Clause; primary contracts are [Requirement](https://packaging.pypa.io/en/stable/requirements.html), [Version](https://packaging.pypa.io/en/stable/version.html) and [release metadata](https://pypi.org/project/packaging/26.3/).
 

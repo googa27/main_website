@@ -116,10 +116,17 @@ and its [regression](https://github.com/dependabot/dependabot-core/blob/6634a4a4
 record the distinction between update-type and explicit version filters.
 
 
-Web and UI resolve one reviewed React cohort: React and React DOM 19.2.8,
-`@types/react` 19.2.18, and `@types/react-dom` 19.2.7. The architecture
+Web and UI resolve one reviewed React cohort: React and React DOM 19.3.0,
+`@types/react` 19.3.0, and `@types/react-dom` 19.3.0. The architecture
 regression reads both manifests and the parsed root lock, so a broad declaration
-range cannot silently leave either importer on older React types.
+range cannot silently leave either importer on older React types. The cohort
+identifies declared and installed public packages. Next.js App Router uses its
+own bundled React canary; its React peer range accepts this cohort, but that
+alone does not establish rendering compatibility. Accept the cohort only after
+frozen installation, web/UI typecheck and lint, an uncached build, and actual
+hydration/navigation/browser comparisons. No new React API is adopted here.
+See the [React 19.3 release](https://react.dev/blog/2026/09/09/react-19-3)
+and [Next.js installation contract](https://nextjs.org/docs/app/getting-started/installation).
 
 TypeScript remains on major 5 because the locked TypeScript-ESLint 8.63.0 peer
 range is `>=4.8.4 <6.1.0`, and TypeScript 7.0 does not yet provide the stable

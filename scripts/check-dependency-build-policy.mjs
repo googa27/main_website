@@ -142,6 +142,13 @@ for (const [name, evidence] of Object.entries(policy.denied_packages)) {
     );
   }
 
+  const scriptPath = evidence.script_path ?? "scripts/install.js";
+  expectHash(
+    resolve(installedRoot, scriptPath),
+    evidence.script_sha256,
+    `${name} ${scriptPath}`,
+  );
+
   if (evidence.support_package) {
     const support = evidence.support_package;
     const supportVersions = versionsInLock(support.name);
@@ -185,15 +192,6 @@ for (const [name, evidence] of Object.entries(policy.denied_packages)) {
       resolve(supportRoot, "lib/cli.js"),
       support.cli_sha256,
       `${support.name} lib/cli.js`,
-    );
-    if (support.cli_sha256 !== evidence.script_sha256) {
-      fail(`${name} script_sha256 must identify ${support.name} lib/cli.js`);
-    }
-  } else {
-    expectHash(
-      resolve(installedRoot, "scripts/install.js"),
-      evidence.script_sha256,
-      `${name} scripts/install.js`,
     );
   }
 }

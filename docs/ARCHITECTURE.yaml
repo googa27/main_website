@@ -41,6 +41,15 @@
         ]
       }
     ],
+    "navigation_contract": {
+      "owner": "apps/web/src/components/Navigation.tsx",
+      "pattern": "React state controls a named native disclosure button and ordinary navigation links; no ARIA menu role or focus trap.",
+      "mobile_behavior": "Enter/Space toggle; Escape closes and returns focus to the button; selecting a link or moving focus outside navigation closes the panel.",
+      "responsive_behavior": "Existing desktop links remain visible from md; the disclosure and its panel are mobile-only.",
+      "browser_check": "tests/e2e/mobile-navigation.mjs::checkMobileNavigation",
+      "verification_boundary": "The browser assertion requires a real built static site and externally provisioned Playwright Page; pnpm test remains a frontend placeholder and does not run it. Assistive-technology and rendered-style inspection remain separate.",
+      "reference": "https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/examples/disclosure-navigation/"
+    },
     "time_contract": {
       "canonical_zone": "UTC",
       "generation": "apps/api/app/core/time.py::utc_now returns timezone-aware datetime values",
@@ -472,7 +481,8 @@
         "selected": [
           "HTTPX 0.28.1 for the runtime GitHub adapter",
           "HTTPX2 2.12.0 for the development-only Starlette TestClient backend",
-          "IDNA 3.19 shared security-compatible domain processing"
+          "IDNA 3.19 shared security-compatible domain processing",
+          "AnyIO 4.15.1 explicit security constraint for the existing transitive async backend"
         ],
         "alternatives": [
           "Deprecated Starlette fallback to plain HTTPX",
@@ -489,7 +499,8 @@
           "apps/api/tests/test_datetime_contracts.py::test_starlette_testclient_uses_httpx2",
           "tests/architecture/test_dependency_security_floors.py",
           "apps/api/tests/test_dependency_consumers.py"
-        ]
+        ],
+        "dependency_security_note": "AnyIO is constrained in both runtime manifests; dev/PDF requirements inherit the base file. Upstream GHSA-82r6-8w77-94w6 and GHSA-5p39-cfhj-2xmp are patched in 4.14.2. Selected 4.15.1 supports Python >=3.10, is MIT licensed, and was observed in successful Python 3.12 CI. This selection does not prove a fresh resolver or full OSV scan succeeds; retain backend tests, all three pip-audit inputs and the full dependency scan without advisory suppression. See docs/ARCHITECTURE.md and https://pypi.org/pypi/anyio/4.15.1/json. The existing _SECURITY_MINIMUMS policy enforces AnyIO >=4.14.2 independently of the selected pin, with copied-manifest downgrade and newer-pin controls in tests/architecture/test_dependency_security_floors.py."
       },
       {
         "capability": "Python dependency security minimum and manifest parity policy",
@@ -502,7 +513,7 @@
         ],
         "evidence": "requirements-architecture.txt and https://pypi.org/project/packaging/26.3/",
         "adapter_boundary": "Private helpers in tests/architecture/test_dependency_security_floors.py; no application runtime dependency or public validator API.",
-        "custom_code_reason": "PyPA owns Requirement parsing, canonical names and PEP440 Version ordering; repository code owns the deliberately strict protected-pin policy.",
+        "custom_code_reason": "PyPA owns Requirement parsing, canonical names and PEP440 Version ordering; repository code owns the deliberately strict protected-pin policy. Unprotected parity controls select exactly one actual declaration by canonical name and prove parsed constraint inequality before requiring parity refusal, including a synthetic selected-version variation independent of dependency update cadence.",
         "maintenance_evidence": "https://github.com/pypa/packaging/releases/tag/26.3",
         "api_stability_evidence": "https://packaging.pypa.io/en/stable/requirements.html and https://packaging.pypa.io/en/stable/version.html",
         "license_evidence": "https://github.com/pypa/packaging/blob/26.3/LICENSE",

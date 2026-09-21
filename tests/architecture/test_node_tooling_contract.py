@@ -293,7 +293,20 @@ def test_dependabot_owns_the_root_workspace_and_groups_react_updates() -> None:
     assert policy["workspace_lockfile"] == "pnpm-lock.yaml"
     assert npm["schedule"] == {"interval": policy["schedule"]["interval"]}
     assert npm["cooldown"] == {"default-days": policy["schedule"]["cooldown_days"]}
-    assert "ignore" not in npm
+    # Semver-type holds do not filter security-only updates in Dependabot.
+    # Explicit version ranges do, so reject those and broad/name-only ignores.
+    held = policy["version_update_major_holds"]
+    assert held == ["eslint", "typescript"]
+    assert npm["ignore"] == [
+        {"dependency-name": name, "update-types": ["version-update:semver-major"]}
+        for name in held
+    ]
+    parser_group = npm["groups"]["typescript-eslint"]
+    assert parser_group == {"patterns": policy["coupled_typescript_eslint_group"]}
+    assert set(parser_group["patterns"]) == {
+        "@typescript-eslint/eslint-plugin",
+        "@typescript-eslint/parser",
+    }
 
     react_groups = [
         group

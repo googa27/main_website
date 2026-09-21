@@ -16,7 +16,7 @@
   "devDependencies": {
     "@repo/config": "workspace:*",
     "husky": "^9.1.7",
-    "lint-staged": "^17.0.8",
+    "lint-staged": "^17.5.1",
     "prettier": "^3.0.0",
     "turbo": "^2.10.12"
   },

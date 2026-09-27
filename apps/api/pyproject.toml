@@ -36,7 +36,7 @@ dev = [
     "ruff==0.16.7",
     "Pygments==2.20.0",
     "mypy==1.17.1",
-    "pypdf==6.18.1",
+    "pypdf==6.19.0",
 ]
 
 [project.scripts]

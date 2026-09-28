@@ -129,15 +129,16 @@ def _assert_selected_alembic_stack_matches_manifests(
 ) -> None:
     display_names = {"mako": "Mako", "alembic": "Alembic", "sqlalchemy": "SQLAlchemy"}
     assert versions.keys() == display_names.keys()
-    assert not re.search(r"\d+\.\d+", selected), (
+    assert not re.search(r"\d", selected), (
         "Architecture selection prose must remain version-free"
     )
+    for display_name in display_names.values():
+        assert re.search(rf"\b{display_name}\b", selected), (
+            f"Architecture prose omits {display_name}"
+        )
     for name, version in versions.items():
         assert re.fullmatch(r"\d+\.\d+\.\d+", version), (
             f"Invalid structured {name} version: {version}"
-        )
-        assert re.search(rf"\b{display_names[name]}\b", selected), (
-            f"Architecture prose omits {display_names[name]}"
         )
     project = tomllib.loads((API / "pyproject.toml").read_text(encoding="utf-8"))
     for source, declarations in (
@@ -178,6 +179,15 @@ def test_selected_alembic_stack_keeps_prose_version_free() -> None:
         _assert_selected_alembic_stack_matches_manifests(
             selected + f" (superseding Mako {versions['mako']}+local)", versions
         )
+
+
+@pytest.mark.parametrize("name", ["Mako", "Alembic", "SQLAlchemy"])
+def test_selected_alembic_stack_requires_each_library_name(name: str) -> None:
+    selected, versions = _selected_alembic_stack()
+    altered = selected.replace(name, "")
+    assert altered != selected
+    with pytest.raises(AssertionError, match=f"Architecture prose omits {name}"):
+        _assert_selected_alembic_stack_matches_manifests(altered, versions)
 
 
 def test_selected_alembic_stack_refuses_synchronized_manifest_drift(

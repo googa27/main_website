@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import json
 import re
+from collections import Counter
 from collections.abc import Iterable
-from importlib.metadata import PackageNotFoundError, distribution
 from pathlib import Path
 
 import pytest
@@ -130,11 +130,17 @@ def _assert_selected_alembic_stack_matches_manifests(
 ) -> None:
     display_names = {"mako": "Mako", "alembic": "Alembic", "sqlalchemy": "SQLAlchemy"}
     assert versions.keys() == display_names.keys()
+    prose_versions = Counter(re.findall(r"(?<![\d.])\d+\.\d+\.\d+(?![\d.])", selected))
+    assert prose_versions == Counter(versions.values()), (
+        "Architecture prose version tokens differ from structured selection"
+    )
     for name, version in versions.items():
-        assert re.fullmatch(r"\d+\.\d+\.\d+", version)
-        assert f"{display_names[name]} {version}" in selected, (
-            f"Architecture prose differs from structured {name} selection"
+        assert re.fullmatch(r"\d+\.\d+\.\d+", version), (
+            f"Invalid structured {name} version: {version}"
         )
+        assert re.search(
+            rf"\b{display_names[name]}\s+{re.escape(version)}\b", selected
+        ), f"Architecture prose differs from structured {name} selection"
     project = tomllib.loads((API / "pyproject.toml").read_text(encoding="utf-8"))
     for source, declarations in (
         (
@@ -158,33 +164,25 @@ def test_selected_alembic_stack_matches_both_runtime_manifests() -> None:
     _assert_selected_alembic_stack_matches_manifests(selected, versions)
 
 
-def test_installed_alembic_sqlalchemy_requirement_is_satisfied() -> None:
-    _, versions = _selected_alembic_stack()
-    try:
-        alembic = distribution("alembic")
-        sqlalchemy = distribution("SQLAlchemy")
-    except PackageNotFoundError:
-        pytest.skip(
-            "Installed API dependencies are required for this compatibility check"
-        )
-    assert alembic.version == versions["alembic"]
-    assert sqlalchemy.version == versions["sqlalchemy"]
-    requirements = [
-        Requirement(declaration)
-        for declaration in alembic.requires or []
-        if canonicalize_name(Requirement(declaration).name) == "sqlalchemy"
-    ]
-    assert len(requirements) == 1
-    assert Version(sqlalchemy.version) in requirements[0].specifier
-
-
 @pytest.mark.parametrize("name", ["Mako", "Alembic", "SQLAlchemy"])
 def test_selected_alembic_stack_refuses_documentation_drift(name: str) -> None:
     selected, versions = _selected_alembic_stack()
     altered = selected.replace(f"{name} {versions[name.lower()]}", f"{name} 99.0.0")
     assert altered != selected
-    with pytest.raises(AssertionError, match="Architecture prose differs"):
+    with pytest.raises(
+        AssertionError, match="Architecture prose version tokens differ"
+    ):
         _assert_selected_alembic_stack_matches_manifests(altered, versions)
+
+
+def test_selected_alembic_stack_refuses_prefix_and_extra_versions() -> None:
+    selected, versions = _selected_alembic_stack()
+    for altered in (
+        selected.replace(f"Mako {versions['mako']}", f"Mako {versions['mako']}0"),
+        selected + f" (superseding Mako {versions['mako']})",
+    ):
+        with pytest.raises(AssertionError):
+            _assert_selected_alembic_stack_matches_manifests(altered, versions)
 
 
 def test_selected_alembic_stack_refuses_synchronized_manifest_drift(

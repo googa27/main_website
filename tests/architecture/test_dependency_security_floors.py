@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import json
 import re
-import tomllib
 from collections.abc import Iterable
 from pathlib import Path
 
 import pytest
+import tomllib
 from packaging.requirements import InvalidRequirement, Requirement
 from packaging.utils import canonicalize_name
 from packaging.version import Version
@@ -110,6 +110,96 @@ def test_python_security_floors_are_synchronized_across_manifests() -> None:
             f"Missing protected {owner} metadata"
         )
         assert manifest == metadata, f"Full {owner} manifest parity differs"
+
+
+def _selected_alembic_stack() -> tuple[str, dict[str, str]]:
+    architecture = json.loads((ROOT / "docs/ARCHITECTURE.yaml").read_text())
+    decisions = [
+        decision
+        for decision in architecture["libraries"]["decisions"]
+        if decision["capability"] == "Alembic revision template rendering"
+    ]
+    assert len(decisions) == 1
+    assert len(decisions[0]["selected"]) == 1
+    return decisions[0]["selected"][0], decisions[0]["selected_versions"]
+
+
+def _assert_selected_alembic_stack_matches_manifests(
+    selected: str, versions: dict[str, str]
+) -> None:
+    display_names = {"mako": "Mako", "alembic": "Alembic", "sqlalchemy": "SQLAlchemy"}
+    assert versions.keys() == display_names.keys()
+    assert not re.search(r"\d", selected), (
+        "Architecture selection prose must remain version-free"
+    )
+    for display_name in display_names.values():
+        assert re.search(rf"\b{display_name}\b", selected), (
+            f"Architecture prose omits {display_name}"
+        )
+    for name, version in versions.items():
+        assert re.fullmatch(r"\d+\.\d+\.\d+", version), (
+            f"Invalid structured {name} version: {version}"
+        )
+    project = tomllib.loads((API / "pyproject.toml").read_text(encoding="utf-8"))
+    for source, declarations in (
+        (
+            "requirements.txt",
+            _requirements_lines((API / "requirements.txt").read_text()),
+        ),
+        ("pyproject.toml", project["project"]["dependencies"]),
+    ):
+        dependencies = _declarations_by_name(declarations)
+        for name, version in versions.items():
+            requirement = dependencies.get(name)
+            assert requirement is not None, f"{source} omits selected {name}"
+            assert requirement.url is None and requirement.marker is None
+            assert (
+                not requirement.extras and str(requirement.specifier) == f"=={version}"
+            ), f"{source} {name} differs from architecture selection"
+
+
+def test_selected_alembic_stack_matches_both_runtime_manifests() -> None:
+    selected, versions = _selected_alembic_stack()
+    _assert_selected_alembic_stack_matches_manifests(selected, versions)
+
+
+@pytest.mark.parametrize("name", ["mako", "alembic", "sqlalchemy"])
+def test_selected_alembic_stack_refuses_structured_version_drift(name: str) -> None:
+    selected, versions = _selected_alembic_stack()
+    altered = {**versions, name: "99.0.0"}
+    with pytest.raises(AssertionError, match="differs from architecture selection"):
+        _assert_selected_alembic_stack_matches_manifests(selected, altered)
+
+
+def test_selected_alembic_stack_keeps_prose_version_free() -> None:
+    selected, versions = _selected_alembic_stack()
+    with pytest.raises(
+        AssertionError, match="selection prose must remain version-free"
+    ):
+        _assert_selected_alembic_stack_matches_manifests(
+            selected + f" (superseding Mako {versions['mako']}+local)", versions
+        )
+
+
+@pytest.mark.parametrize("name", ["Mako", "Alembic", "SQLAlchemy"])
+def test_selected_alembic_stack_requires_each_library_name(name: str) -> None:
+    selected, versions = _selected_alembic_stack()
+    altered = selected.replace(name, "")
+    assert altered != selected
+    with pytest.raises(AssertionError, match=f"Architecture prose omits {name}"):
+        _assert_selected_alembic_stack_matches_manifests(altered, versions)
+
+
+def test_selected_alembic_stack_refuses_synchronized_manifest_drift(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    for name in ("requirements.txt", "pyproject.toml"):
+        (tmp_path / name).write_bytes((API / name).read_bytes())
+    monkeypatch.setitem(globals(), "API", tmp_path)
+    selected, versions = _selected_alembic_stack()
+    _replace_declaration(tmp_path, f"alembic=={versions['alembic']}", "alembic==99.0.0")
+    with pytest.raises(AssertionError, match="differs from architecture selection"):
+        _assert_selected_alembic_stack_matches_manifests(selected, versions)
 
 
 def test_ci_audits_runtime_and_development_python_dependencies() -> None:

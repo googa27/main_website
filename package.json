@@ -28,7 +28,6 @@
   },
   "pnpm": {
     "ignoredBuiltDependencies": [
-      "@tailwindcss/oxide",
       "unrs-resolver"
     ],
     "overrides": {

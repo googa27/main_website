@@ -35,13 +35,6 @@ EXPECTED_ACTIONS = {
 }
 
 EXPECTED_DENIED_BUILDS = {
-    "@tailwindcss/oxide": {
-        "version": "4.1.12",
-        "decision": "deny",
-        "lifecycle_command": "node ./scripts/install.js",
-        "manifest_sha256": "19e31a0bc5fa826d5f4c1a73fa2d7e821e3ed826f86d28987618bc18c0a3a656",
-        "script_sha256": "df8750369bdc91787de5baec99eaaf27b7d8d2952acb25cf1a0b0aa511185b2a",
-    },
     "unrs-resolver": {
         "version": "1.12.2",
         "decision": "deny",
@@ -66,6 +59,16 @@ EXPECTED_DENIED_BUILDS = {
             "cli_sha256": "2d79f5b3ee7566309a587c267ab8363881f5ebe97a728b0271fb530569b1f356",
         },
     },
+}
+
+EXPECTED_NO_LIFECYCLE = {
+    "@tailwindcss/oxide": {
+        "version": "4.3.3",
+        "manifest_sha256": "d57385a0a2f680b35a488f9a9816490a6580cc7a989a430e3e426b4c24af212e",
+        "entrypoint": "index.js",
+        "entrypoint_sha256": "311f226094e81c0e8d85c6ec02b453b1c0e1239999ae65e78a0d5e02bc005db5",
+        "required_native_binding": "@tailwindcss/oxide-linux-x64-gnu",
+    }
 }
 
 
@@ -98,10 +101,11 @@ def test_dependency_build_scripts_are_explicitly_denied_and_pinned() -> None:
     )
     assert policy["package_manager"] == "pnpm@10.34.5"
     assert policy["denied_packages"] == EXPECTED_DENIED_BUILDS
+    assert policy["reviewed_no_lifecycle_packages"] == EXPECTED_NO_LIFECYCLE
     assert policy["verification_command"] == "pnpm run check:dependency-build-policy"
 
     lock = (ROOT / "pnpm-lock.yaml").read_text(encoding="utf-8")
-    for name, evidence in EXPECTED_DENIED_BUILDS.items():
+    for name, evidence in (EXPECTED_DENIED_BUILDS | EXPECTED_NO_LIFECYCLE).items():
         escaped = re.escape(name)
         versions = set(
             re.findall(rf"^  ['\"]?{escaped}@([^'\":]+)['\"]?:$", lock, re.MULTILINE)
@@ -129,6 +133,9 @@ def test_dependency_policy_checker_validates_reviewed_bytes_and_pnpm_state() -> 
         "dangerouslyAllowAllBuilds",
         "onlyBuiltDependencies",
         "allowBuilds",
+        "reviewed_no_lifecycle_packages",
+        "required_native_binding",
+        "entrypoint_sha256",
     ):
         assert required_guard in checker
 
@@ -141,6 +148,9 @@ def test_dependency_policy_checker_validates_reviewed_bytes_and_pnpm_state() -> 
         ("lib/cli.js", "napi-postinstall lib/cli.js SHA-256"),
         ("lock", "lock versions"),
         ("pending", "unreviewed pending builds"),
+        ("oxide_entry", "@tailwindcss/oxide index.js SHA-256"),
+        ("oxide_hook", "unreviewed postinstall lifecycle script"),
+        ("oxide_binding_lock", "@tailwindcss/oxide-linux-x64-gnu lock versions"),
     ],
 )
 def test_dependency_checker_refuses_changed_install_paths(
@@ -161,6 +171,20 @@ def test_dependency_checker_refuses_changed_install_paths(
 
     host = "node_modules/.pnpm/unrs-resolver@1.12.2/node_modules/unrs-resolver"
     support = "node_modules/.pnpm/napi-postinstall@0.3.4/node_modules/napi-postinstall"
+    oxide = (
+        "node_modules/.pnpm/@tailwindcss+oxide@4.3.3/node_modules/@tailwindcss/oxide"
+    )
+    oxide_manifest = put(
+        f"{oxide}/package.json",
+        json.dumps(
+            {
+                "name": "@tailwindcss/oxide",
+                "version": "4.3.3",
+                "optionalDependencies": {"@tailwindcss/oxide-linux-x64-gnu": "4.3.3"},
+            }
+        ),
+    )
+    oxide_entry = put(f"{oxide}/index.js", "module.exports = {};\n")
     host_manifest = put(
         f"{host}/package.json",
         json.dumps({"scripts": {"postinstall": "node postinstall.js"}}),
@@ -197,9 +221,25 @@ def test_dependency_checker_refuses_changed_install_paths(
     architecture["architecture"]["dependency_lifecycle_policy"]["denied_packages"] = (
         denied
     )
+    architecture["architecture"]["dependency_lifecycle_policy"][
+        "reviewed_no_lifecycle_packages"
+    ] = {
+        "@tailwindcss/oxide": {
+            "version": "4.3.3",
+            "manifest_sha256": digest(oxide_manifest),
+            "entrypoint": "index.js",
+            "entrypoint_sha256": digest(oxide_entry),
+            "required_native_binding": "@tailwindcss/oxide-linux-x64-gnu",
+        }
+    }
     put("docs/ARCHITECTURE.yaml", json.dumps(architecture))
     put("pnpm-workspace.yaml", "packages: []\n")
-    lock = put("pnpm-lock.yaml", "  unrs-resolver@1.12.2:\n  napi-postinstall@0.3.4:\n")
+    lock = put(
+        "pnpm-lock.yaml",
+        "  unrs-resolver@1.12.2:\n  napi-postinstall@0.3.4:\n"
+        "  '@tailwindcss/oxide@4.3.3':\n"
+        "  '@tailwindcss/oxide-linux-x64-gnu@4.3.3':\n",
+    )
     state = put(
         "node_modules/.modules.yaml",
         json.dumps({"packageManager": package["packageManager"], "pendingBuilds": []}),
@@ -238,6 +278,31 @@ def test_dependency_checker_refuses_changed_install_paths(
     assert "dependency build policy OK" in baseline.stdout
     if mutation == "lock":
         lock.write_text(lock.read_text().replace("1.12.2", "1.12.3"))
+    elif mutation == "oxide_binding_lock":
+        lock.write_text(
+            lock.read_text().replace(
+                "oxide-linux-x64-gnu@4.3.3", "oxide-linux-x64-gnu@4.3.4"
+            )
+        )
+    elif mutation == "oxide_entry":
+        oxide_entry.write_text(oxide_entry.read_text() + "// changed byte\n")
+    elif mutation == "oxide_hook":
+        oxide_manifest.write_text(
+            json.dumps(
+                {
+                    "name": "@tailwindcss/oxide",
+                    "version": "4.3.3",
+                    "optionalDependencies": {
+                        "@tailwindcss/oxide-linux-x64-gnu": "4.3.3"
+                    },
+                    "scripts": {"postinstall": "node download.js"},
+                }
+            )
+        )
+        architecture["architecture"]["dependency_lifecycle_policy"][
+            "reviewed_no_lifecycle_packages"
+        ]["@tailwindcss/oxide"]["manifest_sha256"] = digest(oxide_manifest)
+        put("docs/ARCHITECTURE.yaml", json.dumps(architecture))
     elif mutation == "pending":
         state.write_text(
             json.dumps(

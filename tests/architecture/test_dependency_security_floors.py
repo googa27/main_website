@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import re
-from collections import Counter
 from collections.abc import Iterable
 from pathlib import Path
 
@@ -130,17 +129,16 @@ def _assert_selected_alembic_stack_matches_manifests(
 ) -> None:
     display_names = {"mako": "Mako", "alembic": "Alembic", "sqlalchemy": "SQLAlchemy"}
     assert versions.keys() == display_names.keys()
-    prose_versions = Counter(re.findall(r"(?<![\d.])\d+\.\d+\.\d+(?![\d.])", selected))
-    assert prose_versions == Counter(versions.values()), (
-        "Architecture prose version tokens differ from structured selection"
+    assert not re.search(r"\d+\.\d+", selected), (
+        "Architecture selection prose must remain version-free"
     )
     for name, version in versions.items():
         assert re.fullmatch(r"\d+\.\d+\.\d+", version), (
             f"Invalid structured {name} version: {version}"
         )
-        assert re.search(
-            rf"\b{display_names[name]}\s+{re.escape(version)}\b", selected
-        ), f"Architecture prose differs from structured {name} selection"
+        assert re.search(rf"\b{display_names[name]}\b", selected), (
+            f"Architecture prose omits {display_names[name]}"
+        )
     project = tomllib.loads((API / "pyproject.toml").read_text(encoding="utf-8"))
     for source, declarations in (
         (
@@ -164,25 +162,22 @@ def test_selected_alembic_stack_matches_both_runtime_manifests() -> None:
     _assert_selected_alembic_stack_matches_manifests(selected, versions)
 
 
-@pytest.mark.parametrize("name", ["Mako", "Alembic", "SQLAlchemy"])
-def test_selected_alembic_stack_refuses_documentation_drift(name: str) -> None:
+@pytest.mark.parametrize("name", ["mako", "alembic", "sqlalchemy"])
+def test_selected_alembic_stack_refuses_structured_version_drift(name: str) -> None:
     selected, versions = _selected_alembic_stack()
-    altered = selected.replace(f"{name} {versions[name.lower()]}", f"{name} 99.0.0")
-    assert altered != selected
+    altered = {**versions, name: "99.0.0"}
+    with pytest.raises(AssertionError, match="differs from architecture selection"):
+        _assert_selected_alembic_stack_matches_manifests(selected, altered)
+
+
+def test_selected_alembic_stack_keeps_prose_version_free() -> None:
+    selected, versions = _selected_alembic_stack()
     with pytest.raises(
-        AssertionError, match="Architecture prose version tokens differ"
+        AssertionError, match="selection prose must remain version-free"
     ):
-        _assert_selected_alembic_stack_matches_manifests(altered, versions)
-
-
-def test_selected_alembic_stack_refuses_prefix_and_extra_versions() -> None:
-    selected, versions = _selected_alembic_stack()
-    for altered in (
-        selected.replace(f"Mako {versions['mako']}", f"Mako {versions['mako']}0"),
-        selected + f" (superseding Mako {versions['mako']})",
-    ):
-        with pytest.raises(AssertionError):
-            _assert_selected_alembic_stack_matches_manifests(altered, versions)
+        _assert_selected_alembic_stack_matches_manifests(
+            selected + f" (superseding Mako {versions['mako']}+local)", versions
+        )
 
 
 def test_selected_alembic_stack_refuses_synchronized_manifest_drift(

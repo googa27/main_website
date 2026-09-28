@@ -64,13 +64,6 @@
     "dependency_lifecycle_policy": {
       "package_manager": "pnpm@10.34.5",
       "denied_packages": {
-        "@tailwindcss/oxide": {
-          "version": "4.1.12",
-          "decision": "deny",
-          "lifecycle_command": "node ./scripts/install.js",
-          "manifest_sha256": "19e31a0bc5fa826d5f4c1a73fa2d7e821e3ed826f86d28987618bc18c0a3a656",
-          "script_sha256": "df8750369bdc91787de5baec99eaaf27b7d8d2952acb25cf1a0b0aa511185b2a"
-        },
         "unrs-resolver": {
           "version": "1.12.2",
           "decision": "deny",
@@ -96,8 +89,17 @@
           "script_path": "postinstall.js"
         }
       },
+      "reviewed_no_lifecycle_packages": {
+        "@tailwindcss/oxide": {
+          "version": "4.3.3",
+          "manifest_sha256": "d57385a0a2f680b35a488f9a9816490a6580cc7a989a430e3e426b4c24af212e",
+          "entrypoint": "index.js",
+          "entrypoint_sha256": "311f226094e81c0e8d85c6ec02b453b1c0e1239999ae65e78a0d5e02bc005db5",
+          "required_native_binding": "@tailwindcss/oxide-linux-x64-gnu"
+        }
+      },
       "rationale": {
-        "@tailwindcss/oxide": "The postinstall performs an unneeded registry download and archive extraction fallback when the locked optional binary is absent; direct load and production build pass while denied.",
+        "@tailwindcss/oxide": "Version 4.3.3 removes the previous registry-download postinstall. Its published manifest and loader are pinned, install hooks must remain absent, and all optional native bindings must resolve to the same locked version. Native loading and the build matrix remain acceptance gates.",
         "unrs-resolver": "The reviewed wrapper invokes napi-postinstall, which can invoke npm or download a missing native binding; keep it denied. Version 1.12.2 restricts the runtime install fallback to WebContainer. A frozen install, direct native binding load, lint and production build are required before accepting this cohort."
       },
       "verification_command": "pnpm run check:dependency-build-policy",

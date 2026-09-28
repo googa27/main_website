@@ -196,6 +196,58 @@ for (const [name, evidence] of Object.entries(policy.denied_packages)) {
   }
 }
 
+for (const [name, evidence] of Object.entries(
+  policy.reviewed_no_lifecycle_packages ?? {},
+)) {
+  const versions = versionsInLock(name);
+  if (!equalSets(versions, new Set([evidence.version]))) {
+    fail(
+      `${name} lock versions ${JSON.stringify([...versions].sort())} do not match reviewed ${evidence.version}`,
+    );
+    continue;
+  }
+  const installedRoot = packageRoot(name, evidence.version);
+  const manifestPath = resolve(installedRoot, "package.json");
+  expectHash(manifestPath, evidence.manifest_sha256, `${name} package.json`);
+  let manifest;
+  try {
+    manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  } catch (error) {
+    fail(`${name} package.json cannot be parsed: ${error.message}`);
+    continue;
+  }
+  if (manifest.name !== name || manifest.version !== evidence.version) {
+    fail(`${name} installed manifest identity does not match reviewed version`);
+  }
+  for (const hook of ["preinstall", "install", "postinstall", "prepare"]) {
+    if (Object.hasOwn(manifest.scripts ?? {}, hook)) {
+      fail(`${name} has an unreviewed ${hook} lifecycle script`);
+    }
+  }
+  expectHash(
+    resolve(installedRoot, evidence.entrypoint),
+    evidence.entrypoint_sha256,
+    `${name} ${evidence.entrypoint}`,
+  );
+  const bindings = manifest.optionalDependencies ?? {};
+  if (!Object.hasOwn(bindings, evidence.required_native_binding)) {
+    fail(
+      `${name} is missing reviewed native binding ${evidence.required_native_binding}`,
+    );
+  }
+  for (const [binding, version] of Object.entries(bindings)) {
+    if (!binding.startsWith(`${name}-`) || version !== evidence.version) {
+      fail(`${name} optional binding ${binding}@${version} is not reviewed`);
+    }
+    const bindingVersions = versionsInLock(binding);
+    if (!equalSets(bindingVersions, new Set([evidence.version]))) {
+      fail(
+        `${binding} lock versions ${JSON.stringify([...bindingVersions].sort())} do not match reviewed ${evidence.version}`,
+      );
+    }
+  }
+}
+
 const npmExecPath = process.env.npm_execpath;
 let moduleState;
 try {

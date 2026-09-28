@@ -529,7 +529,7 @@
         ],
         "evidence": "requirements-architecture.txt and https://pypi.org/project/packaging/26.3/",
         "adapter_boundary": "Private helpers in tests/architecture/test_dependency_security_floors.py; no application runtime dependency or public validator API.",
-        "custom_code_reason": "PyPA owns Requirement parsing, canonical names and PEP440 Version ordering; repository code owns the deliberately strict protected-pin policy. Unprotected parity controls select exactly one actual declaration by canonical name and prove parsed constraint inequality before requiring parity refusal, including a synthetic selected-version variation independent of dependency update cadence.",
+        "custom_code_reason": "PyPA owns Requirement parsing, canonical names and PEP440 Version ordering; repository code owns the deliberately strict protected-pin policy. Unprotected parity controls select exactly one actual declaration by canonical name and prove parsed constraint inequality before requiring parity refusal, including a synthetic selected-version variation independent of dependency update cadence. A private structured-selection check also binds the documented Alembic/Mako/SQLAlchemy versions to both runtime manifests.",
         "maintenance_evidence": "https://github.com/pypa/packaging/releases/tag/26.3",
         "api_stability_evidence": "https://packaging.pypa.io/en/stable/requirements.html and https://packaging.pypa.io/en/stable/version.html",
         "license_evidence": "https://github.com/pypa/packaging/blob/26.3/LICENSE",
@@ -543,13 +543,18 @@
         "selected": [
           "Mako 1.4.1 used by Alembic 1.20.0 with SQLAlchemy 2.0.54"
         ],
+        "selected_versions": {
+          "mako": "1.4.1",
+          "alembic": "1.20.0",
+          "sqlalchemy": "2.0.54"
+        },
         "alternatives": [
           "Handwritten revision template rendering",
           "Unreviewed Mako 1.4.0 distribution with stray tools package"
         ],
         "evidence": "apps/api/alembic/script.py.mako and apps/api/tests/test_dependency_consumers.py",
         "adapter_boundary": "Existing Alembic script template; no application template engine or runtime custom parser added.",
-        "custom_code_reason": "Alembic generates revisions through maintained Mako; repository tests only assert selected-template compatibility and package ownership.",
+        "custom_code_reason": "Alembic generates revisions through maintained Mako; repository tests assert selected-template compatibility, package ownership, installed SQLAlchemy requirement compatibility when API dependencies are installed, and documented-version parity with both runtime manifests.",
         "maintenance_evidence": "https://github.com/sqlalchemy/mako/releases/tag/rel_1_4_1 and https://github.com/sqlalchemy/alembic/releases/tag/rel_1_20_0",
         "api_stability_evidence": "https://raw.githubusercontent.com/sqlalchemy/mako/rel_1_4_1/doc/build/changelog.rst and https://pypi.org/pypi/alembic/1.20.0/json",
         "license_evidence": "https://github.com/sqlalchemy/mako/blob/rel_1_4_1/LICENSE and https://github.com/sqlalchemy/alembic/blob/rel_1_20_0/LICENSE",
@@ -557,7 +562,8 @@
         "oracle_or_reference_tests": [
           "apps/api/tests/test_dependency_consumers.py::test_alembic_renders_real_revision_templates_without_database",
           "apps/api/tests/test_dependency_consumers.py::test_mako_distribution_does_not_own_stray_tools_package",
-          "tests/architecture/test_dependency_security_floors.py::test_selected_alembic_stack_matches_both_runtime_manifests"
+          "tests/architecture/test_dependency_security_floors.py::test_selected_alembic_stack_matches_both_runtime_manifests",
+          "tests/architecture/test_dependency_security_floors.py::test_installed_alembic_sqlalchemy_requirement_is_satisfied"
         ]
       }
     ]

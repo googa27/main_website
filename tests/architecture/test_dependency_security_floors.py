@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 from collections.abc import Iterable
+from importlib.metadata import PackageNotFoundError, distribution
 from pathlib import Path
 
 import pytest
@@ -112,14 +113,28 @@ def test_python_security_floors_are_synchronized_across_manifests() -> None:
         assert manifest == metadata, f"Full {owner} manifest parity differs"
 
 
-def _assert_selected_alembic_stack_matches_manifests(selected: str) -> None:
-    match = re.fullmatch(
-        r"Mako (\d+\.\d+\.\d+) used by Alembic (\d+\.\d+\.\d+) "
-        r"with SQLAlchemy (\d+\.\d+\.\d+)",
-        selected,
-    )
-    assert match is not None, "Unrecognized Alembic architecture selection"
-    versions = dict(zip(("mako", "alembic", "sqlalchemy"), match.groups(), strict=True))
+def _selected_alembic_stack() -> tuple[str, dict[str, str]]:
+    architecture = json.loads((ROOT / "docs/ARCHITECTURE.yaml").read_text())
+    decisions = [
+        decision
+        for decision in architecture["libraries"]["decisions"]
+        if decision["capability"] == "Alembic revision template rendering"
+    ]
+    assert len(decisions) == 1
+    assert len(decisions[0]["selected"]) == 1
+    return decisions[0]["selected"][0], decisions[0]["selected_versions"]
+
+
+def _assert_selected_alembic_stack_matches_manifests(
+    selected: str, versions: dict[str, str]
+) -> None:
+    display_names = {"mako": "Mako", "alembic": "Alembic", "sqlalchemy": "SQLAlchemy"}
+    assert versions.keys() == display_names.keys()
+    for name, version in versions.items():
+        assert re.fullmatch(r"\d+\.\d+\.\d+", version)
+        assert f"{display_names[name]} {version}" in selected, (
+            f"Architecture prose differs from structured {name} selection"
+        )
     project = tomllib.loads((API / "pyproject.toml").read_text(encoding="utf-8"))
     for source, declarations in (
         (
@@ -139,24 +154,37 @@ def _assert_selected_alembic_stack_matches_manifests(selected: str) -> None:
 
 
 def test_selected_alembic_stack_matches_both_runtime_manifests() -> None:
-    architecture = json.loads((ROOT / "docs/ARCHITECTURE.yaml").read_text())
-    decisions = [
-        decision
-        for decision in architecture["libraries"]["decisions"]
-        if decision["capability"] == "Alembic revision template rendering"
+    selected, versions = _selected_alembic_stack()
+    _assert_selected_alembic_stack_matches_manifests(selected, versions)
+
+
+def test_installed_alembic_sqlalchemy_requirement_is_satisfied() -> None:
+    _, versions = _selected_alembic_stack()
+    try:
+        alembic = distribution("alembic")
+        sqlalchemy = distribution("SQLAlchemy")
+    except PackageNotFoundError:
+        pytest.skip(
+            "Installed API dependencies are required for this compatibility check"
+        )
+    assert alembic.version == versions["alembic"]
+    assert sqlalchemy.version == versions["sqlalchemy"]
+    requirements = [
+        Requirement(declaration)
+        for declaration in alembic.requires or []
+        if canonicalize_name(Requirement(declaration).name) == "sqlalchemy"
     ]
-    assert len(decisions) == 1
-    assert len(decisions[0]["selected"]) == 1
-    _assert_selected_alembic_stack_matches_manifests(decisions[0]["selected"][0])
+    assert len(requirements) == 1
+    assert Version(sqlalchemy.version) in requirements[0].specifier
 
 
 @pytest.mark.parametrize("name", ["Mako", "Alembic", "SQLAlchemy"])
 def test_selected_alembic_stack_refuses_documentation_drift(name: str) -> None:
-    selected = "Mako 1.4.1 used by Alembic 1.20.0 with SQLAlchemy 2.0.54"
-    altered = re.sub(rf"{name} \d+\.\d+\.\d+", f"{name} 99.0.0", selected)
+    selected, versions = _selected_alembic_stack()
+    altered = selected.replace(f"{name} {versions[name.lower()]}", f"{name} 99.0.0")
     assert altered != selected
-    with pytest.raises(AssertionError, match="differs from architecture selection"):
-        _assert_selected_alembic_stack_matches_manifests(altered)
+    with pytest.raises(AssertionError, match="Architecture prose differs"):
+        _assert_selected_alembic_stack_matches_manifests(altered, versions)
 
 
 def test_selected_alembic_stack_refuses_synchronized_manifest_drift(
@@ -165,11 +193,10 @@ def test_selected_alembic_stack_refuses_synchronized_manifest_drift(
     for name in ("requirements.txt", "pyproject.toml"):
         (tmp_path / name).write_bytes((API / name).read_bytes())
     monkeypatch.setitem(globals(), "API", tmp_path)
-    _replace_declaration(tmp_path, "alembic==1.20.0", "alembic==1.19.0")
+    selected, versions = _selected_alembic_stack()
+    _replace_declaration(tmp_path, f"alembic=={versions['alembic']}", "alembic==99.0.0")
     with pytest.raises(AssertionError, match="differs from architecture selection"):
-        _assert_selected_alembic_stack_matches_manifests(
-            "Mako 1.4.1 used by Alembic 1.20.0 with SQLAlchemy 2.0.54"
-        )
+        _assert_selected_alembic_stack_matches_manifests(selected, versions)
 
 
 def test_ci_audits_runtime_and_development_python_dependencies() -> None:

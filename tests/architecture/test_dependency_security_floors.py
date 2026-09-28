@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import json
 import re
-import tomllib
 from collections.abc import Iterable
 from pathlib import Path
 
 import pytest
+import tomllib
 from packaging.requirements import InvalidRequirement, Requirement
 from packaging.utils import canonicalize_name
 from packaging.version import Version
@@ -110,6 +110,66 @@ def test_python_security_floors_are_synchronized_across_manifests() -> None:
             f"Missing protected {owner} metadata"
         )
         assert manifest == metadata, f"Full {owner} manifest parity differs"
+
+
+def _assert_selected_alembic_stack_matches_manifests(selected: str) -> None:
+    match = re.fullmatch(
+        r"Mako (\d+\.\d+\.\d+) used by Alembic (\d+\.\d+\.\d+) "
+        r"with SQLAlchemy (\d+\.\d+\.\d+)",
+        selected,
+    )
+    assert match is not None, "Unrecognized Alembic architecture selection"
+    versions = dict(zip(("mako", "alembic", "sqlalchemy"), match.groups(), strict=True))
+    project = tomllib.loads((API / "pyproject.toml").read_text(encoding="utf-8"))
+    for source, declarations in (
+        (
+            "requirements.txt",
+            _requirements_lines((API / "requirements.txt").read_text()),
+        ),
+        ("pyproject.toml", project["project"]["dependencies"]),
+    ):
+        dependencies = _declarations_by_name(declarations)
+        for name, version in versions.items():
+            requirement = dependencies.get(name)
+            assert requirement is not None, f"{source} omits selected {name}"
+            assert requirement.url is None and requirement.marker is None
+            assert (
+                not requirement.extras and str(requirement.specifier) == f"=={version}"
+            ), f"{source} {name} differs from architecture selection"
+
+
+def test_selected_alembic_stack_matches_both_runtime_manifests() -> None:
+    architecture = json.loads((ROOT / "docs/ARCHITECTURE.yaml").read_text())
+    decisions = [
+        decision
+        for decision in architecture["libraries"]["decisions"]
+        if decision["capability"] == "Alembic revision template rendering"
+    ]
+    assert len(decisions) == 1
+    assert len(decisions[0]["selected"]) == 1
+    _assert_selected_alembic_stack_matches_manifests(decisions[0]["selected"][0])
+
+
+@pytest.mark.parametrize("name", ["Mako", "Alembic", "SQLAlchemy"])
+def test_selected_alembic_stack_refuses_documentation_drift(name: str) -> None:
+    selected = "Mako 1.4.1 used by Alembic 1.20.0 with SQLAlchemy 2.0.54"
+    altered = re.sub(rf"{name} \d+\.\d+\.\d+", f"{name} 99.0.0", selected)
+    assert altered != selected
+    with pytest.raises(AssertionError, match="differs from architecture selection"):
+        _assert_selected_alembic_stack_matches_manifests(altered)
+
+
+def test_selected_alembic_stack_refuses_synchronized_manifest_drift(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    for name in ("requirements.txt", "pyproject.toml"):
+        (tmp_path / name).write_bytes((API / name).read_bytes())
+    monkeypatch.setitem(globals(), "API", tmp_path)
+    _replace_declaration(tmp_path, "alembic==1.20.0", "alembic==1.19.0")
+    with pytest.raises(AssertionError, match="differs from architecture selection"):
+        _assert_selected_alembic_stack_matches_manifests(
+            "Mako 1.4.1 used by Alembic 1.20.0 with SQLAlchemy 2.0.54"
+        )
 
 
 def test_ci_audits_runtime_and_development_python_dependencies() -> None:

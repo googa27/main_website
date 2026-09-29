@@ -17,12 +17,15 @@ updates:
         patterns:
           - "@typescript-eslint/eslint-plugin"
           - "@typescript-eslint/parser"
-    # Type-only holds apply to version updates, not security-only jobs.
-    # Remove when the documented compiler/ESLint peer gates admit the new major.
+    # Semver-major holds do not filter security-only jobs.
+    # ESLint/TypeScript need peer/API gates; Node types need the documented
+    # Tailwind warning-removal and managed Node 26 migration gates.
     ignore:
       - dependency-name: "eslint"
         update-types: ["version-update:semver-major"]
       - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
   - package-ecosystem: "pip"
     directory: "/apps/api"

@@ -159,7 +159,8 @@
       ],
       "version_update_major_holds": [
         "eslint",
-        "typescript"
+        "typescript",
+        "@types/node"
       ],
       "eslint_compatibility": {
         "decision": "retain accepted ESLint majors per importer (web/config 9, UI 10)",

@@ -90,6 +90,7 @@ def test_node_and_pnpm_runtimes_are_exact_and_managed() -> None:
         "node scripts/check-dependency-build-policy.mjs"
         " && node --test tests/node/source-map-offsets.test.mjs"
         " && node --test tests/node/brace-expansion.test.mjs"
+        " && node --test tests/node/sharp-svg-security.test.mjs"
     )
 
 

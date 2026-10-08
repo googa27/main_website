@@ -81,14 +81,27 @@ class InstalledAPIGateTests(unittest.TestCase):
 
     def test_zero_exit_with_invalid_utf8_on_either_stream_is_rejected(self) -> None:
         for stream in ("stdout", "stderr"):
-            with self.subTest(stream=stream):
-                code, output = self.invoke(
-                    f"import sys; sys.{stream}.buffer.write(b'public invalid \\xff')"
-                )
-                self.assertEqual(code, 1)
-                result = json.loads(output)
-                self.assertEqual(result["status"], "failed")
-                self.assertEqual(result["error_type"], "UnicodeDecodeError")
+            for prefix_bytes, expected_count, truncated in (
+                (0, 16, False),
+                (12000, 12016, True),
+            ):
+                with self.subTest(stream=stream, prefix_bytes=prefix_bytes):
+                    code, output = self.invoke(
+                        f"import sys; sys.{stream}.buffer.write("
+                        f"b'A'*{prefix_bytes}+b'public invalid \\xff')"
+                    )
+                    self.assertEqual(code, 1)
+                    result = json.loads(output)
+                    self.assertEqual(result["status"], "failed")
+                    self.assertEqual(result["error_type"], "UnicodeDecodeError")
+                    diagnostic = result[stream]
+                    self.assertEqual(diagnostic["captured_bytes"], expected_count)
+                    self.assertEqual(diagnostic["truncated"], truncated)
+                    self.assertTrue(diagnostic["text"].endswith("public invalid �"))
+                    self.assertEqual(len(diagnostic["text"]), min(expected_count, 4096))
+                    other = "stderr" if stream == "stdout" else "stdout"
+                    self.assertEqual(result[other]["captured_bytes"], 0)
+                    self.assertEqual(result[other]["text"], "")
 
     def test_actual_timeout_retains_output_and_timeout_identity(self) -> None:
         code, output = self.invoke(

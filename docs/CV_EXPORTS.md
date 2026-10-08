@@ -101,7 +101,7 @@ buffers child output. Use this fixed public-fixture gate for public diagnostics;
 it does not print environment or private fixture metadata. The successful result
 and the selected virtual environment remain unchanged. Zero-exit output is
 decoded strictly on both streams; invalid UTF-8 reports `UnicodeDecodeError` and
-fails the gate before printing success. Diagnose a dependency
+fails the gate with the same bounded stream diagnostics before printing success. Diagnose a dependency
 proposal from its actual error, then run the appropriate installed consumer
 checks before accepting that proposal.
 

@@ -354,3 +354,34 @@ from consuming unbounded resources during reproduction; it delegates every
 accepted call and is never installed as a production workaround. Full frontend
 build consumers and the unsuppressed scanner remain required. These controls do
 not establish a deployed vulnerable input path or a live exploit.
+
+
+## Maintained native SVG dependency
+
+[Issue #197](https://github.com/googa27/main_website/issues/197) selects Sharp
+0.35.5 and its matching native packages through the existing Next 16.3.5 parent.
+The maintained release fixes
+[GHSA-wq5f-xc86-pv6w](https://github.com/lovell/sharp/security/advisories/GHSA-wq5f-xc86-pv6w)
+and ships libvips 8.18.7 with librsvg 2.63.2. The manifest override and frozen
+lock retain the complete published optional dependency cohort. Sharp and its
+GNU binding are Apache-2.0 licensed; the prebuilt libvips package is
+LGPL-3.0-or-later. Their reviewed manifests have no install lifecycle hooks.
+The maintained runtime loader loads the selected prebuilt native module or
+fails with diagnostics; no new download wrapper or custom renderer is added.
+
+`architecture.sharp_policy` records the reviewed parent, published tarball
+integrities and GNU asset hashes. The required dependency policy command
+executes the actual Sharp export resolved by Next. Hand-derived red pixels,
+resize, PNG roundtrip, malformed SVG and explicit pixel-limit controls preserve
+public rendering behavior. The exported librsvg version comes from package
+metadata; separate controls compare the installed binding, shared library and
+version file with independently verified published bytes and require the two
+binaries to appear in the consumer process mappings. They prevent accepting an
+ambient or substituted GNU renderer merely from a version string.
+
+These gates verify the local GNU Linux x64 dependency and public library
+consumer. They do not reproduce the use-after-free exploit, verify other
+platform native execution or establish a deployed image endpoint. The static
+frontend's unoptimized image behavior is unchanged. Full source, frontend, API,
+architecture, normal installed-package and unsuppressed security gates remain
+required; other existing security owners remain separate.

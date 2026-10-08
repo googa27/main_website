@@ -44,9 +44,13 @@ def _assert_policy(package: dict, lock: dict, policy: dict) -> None:
     for version in parents:
         dependency = lock["snapshots"][f"minimatch@{version}"]["dependencies"]
         assert dependency["brace-expansion"] in policy["brace_versions"]
-    assert package["scripts"]["check:dependency-build-policy"].endswith(
-        "&& node --test tests/node/brace-expansion.test.mjs"
-    ), "Consumer gate is absent from the required dependency policy command"
+    commands = {
+        x.strip()
+        for x in package["scripts"]["check:dependency-build-policy"].split("&&")
+    }
+    assert "node --test tests/node/brace-expansion.test.mjs" in commands, (
+        "Consumer gate is absent from the required dependency policy command"
+    )
 
 
 def _current() -> tuple[dict, dict, dict]:
@@ -95,4 +99,22 @@ def test_an_additional_parent_requires_consumer_coverage() -> None:
         "dependencies": {"brace-expansion": "5.0.12"}
     }
     with pytest.raises(AssertionError, match="Untested minimatch parent"):
+        _assert_policy(package, lock, policy)
+
+
+@pytest.mark.parametrize(
+    "replacement",
+    [
+        "node --test tests/node/brace-expansion.test.mjs.backup",
+        "echo node --test tests/node/brace-expansion.test.mjs",
+    ],
+)
+def test_a_similar_filename_or_echo_cannot_replace_the_consumer_gate(
+    replacement: str,
+) -> None:
+    package, lock, policy = copy.deepcopy(_current())
+    package["scripts"]["check:dependency-build-policy"] = package["scripts"][
+        "check:dependency-build-policy"
+    ].replace("node --test tests/node/brace-expansion.test.mjs", replacement)
+    with pytest.raises(AssertionError, match="Consumer gate is absent"):
         _assert_policy(package, lock, policy)

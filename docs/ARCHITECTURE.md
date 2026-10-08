@@ -80,6 +80,23 @@ cohort, live PostgreSQL operations, migrations or deployment.
 
 ### Executive summary: monorepo tooling and lifecycle policy
 
+The optional API selects Mako 1.4.3 for Alembic's existing revision templates
+([#193](https://github.com/googa27/main_website/issues/193)). The separate security
+minimum is 1.4.2, the patched boundary in
+[GHSA-5639-2j2p-m4mx](https://github.com/sqlalchemy/mako/security/advisories/GHSA-5639-2j2p-m4mx).
+Literal tests reject the affected 1.4.1 release and accept 1.4.2/1.4.3 without
+deriving that oracle from the minimum map. The structured library selection
+must also match both runtime manifests; a version-only bump leaves that
+contract stale.
+
+The maintained [1.4.3 release](https://github.com/sqlalchemy/mako/releases/tag/rel_1_4_3)
+includes the upstream test-portability correction after the 1.4.2 traversal
+repair. Existing consumer tests render both installed Alembic and repository
+templates into temporary revisions and check Python syntax, revision IDs,
+upgrade/downgrade contents, and distribution ownership. They do not run
+`env.py`, connect to a database, prove a deployed vulnerable template route,
+or substitute for actual Windows or full dependency-security verification.
+
 | Boundary           | Decision                                                                                                 | Why                                                                                                                                                                    | Executable evidence                                   |
 | ------------------ | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
 | Package manager    | Pin `pnpm@10.34.5`                                                                                       | Current pnpm 10 maintenance release while preserving the existing lockfile major                                                                                       | `packageManager`; `test_node_tooling_contract.py`     |

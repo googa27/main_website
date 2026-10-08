@@ -218,7 +218,8 @@ On a child failure or a 30-second timeout, the gate retains the real exit or
 error identity and the final 4096 captured bytes from each output stream. Its
 JSON includes the original byte counts and truncation flags; invalid UTF-8 bytes
 use replacement characters so an encoding error does not hide the primary
-failure. The printed diagnostics are bounded, while the subprocess library still
+failure. Zero-exit output remains strict UTF-8 on both streams; invalid bytes
+fail with `UnicodeDecodeError` before printing success. The printed diagnostics are bounded, while the subprocess library still
 buffers child output. The gate runs only its fixed public-fixture check and does
 not print environment or private fixture metadata. Run `python -m pytest
 tests/architecture/test_installed_api_gate.py` for the real child-process

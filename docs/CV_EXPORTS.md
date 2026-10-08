@@ -99,7 +99,9 @@ failure after the 30-second deadline; a missing interpreter reports its OS errno
 These bounds apply to printed diagnostics, while the subprocess library still
 buffers child output. Use this fixed public-fixture gate for public diagnostics;
 it does not print environment or private fixture metadata. The successful result
-and the selected virtual environment remain unchanged. Diagnose a dependency
+and the selected virtual environment remain unchanged. Zero-exit output is
+decoded strictly on both streams; invalid UTF-8 reports `UnicodeDecodeError` and
+fails the gate before printing success. Diagnose a dependency
 proposal from its actual error, then run the appropriate installed consumer
 checks before accepting that proposal.
 

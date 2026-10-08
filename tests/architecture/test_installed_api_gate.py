@@ -79,6 +79,17 @@ class InstalledAPIGateTests(unittest.TestCase):
         self.assertIn("public error \ufffd", result["stderr"]["text"])
         self.assertEqual(result["stdout"]["captured_bytes"], 15)
 
+    def test_zero_exit_with_invalid_utf8_on_either_stream_is_rejected(self) -> None:
+        for stream in ("stdout", "stderr"):
+            with self.subTest(stream=stream):
+                code, output = self.invoke(
+                    f"import sys; sys.{stream}.buffer.write(b'public invalid \\xff')"
+                )
+                self.assertEqual(code, 1)
+                result = json.loads(output)
+                self.assertEqual(result["status"], "failed")
+                self.assertEqual(result["error_type"], "UnicodeDecodeError")
+
     def test_actual_timeout_retains_output_and_timeout_identity(self) -> None:
         code, output = self.invoke(
             "import threading,sys; print('before timeout', flush=True); "

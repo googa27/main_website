@@ -195,7 +195,9 @@ A nonzero exit keeps its actual exit code; an actual 30-second timeout keeps
 the last 4096 captured bytes as UTF-8 text with replacement for invalid bytes,
 the original byte count and a truncation flag. An interpreter launch error keeps
 its error type and errno. Successful output, isolated execution, temporary cwd
-and the supplied virtual-environment symlink identity are preserved.
+and the supplied virtual-environment symlink identity are preserved. A zero-exit
+child must emit valid UTF-8 on both streams; invalid bytes fail with
+`UnicodeDecodeError` before any successful output is printed.
 Python's maintained [subprocess API](https://docs.python.org/3.12/library/subprocess.html)
 owns execution and timeout handling. These report bounds do not limit the total
 output buffered by `subprocess.run`. The fixed probe uses the reviewed public

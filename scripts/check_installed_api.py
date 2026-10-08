@@ -86,7 +86,10 @@ def main() -> int:
                 timeout=30,
                 check=True,
             )
-        print(result.stdout.decode("utf-8", errors="replace"), end="")
+        # Match text=True's strict decoding of both successful output streams.
+        stdout = result.stdout.decode("utf-8")
+        result.stderr.decode("utf-8")
+        print(stdout, end="")
     except subprocess.CalledProcessError as exc:
         print(
             json.dumps(
@@ -111,6 +114,9 @@ def main() -> int:
                 }
             )
         )
+        return 1
+    except UnicodeDecodeError as exc:
+        print(json.dumps({"status": "failed", "error_type": type(exc).__name__}))
         return 1
     except OSError as exc:
         print(

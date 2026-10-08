@@ -219,7 +219,10 @@ python scripts/check_installed_api_dependencies.py --python /tmp/portfolio-api-w
 
 Upgrade each selected Python environment with `python -m pip install --upgrade
 -r requirements-bootstrap.txt` before installing the API. The reviewed bootstrap
-pins pip 26.2.1; a new venv's bundled installer is not acceptance evidence. The
+contains exactly one unconditional pip pin, currently pip 26.2.1. Declare
+separate auditor/tooling packages in `requirements-security.txt`; additional
+bootstrap requirements are deliberately refused. A new venv's bundled installer
+is not acceptance evidence. The
 separate dependency gate checks normal isolated metadata, that exact installer,
 `pip check`, and every installed published package with strict PyPA pip-audit.
 It retains metadata, exact pins, command exits and the complete audit in a fresh

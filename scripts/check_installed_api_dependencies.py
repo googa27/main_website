@@ -38,7 +38,6 @@ def collect_snapshot(interpreter: Path) -> dict:
             timeout=30,
             check=True,
         )
-    result.stderr.decode("utf-8")
     return json.loads(result.stdout.decode("utf-8"))
 
 
@@ -132,6 +131,7 @@ def main() -> int:
     try:
         directory = args.report_dir.absolute()
         directory.mkdir(parents=True, exist_ok=False)
+        # Bootstrap policy is one pip pin; separate tooling pins live elsewhere.
         installer_name, installer_version = exact_pin(
             (ROOT / "requirements-bootstrap.txt").read_text().strip()
         )

@@ -332,3 +332,25 @@ literal-output contract rather than a wall-clock performance assertion. These ar
 local toolchain checks, not evidence of an exploitable deployment, live service,
 or scientific result. The full frozen install, lifecycle, frontend/API/architecture
 gates, all Python audits and unsuppressed OSV scan remain required.
+
+### Indexed source-map resource bounds
+
+The structured `architecture.source_map_policy` owns the reviewed source-map-js
+selection and both actual PostCSS/Tailwind parents. The
+[upstream advisory](https://github.com/7rulnik/source-map-js/issues/76) identifies
+line-padding past the generated content in `SourceNode.fromStringWithSourceMap`.
+The maintained 1.2.2 release stops that padding once the content is exhausted.
+The same release validates non-negative safe integer section offsets, caps
+individual and accumulated nested section lines, and rejects excessive offsets.
+
+The required dependency policy command exercises the real resolved library from
+each parent: generator/consumer/SourceNode round trips, indexed generated-line offsets,
+large admitted offsets with literal generated-code preservation, and refusal
+of invalid or excessive individual and accumulated nested offsets. Exact
+section-start lookup and nonzero section-column correctness remain a distinct
+pre-existing upstream limitation tracked in [issue204](https://github.com/googa27/main_website/issues/204),
+separately from the security repair. A test-only public `add` circuit breaker prevents the old library
+from consuming unbounded resources during reproduction; it delegates every
+accepted call and is never installed as a production workaround. Full frontend
+build consumers and the unsuppressed scanner remain required. These controls do
+not establish a deployed vulnerable input path or a live exploit.

@@ -88,6 +88,7 @@ def test_node_and_pnpm_runtimes_are_exact_and_managed() -> None:
     assert package["scripts"]["prepare"] == "husky"
     assert package["scripts"]["check:dependency-build-policy"] == (
         "node scripts/check-dependency-build-policy.mjs"
+        " && node --test tests/node/source-map-offsets.test.mjs"
         " && node --test tests/node/brace-expansion.test.mjs"
     )
 

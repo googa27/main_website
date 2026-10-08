@@ -333,6 +333,23 @@
         "apps/api/tests/test_project_fallback.py",
         "tests/architecture/test_project_identifiers.py"
       ]
+    },
+    "brace_expansion_policy": {
+      "owner": "https://github.com/googa27/main_website/issues/194",
+      "brace_versions": [
+        "1.1.21",
+        "5.0.12"
+      ],
+      "minimatch_versions": [
+        "3.1.5",
+        "10.2.5",
+        "10.2.6"
+      ],
+      "selection_boundary": "Exact reviewed installed cohort, enforced with PyYAML-parsed package and snapshot sections; other cohorts require maintained parent review and consumer coverage. The retained unused v2 override targets 2.1.7; no v2 or v3 installed consumer acceptance is claimed.",
+      "consumer_command": "pnpm run check:dependency-build-policy",
+      "consumer_owner": "tests/node/brace-expansion.test.mjs",
+      "behavioral_oracles": "Installed minimatch CommonJS and modern ES-module braceExpand/Minimatch entrypoints; ordinary range/matching/quirk behavior; both upstream parser vectors and nesting sites; excessive rewrites preserved literally, without a wall-clock threshold. The argument-array vector exceeds the minimatch length limit and exercises the resolved brace-expansion public export directly.",
+      "scope": "Local installed frontend build/lint/glob toolchain only; package presence does not prove an untrusted deployment input or a live service."
     }
   },
   "source_layout": {

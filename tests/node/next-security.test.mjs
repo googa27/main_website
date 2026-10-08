@@ -8,6 +8,7 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import {
+  observeOwnedProcess,
   readLiveProcessFile,
   recordOwnedChildren,
 } from "./next-process-ownership.mjs";
@@ -98,43 +99,45 @@ test("the actual developer MCP route admits local clients and refuses foreign or
       stdio: ["ignore", "pipe", "pipe"],
     },
   );
-  let output = "";
-  let result;
-  const exited = new Promise((resolveExit, reject) => {
-    child.once("error", reject);
-    child.once("exit", (code, signal) => {
-      result = { code, signal };
-      resolveExit(result);
-    });
-  });
-  const capture = (chunk) => {
-    output += chunk.toString();
-    assert.ok(
-      output.length < 1024 * 1024,
+  const observation = observeOwnedProcess(child);
+  const checkStartupState = () => {
+    assert.ifError(observation.error);
+    assert.equal(
+      observation.outputBoundExceeded,
+      false,
       "Developer startup log bound exceeded",
     );
   };
-  child.stdout.on("data", capture);
-  child.stderr.on("data", capture);
   const pause = () =>
     new Promise((resolvePause) => setTimeout(resolvePause, 50));
   const observedChildren = new Map();
   const trackChildren = () => recordOwnedChildren(child.pid, observedChildren);
   try {
     const deadline = Date.now() + 45000; // Startup guard, never a security-performance oracle.
-    while (!/Ready in/.test(output)) {
-      assert.equal(result, undefined, "Next stopped during startup: " + output);
+    while (!/Ready in/.test(observation.output)) {
+      checkStartupState();
+      assert.equal(
+        observation.result,
+        undefined,
+        "Next stopped during startup: " + observation.output,
+      );
       assert.ok(
         Date.now() < deadline,
-        "Next startup did not finish: " + output,
+        "Next startup did not finish: " + observation.output,
       );
       await pause();
     }
+    checkStartupState();
     trackChildren();
+    const output = observation.output;
     const port = output.match(/Local:\s+http:\/\/[^:\s]+:(\d+)/)?.[1];
     assert.ok(port, "Actual loopback listener was not reported: " + output);
     const origin = "http://127.0.0.1:" + port;
-    const initialize = async (requestOrigin, path = "/_next/mcp") => {
+    const request = async (
+      requestOrigin,
+      path = "/_next/mcp",
+      method = "initialize",
+    ) => {
       const response = await fetch(origin + path, {
         method: "POST",
         headers: {
@@ -145,54 +148,62 @@ test("the actual developer MCP route admits local clients and refuses foreign or
         body: JSON.stringify({
           jsonrpc: "2.0",
           id: 1,
-          method: "initialize",
-          params: {
-            protocolVersion: "2024-11-05",
-            capabilities: {},
-            clientInfo: {
-              name: "portfolio-security-contract",
-              version: "1.0.0",
-            },
-          },
+          method,
+          params:
+            method === "initialize"
+              ? {
+                  protocolVersion: "2024-11-05",
+                  capabilities: {},
+                  clientInfo: {
+                    name: "portfolio-security-contract",
+                    version: "1.0.0",
+                  },
+                }
+              : {},
         }),
         signal: AbortSignal.timeout(10000),
       });
       return { status: response.status, body: await response.text() };
     };
     for (const lookalike of ["/_next/mcp-extra", "/_next/mcp/extra"]) {
-      const wrongRoute = await initialize(origin, lookalike);
+      const wrongRoute = await request(origin, lookalike);
       assert.ok(
         [404, 405].includes(wrongRoute.status),
         "MCP accepted a lookalike route: " + lookalike + ": " + wrongRoute.body,
       );
       assert.doesNotMatch(wrongRoute.body, /"serverInfo"/);
     }
-    const local = await initialize(origin);
+    const local = await request(origin);
     assert.equal(local.status, 200, local.body);
     assert.match(local.body, /"jsonrpc":"2\.0"/);
     assert.match(local.body, /"serverInfo"/);
+    const localTools = await request(origin, "/_next/mcp", "tools/list");
+    assert.equal(localTools.status, 200, localTools.body);
+    assert.match(localTools.body, /"tools"/);
     for (const foreign of ["https://untrusted.invalid", "null"]) {
-      const denied = await initialize(foreign);
-      assert.equal(
-        denied.status,
-        403,
-        "MCP accepted origin " + foreign + ": " + denied.body,
-      );
-      assert.doesNotMatch(denied.body, /"serverInfo"/);
+      for (const method of ["initialize", "tools/list"]) {
+        const denied = await request(foreign, "/_next/mcp", method);
+        assert.equal(
+          denied.status,
+          403,
+          "MCP accepted " + method + " origin " + foreign + ": " + denied.body,
+        );
+        assert.doesNotMatch(denied.body, /"serverInfo"/);
+      }
     }
   } finally {
-    if (result === undefined) {
+    if (observation.result === undefined) {
       trackChildren();
       child.kill("SIGTERM");
     }
     const deadline = Date.now() + 10000;
-    while (result === undefined && Date.now() < deadline) await pause();
+    while (!observation.closed && Date.now() < deadline) await pause();
     assert.ok(
-      result,
+      observation.closed,
       "Owned CLI termination is unproved; preserve its PID " + child.pid,
     );
-    await exited;
-    if (process.platform === "linux") {
+    const result = await observation.exited;
+    if (process.platform === "linux" && Number.isInteger(child.pid)) {
       assert.equal(
         existsSync("/proc/" + child.pid),
         false,
@@ -218,5 +229,6 @@ test("the actual developer MCP route admits local clients and refuses foreign or
       "PID",
       child.pid,
     );
+    checkStartupState();
   }
 });

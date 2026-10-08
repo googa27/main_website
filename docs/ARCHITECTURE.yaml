@@ -479,7 +479,8 @@
       "references": [
         "https://github.com/vercel/next.js/releases/tag/v16.3.8",
         "https://nextjs.org/docs/app/api-reference/config/next-config-js/output",
-        "https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins"
+        "https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins",
+        "https://nodejs.org/download/release/v24.19.0/docs/api/child_process.html"
       ],
       "consumer_command": "node --test tests/node/next-security.test.mjs tests/node/next-process-ownership.test.mjs",
       "fitness_tests": [
@@ -487,7 +488,12 @@
         "tests/node/next-security.test.mjs",
         "tests/node/next-process-ownership.test.mjs"
       ],
-      "verification_boundary": "The real managed Turbopack developer MCP HTTP listener admits local initialization, refuses foreign/opaque Origin headers and does not treat lookalike paths as the MCP endpoint. Explicit-origin controls already passed on 16.3.5; literal-path rejection is the observed RED/GREEN regression. GNU Linux x64 compiler bytes match independently published tarballs and the actual loaded binary maps; a literal TypeScript result exercises that compiler through the synchronous Next build adapter, which loads installed native bindings without downloader fallback. That internal adapter is version-bound, not a stable public API; the full declared static export build remains the public acceptance command. All other native platforms are locked, unexecuted. Static export and unoptimized images stay configured; runtime ISR, draft-cache preview, dynamic metadata image routes and attacker-controlled next/og rendering are not exposed by this source. Full unsuppressed OSV ranges and configured build/installed API gates are separate acceptance evidence; no browser exploit, deployed service, Windows execution or scientific claim. Process observation tolerates only genuine ENOENT from disappearing parent/child proc entries; the caller still awaits the actual exit and bounded cleanup and never infers reaping from a missing path. A naturally exited real child supplies the deterministic regression control."
+      "verification_boundary": "The real managed Turbopack developer MCP HTTP listener admits local initialization, refuses foreign/opaque Origin headers and does not treat lookalike paths as the MCP endpoint. Explicit-origin controls already passed on 16.3.5; literal-path rejection is the observed RED/GREEN regression. GNU Linux x64 compiler bytes match independently published tarballs and the actual loaded binary maps; a literal TypeScript result exercises that compiler through the synchronous Next build adapter, which loads installed native bindings without downloader fallback. That internal adapter is version-bound, not a stable public API; the full declared static export build remains the public acceptance command. All other native platforms are locked, unexecuted. Static export and unoptimized images stay configured; runtime ISR, draft-cache preview, dynamic metadata image routes and attacker-controlled next/og rendering are not exposed by this source. Full unsuppressed OSV ranges and configured build/installed API gates are separate acceptance evidence; no browser exploit, deployed service, Windows execution or scientific claim. Process observation tolerates only genuine ENOENT from disappearing parent/child proc entries; the caller still awaits the actual exit and bounded cleanup and never infers reaping from a missing path. A naturally exited real child supplies the deterministic regression control. Both initialize and tools/list are tested with valid local and foreign/opaque Origin headers. Captured process output uses a fixed byte bound and asynchronous handlers record flags and errors without asserting or rejecting; controlled assertions retain try/finally cleanup. Actual close is awaited after exit or failed spawn, including stdio closure; missing executables allocate no PID and output-flood fixtures require real termination/PID absence. Process errors alone never imply exit. Documented minimum_version is bound to the selected reviewed cohort and consumer_command to the exact executed root gate. Historical node_security_remediation stays dated and unchanged.",
+      "verification_owners": {
+        "bounded_process_cleanup": "https://github.com/googa27/main_website/issues/210",
+        "executed_policy_bindings": "https://github.com/googa27/main_website/issues/211",
+        "maintained_origin_controls": "https://github.com/googa27/main_website/issues/196"
+      }
     }
   },
   "source_layout": {

@@ -77,7 +77,14 @@ jobs:
           "$RUNNER_TEMP/api-wheel-env/bin/python" -m pip install "$RUNNER_TEMP"/api-wheels/portfolio_api-*.whl
           python scripts/check_installed_api.py --python "$RUNNER_TEMP/api-wheel-env/bin/python"
           python -m pip install -r requirements-security.txt
-          python scripts/check_installed_api_dependencies.py --python "$RUNNER_TEMP/api-wheel-env/bin/python" --report-dir "$RUNNER_TEMP/api-installed-audit"
+          if ! python scripts/check_installed_api_dependencies.py --python "$RUNNER_TEMP/api-wheel-env/bin/python" --report-dir "$RUNNER_TEMP/api-installed-audit"; then
+            for evidence in pip-audit.json pip-audit.stderr pip-check.stderr; do
+              if [ -f "$RUNNER_TEMP/api-installed-audit/$evidence" ]; then
+                cat "$RUNNER_TEMP/api-installed-audit/$evidence"
+              fi
+            done
+            exit 1
+          fi
 
   test:
     runs-on: ubuntu-latest

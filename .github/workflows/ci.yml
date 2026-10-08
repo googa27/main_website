@@ -34,6 +34,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Maintain Python installer
+        run: python -m pip install --upgrade -r requirements-bootstrap.txt
+
       - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
 
@@ -70,8 +73,18 @@ jobs:
         run: |
           python -m pip wheel --no-deps --wheel-dir "$RUNNER_TEMP/api-wheels" apps/api
           python -m venv "$RUNNER_TEMP/api-wheel-env"
+          "$RUNNER_TEMP/api-wheel-env/bin/python" -m pip install --upgrade -r requirements-bootstrap.txt
           "$RUNNER_TEMP/api-wheel-env/bin/python" -m pip install "$RUNNER_TEMP"/api-wheels/portfolio_api-*.whl
           python scripts/check_installed_api.py --python "$RUNNER_TEMP/api-wheel-env/bin/python"
+          python -m pip install -r requirements-security.txt
+          if ! python scripts/check_installed_api_dependencies.py --python "$RUNNER_TEMP/api-wheel-env/bin/python" --report-dir "$RUNNER_TEMP/api-installed-audit"; then
+            for evidence in pip-audit.command.json pip-audit.json pip-audit.stdout pip-audit.stderr pip-check.command.json pip-check.stdout pip-check.stderr; do
+              if [ -f "$RUNNER_TEMP/api-installed-audit/$evidence" ]; then
+                cat "$RUNNER_TEMP/api-installed-audit/$evidence"
+              fi
+            done
+            exit 1
+          fi
 
   test:
     runs-on: ubuntu-latest
@@ -97,6 +110,9 @@ jobs:
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
+
+      - name: Maintain Python installer
+        run: python -m pip install --upgrade -r requirements-bootstrap.txt
 
       - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
@@ -132,9 +148,14 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Maintain Python installer
+        run: python -m pip install --upgrade -r requirements-bootstrap.txt
+
       - name: Run backend dependency audit
         run: |
-          python -m pip install pip-audit
+          python -m pip install -r requirements-security.txt
+          pip-audit -r requirements-bootstrap.txt
+          pip-audit -r requirements-security.txt
           pip-audit -r apps/api/requirements.txt
           pip-audit -r apps/api/requirements-dev.txt
           pip-audit -r apps/api/requirements-pdf.txt

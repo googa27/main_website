@@ -210,9 +210,32 @@ root with a fresh output directory and environment:
 ```bash
 python -m pip wheel --no-deps --wheel-dir /tmp/portfolio-api-wheels apps/api
 python -m venv /tmp/portfolio-api-wheel-env
+/tmp/portfolio-api-wheel-env/bin/python -m pip install --upgrade -r requirements-bootstrap.txt
 /tmp/portfolio-api-wheel-env/bin/python -m pip install /tmp/portfolio-api-wheels/portfolio_api-*.whl
 python scripts/check_installed_api.py --python /tmp/portfolio-api-wheel-env/bin/python
+python -m pip install -r requirements-security.txt
+python scripts/check_installed_api_dependencies.py --python /tmp/portfolio-api-wheel-env/bin/python --report-dir /tmp/portfolio-api-installed-audit
 ```
+
+Upgrade each selected Python environment with `python -m pip install --upgrade
+-r requirements-bootstrap.txt` before installing the API. The reviewed bootstrap
+contains exactly one unconditional pip pin, currently pip 26.2.1. Declare
+the complete reviewed Python 3.12 Linux auditor cohort, including transitive
+packages, in `requirements-security.txt`; additional
+bootstrap requirements are deliberately refused. A new venv's bundled installer
+is not acceptance evidence. The
+separate dependency gate checks normal isolated metadata, that exact installer,
+`pip check`, and every installed published package with strict PyPA pip-audit.
+It retains metadata, exact pins, attempted commands, raw output and actual exits
+in a fresh report directory. Timeouts retain partial captured streams; launch
+failures retain the attempted command without inventing an exit. Both still fail
+the gate. The complete audit is retained when the scanner writes it. The local `portfolio-api` distribution is outside PyPI audit
+coverage and still requires its built-wheel identity and public-fixture check.
+Auditor tools are installed in the invoking tooling environment, not in the API
+wheel environment. Run `python -m pytest
+tests/architecture/test_installed_dependency_gate.py` for metadata and coverage
+refusal controls. A no-known-vulnerability report is dated database evidence,
+not deployment or general security certification.
 
 The check uses an isolated interpreter and temporary working directory to import
 the application, export the typed fixture and verify that AI context omits contact

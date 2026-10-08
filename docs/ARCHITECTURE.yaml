@@ -638,6 +638,15 @@
       "architecture_setup": "python -m pip install -r requirements-architecture.txt pytest",
       "architecture_test": "python -m pytest tests/architecture"
     },
+    "database_driver_selection": {
+      "issue": "https://github.com/googa27/main_website/issues/192",
+      "owner": "apps/api/app/core/database.py",
+      "contract": "A driver-unspecified postgresql DATABASE_URL explicitly selects the already declared psycopg2-binary driver. SQLAlchemy make_url and immutable URL.set preserve parsed credentials, query parameters and every other URL component. Explicit driver names and other backends pass through unchanged; create_engine retains its actual driver import and refusal semantics.",
+      "fitness_test": "apps/api/tests/test_database_driver_selection.py; real isolated application/engine imports with public synthetic implicit PostgreSQL, escaped credentials/query, explicit psycopg2, SQLite and unsupported explicit-driver controls. The same standalone unittest controls run against normal installed current and proposed SQLAlchemy profiles.",
+      "maintained_boundary": "SQLAlchemy owns URL parsing, URL updates, dialect/DBAPI loading and engine construction. The repository adapter selects only its existing implicit PostgreSQL default, without a new parser or driver dependency.",
+      "source": "https://docs.sqlalchemy.org/en/21/changelog/migration_21.html#default-postgresql-driver-changed-to-psycopg-psycopg-3",
+      "scope": "Import-time installed-driver compatibility; controls construct engines without opening connections. No live PostgreSQL, migration, provider or deployment acceptance. A proposed SQLAlchemy version still needs separate dependency-cohort and consumer acceptance."
+    },
     "database_health_contract": {
       "statement": "The existing constant SELECT 1 probe is an explicit SQLAlchemy text statement executed through Session.",
       "healthy_oracle": "FastAPI TestClient with a real Session and thread-safe in-memory SQLite engine supplied through get_db.",

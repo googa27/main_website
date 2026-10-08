@@ -119,6 +119,12 @@ Prerequisites:
 - Python 3.12+ for `apps/api`.
 - PostgreSQL if you want database-backed project/contact routes instead of import/build smoke checks.
 
+The optional API installs `psycopg2-binary` and selects it explicitly for a plain
+`postgresql` database URL. Supplied explicit drivers and other backends keep
+their selection; their dependencies must be available. The real isolated driver
+controls in `apps/api/tests/test_database_driver_selection.py` construct engines
+without connecting. See `docs/ARCHITECTURE.md` for the contract and its limits.
+
 Install frontend/monorepo dependencies from the lockfile:
 
 ```bash

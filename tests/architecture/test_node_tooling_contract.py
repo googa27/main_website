@@ -91,6 +91,7 @@ def test_node_and_pnpm_runtimes_are_exact_and_managed() -> None:
         " && node --test tests/node/source-map-offsets.test.mjs"
         " && node --test tests/node/brace-expansion.test.mjs"
         " && node --test tests/node/sharp-svg-security.test.mjs"
+        " && node --test tests/node/next-security.test.mjs tests/node/next-process-ownership.test.mjs"
     )
 
 

@@ -372,7 +372,7 @@
       "version": "0.35.5",
       "minimum_rsvg": "2.63.2",
       "parents": [
-        "next@16.3.5(@babel/core@7.29.7)(@types/node@24.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)"
+        "next@16.3.8(@babel/core@7.29.7)(@types/node@24.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)"
       ],
       "optional_dependencies": {
         "@img/sharp-darwin-arm64": "0.35.5",
@@ -440,6 +440,54 @@
         "tests/node/sharp-svg-security.test.mjs"
       ],
       "verification_boundary": "The exported rsvg version is package metadata. GNU Linux x64 controls separately hash the installed native binding, shared libvips and version file against published tarball bytes and require the two binaries to appear in the real consumer process mappings. Literal SVG pixels, resize, PNG roundtrip, malformed input and explicit pixel bounds exercise the public Sharp export resolved through the actual Next parent. Other platform assets are locked but not executed here. These controls are not a use-after-free exploit reproducer, deployed image endpoint, Windows proof or scientific evidence. The static frontend keeps its existing unoptimized image boundary."
+    },
+    "next_security_policy": {
+      "owner": "https://github.com/googa27/main_website/issues/196",
+      "version": "16.3.8",
+      "minimum_version": "16.3.8",
+      "optional_compilers": {
+        "@next/swc-darwin-x64": "16.3.8",
+        "@next/swc-darwin-arm64": "16.3.8",
+        "@next/swc-linux-x64-gnu": "16.3.8",
+        "@next/swc-linux-x64-musl": "16.3.8",
+        "@next/swc-win32-x64-msvc": "16.3.8",
+        "@next/swc-linux-arm64-gnu": "16.3.8",
+        "@next/swc-linux-arm64-musl": "16.3.8",
+        "@next/swc-win32-arm64-msvc": "16.3.8"
+      },
+      "published_assets": {
+        "next_manifest": "6da8fc4823b66b8f2906d150002618e3f3e0d2446ebf3823b2a2f7efe73a46a4",
+        "GNU_manifest": "dca7a240d53c8edd8833ad465f85d304d307637159ec6243da6190d02cd969fe",
+        "GNU_binary": "89fbdf990c4f0fdcf95c56463a026bbbc405e0b0970e6a0d8d12d50b773d97cd"
+      },
+      "published_integrities": {
+        "next": "sha512-U7QEZaTini6wKrb8A8hqLLqYQyCetegKjCpJOyxk642vWoMoU1x5PyZCJFvgYgiptA8xc5j/9xYlZFO7w9Sjmw==",
+        "eslint-config-next": "sha512-81vovwMe6NGnoFsl0KUJWzlS+y239i3fdsxs49gSEX3pDQW2cuKy+fxUPXNkQqqx6OCPheYPtBlSufc9aZ0k+w==",
+        "@next/eslint-plugin-next": "sha512-eCR9RcLTZrVS+K3+VOhi0xMdUUGNuriCHHhU1ZoABC/QQ/Gp0OWbLKQxV2/9DkmihYdYRcQWFmZXW8M1AMUXYw==",
+        "@next/env": "sha512-Al9zqHVV7TJv0eFuOU4U7Lvv74PTih4Ch63sk2xCIpSTkE3udFnaOcnzP2lQVymiL7yS9Cj2iClUXlR3EQ5sEw==",
+        "@next/swc-linux-x64-gnu": "sha512-lbqOuz3RPRcv+o9msNsJw5x4+Y1ZwPTs6vmL6DCf7i0fZfvng/F59wyeDwqHIvV0mK//RBy/jJkZ+nCKsSMXjQ=="
+      },
+      "advisories": [
+        "GHSA-39w2-rjm5-chcv",
+        "GHSA-3w37-wq28-93x7",
+        "GHSA-4jqv-mc3x-m676",
+        "GHSA-cjq9-62q9-8jv4",
+        "GHSA-f87g-xv8r-7p7x",
+        "GHSA-mcj8-r9mp-w47p",
+        "GHSA-vcvr-r3jv-pc5j"
+      ],
+      "references": [
+        "https://github.com/vercel/next.js/releases/tag/v16.3.8",
+        "https://nextjs.org/docs/app/api-reference/config/next-config-js/output",
+        "https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins"
+      ],
+      "consumer_command": "node --test tests/node/next-security.test.mjs tests/node/next-process-ownership.test.mjs",
+      "fitness_tests": [
+        "tests/architecture/test_next_security_policy.py",
+        "tests/node/next-security.test.mjs",
+        "tests/node/next-process-ownership.test.mjs"
+      ],
+      "verification_boundary": "The real managed Turbopack developer MCP HTTP listener admits local initialization, refuses foreign/opaque Origin headers and does not treat lookalike paths as the MCP endpoint. Explicit-origin controls already passed on 16.3.5; literal-path rejection is the observed RED/GREEN regression. GNU Linux x64 compiler bytes match independently published tarballs and the actual loaded binary maps; a literal TypeScript result exercises that compiler through the synchronous Next build adapter, which loads installed native bindings without downloader fallback. That internal adapter is version-bound, not a stable public API; the full declared static export build remains the public acceptance command. All other native platforms are locked, unexecuted. Static export and unoptimized images stay configured; runtime ISR, draft-cache preview, dynamic metadata image routes and attacker-controlled next/og rendering are not exposed by this source. Full unsuppressed OSV ranges and configured build/installed API gates are separate acceptance evidence; no browser exploit, deployed service, Windows execution or scientific claim. Process observation tolerates only genuine ENOENT from disappearing parent/child proc entries; the caller still awaits the actual exit and bounded cleanup and never infers reaping from a missing path. A naturally exited real child supplies the deterministic regression control."
     }
   },
   "source_layout": {

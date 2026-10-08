@@ -297,7 +297,6 @@ will pass. Recheck backend tests, base/dev/PDF pip-audit and the real full OSV
 scan; retain any resolution failure without suppressing either advisory or
 transitive scanning.
 
-
 ## Brace-expansion consumer security route
 
 [Issue #194](https://github.com/googa27/main_website/issues/194) updates the existing
@@ -355,11 +354,10 @@ accepted call and is never installed as a production workaround. Full frontend
 build consumers and the unsuppressed scanner remain required. These controls do
 not establish a deployed vulnerable input path or a live exploit.
 
-
 ## Maintained native SVG dependency
 
 [Issue #197](https://github.com/googa27/main_website/issues/197) selects Sharp
-0.35.5 and its matching native packages through the existing Next 16.3.5 parent.
+0.35.5 and its matching native packages through the maintained Next 16.3.8 parent.
 The maintained release fixes
 [GHSA-wq5f-xc86-pv6w](https://github.com/lovell/sharp/security/advisories/GHSA-wq5f-xc86-pv6w)
 and ships libvips 8.18.7 with librsvg 2.63.2. The manifest override and frozen
@@ -385,3 +383,11 @@ platform native execution or establish a deployed image endpoint. The static
 frontend's unoptimized image behavior is unchanged. Full source, frontend, API,
 architecture, normal installed-package and unsuppressed security gates remain
 required; other existing security owners remain separate.
+
+## Maintained Next security cohort
+
+Next and its ESLint config resolve as one 16.3.8 cohort, with a pnpm floor preventing older 16.x consumers from returning. The selected release repairs the six 16.3.8 advisory ranges and includes the next/og 16.3.6 repair. Canonical advisory IDs, exact independently published GNU compiler identities, optional platform selections and executable acceptance live in `next_security_policy` in ARCHITECTURE.yaml. Upstream pages currently contain placeholder patch fields; the maintained [16.3.8 release](https://github.com/vercel/next.js/releases/tag/v16.3.8), published registry identities and full OSV affected ranges establish the selected boundary.
+
+The required Next control starts the actual declared Turbopack developer server on an ephemeral loopback listener. A local MCP initialization succeeds; foreign/opaque origins are refused, and lookalike paths do not expose the MCP response. Explicit foreign-origin requests already failed on the prior release; only the exact-path case is the observed middleware regression. The test stops the real CLI and verifies observed owned children are absent. A shared process observer tolerates only missing proc entries during exit races; cleanup still awaits the real exit. A naturally exited real child exercises that regression. Its startup/request deadlines are bounded test guards, not security performance claims. GNU compiler hashes are derived from independently published tarballs, and live process mappings plus a literal TypeScript result verify the actual Next compiler. Other platforms are locked but unexecuted.
+
+The frontend retains static export with unoptimized images. This source has no enabled draft-cache previews, ISR server, dynamic metadata image routes or attacker-controlled next/og renderer. Version/lock controls and the full unsuppressed dependency scan cover the owned advisory cohort; they do not demonstrate a deployed exploit or a live server. Existing full frontend/architecture/backend and fresh normal installed-API gates remain required. Next's generated web agent guidance is retained for version-accurate documentation discovery; it grants no additional authority over the user or root constitution. Unrelated Node 26/TypeScript 7 migrations, braces issue 195, source-map correctness issue 204, documentation issues 200/202 and broader issue 136 remain separate.

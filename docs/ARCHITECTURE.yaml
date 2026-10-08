@@ -145,7 +145,7 @@
       "security_updates": "enabled; semver-type major holds do not apply to security-only updates",
       "typescript_compatibility": {
         "decision": "retain TypeScript 5",
-        "reason": "The locked TypeScript-ESLint 8.63.0 peer range is >=4.8.4 <6.1.0 and TypeScript 7.0 lacks the stable programmatic API required by tooling consumers.",
+        "reason": "The locked TypeScript-ESLint 8.71.0 peer range is >=4.8.4 <6.1.0 and TypeScript 7.0 lacks the stable programmatic API required by tooling consumers.",
         "revisit_when": "Actual compiler API consumers support the candidate, peer ranges agree, and lint, typecheck and build all pass."
       },
       "node_compatibility": {
@@ -165,6 +165,19 @@
         "decision": "retain accepted ESLint majors per importer (web/config 9, UI 10)",
         "reason": "The web import, React and JSX accessibility plugins do not admit ESLint 10 in their published peer ranges.",
         "revisit_when": "All consuming plugin peer ranges admit the candidate and strict frozen install, lint, typecheck and build pass."
+      },
+      "typescript_eslint_cohort": {
+        "version": "8.71.0",
+        "manifest_range": "^8.71.0",
+        "importer": "packages/config",
+        "issue": "https://github.com/googa27/main_website/issues/212",
+        "upstream_same_version_policy": "https://typescript-eslint.io/users/versioning/",
+        "registry_manifests": [
+          "https://registry.npmjs.org/@typescript-eslint/eslint-plugin/8.71.0",
+          "https://registry.npmjs.org/@typescript-eslint/parser/8.71.0"
+        ],
+        "update_command": "pnpm --filter @repo/config update @typescript-eslint/eslint-plugin@8.71.0 @typescript-eslint/parser@8.71.0 --lockfile-only --config.minimum-release-age=10080 --config.strict-peer-dependencies=true",
+        "boundary": "Local atomic selection and source/installed fitness checks. Existing hosted individual candidate resolution failed; no hosted updater recovery is inferred."
       }
     },
     "extension_points": [
@@ -253,9 +266,11 @@
         "https://registry.npmjs.org/@typescript-eslint/parser/8.63.0",
         "https://registry.npmjs.org/@typescript-eslint/eslint-plugin/8.63.0",
         "https://github.com/googa27/main_website/pull/89#issuecomment-5638237070",
-        "https://github.com/googa27/main_website/pull/91#issuecomment-5638238178"
+        "https://github.com/googa27/main_website/pull/91#issuecomment-5638238178",
+        "https://registry.npmjs.org/@typescript-eslint/eslint-plugin/8.71.0",
+        "https://registry.npmjs.org/@typescript-eslint/parser/8.71.0"
       ],
-      "fitness": "Frozen pnpm install rejects unsupported peer combinations; workspace-specific lint and typecheck verify their public CLI behavior."
+      "fitness": "Frozen pnpm install rejects unsupported peer combinations; workspace-specific lint and typecheck verify their public CLI behavior. The direct shared-config plugin and parser declarations, lock peer identity and installed manifests must match the reviewed same-version cohort."
     },
     "node_security_remediation": {
       "issue": "https://github.com/googa27/main_website/issues/108",

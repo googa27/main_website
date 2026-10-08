@@ -296,3 +296,39 @@ but does not establish what a fresh resolver will select or that the full scan
 will pass. Recheck backend tests, base/dev/PDF pip-audit and the real full OSV
 scan; retain any resolution failure without suppressing either advisory or
 transitive scanning.
+
+
+## Brace-expansion consumer security route
+
+[Issue #194](https://github.com/googa27/main_website/issues/194) updates the existing
+brace-expansion override route to 1.1.21 and 5.0.12. The installed minimatch 3.1.5
+parent accepts `^1.1.7`; minimatch 10.2.5 and 10.2.6 accept `^5.0.5` and `^5.0.8`.
+The selected patched versions satisfy these actual parent ranges without changing
+minimatch versions. The retained v2 override moves to 2.1.7, but no installed v2
+or v3 consumer acceptance is claimed. The pre-existing v4-to-v5 override boundary
+is retained; no installed v4 parent was found in this cohort.
+
+The maintained package is MIT licensed. The published 5.0.12 distribution retains
+CommonJS and ES-module exports and supports Node `20 || >=22`, including the
+managed Node 24.19.0. Published tarball integrity and manifests were checked;
+neither selected branch adds an install lifecycle hook. This uses the upstream
+parser repair rather than a custom brace parser. The selected cohort and exact
+consumer list live in `architecture.brace_expansion_policy`; PyYAML parses the
+lockfile package and snapshot sections for the architecture gate. A new parent
+or branch requires a reviewed selection and corresponding executable consumer
+coverage. No vulnerability suppression or scanner bypass is added.
+
+`pnpm run check:dependency-build-policy` now also runs the installed consumer tests
+in `tests/node/brace-expansion.test.mjs`. They use actual minimatch public
+`braceExpand`, `Minimatch`, and CommonJS/modern ES-module entrypoints. Literal
+ordinary expansion and matching controls accompany the upstream advisory inputs:
+[recursive comma parsing](https://github.com/juliangruber/brace-expansion/security/advisories/GHSA-6j4f-fj2g-mc7p),
+[both nesting sites](https://github.com/juliangruber/brace-expansion/security/advisories/GHSA-qhr7-859c-m2p7),
+and [excessive rewrite preservation](https://github.com/juliangruber/brace-expansion/security/advisories/GHSA-q2hr-2g5m-vwhr).
+The argument-array input exceeds minimatch's length limit and therefore tests its
+resolved brace-expansion public export directly. Parser payloads used through
+minimatch remain below that limit. Excessive rewrite behavior uses the upstream
+literal-output contract rather than a wall-clock performance assertion. These are
+local toolchain checks, not evidence of an exploitable deployment, live service,
+or scientific result. The full frozen install, lifecycle, frontend/API/architecture
+gates, all Python audits and unsuppressed OSV scan remain required.

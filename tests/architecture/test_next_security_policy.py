@@ -9,7 +9,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 SELECTOR = "next@>=16.0.0 <16.3.8"
-CONSUMER = "node --test tests/node/next-security.test.mjs"
+CONSUMER = "node --test tests/node/next-security.test.mjs tests/node/next-process-ownership.test.mjs"
 
 
 def _current() -> tuple[dict, dict, dict, dict]:

@@ -481,12 +481,13 @@
         "https://nextjs.org/docs/app/api-reference/config/next-config-js/output",
         "https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins"
       ],
-      "consumer_command": "node --test tests/node/next-security.test.mjs",
+      "consumer_command": "node --test tests/node/next-security.test.mjs tests/node/next-process-ownership.test.mjs",
       "fitness_tests": [
         "tests/architecture/test_next_security_policy.py",
-        "tests/node/next-security.test.mjs"
+        "tests/node/next-security.test.mjs",
+        "tests/node/next-process-ownership.test.mjs"
       ],
-      "verification_boundary": "The real managed Turbopack developer MCP HTTP listener admits local initialization, refuses foreign/opaque Origin headers and does not treat lookalike paths as the MCP endpoint. Explicit-origin controls already passed on 16.3.5; literal-path rejection is the observed RED/GREEN regression. GNU Linux x64 compiler bytes match independently published tarballs and the actual loaded binary maps; a literal TypeScript result exercises that compiler through the synchronous Next build adapter, which loads installed native bindings without downloader fallback. That internal adapter is version-bound, not a stable public API; the full declared static export build remains the public acceptance command. All other native platforms are locked, unexecuted. Static export and unoptimized images stay configured; runtime ISR, draft-cache preview, dynamic metadata image routes and attacker-controlled next/og rendering are not exposed by this source. Full unsuppressed OSV ranges and configured build/installed API gates are separate acceptance evidence; no browser exploit, deployed service, Windows execution or scientific claim."
+      "verification_boundary": "The real managed Turbopack developer MCP HTTP listener admits local initialization, refuses foreign/opaque Origin headers and does not treat lookalike paths as the MCP endpoint. Explicit-origin controls already passed on 16.3.5; literal-path rejection is the observed RED/GREEN regression. GNU Linux x64 compiler bytes match independently published tarballs and the actual loaded binary maps; a literal TypeScript result exercises that compiler through the synchronous Next build adapter, which loads installed native bindings without downloader fallback. That internal adapter is version-bound, not a stable public API; the full declared static export build remains the public acceptance command. All other native platforms are locked, unexecuted. Static export and unoptimized images stay configured; runtime ISR, draft-cache preview, dynamic metadata image routes and attacker-controlled next/og rendering are not exposed by this source. Full unsuppressed OSV ranges and configured build/installed API gates are separate acceptance evidence; no browser exploit, deployed service, Windows execution or scientific claim. Process observation tolerates only genuine ENOENT from disappearing parent/child proc entries; the caller still awaits the actual exit and bounded cleanup and never infers reaping from a missing path. A naturally exited real child supplies the deterministic regression control."
     }
   },
   "source_layout": {

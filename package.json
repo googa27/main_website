@@ -9,7 +9,7 @@
     "format": "turbo format",
     "typecheck": "turbo typecheck",
     "test": "turbo test",
-    "check:dependency-build-policy": "node scripts/check-dependency-build-policy.mjs && node --test tests/node/source-map-offsets.test.mjs && node --test tests/node/brace-expansion.test.mjs && node --test tests/node/sharp-svg-security.test.mjs && node --test tests/node/next-security.test.mjs",
+    "check:dependency-build-policy": "node scripts/check-dependency-build-policy.mjs && node --test tests/node/source-map-offsets.test.mjs && node --test tests/node/brace-expansion.test.mjs && node --test tests/node/sharp-svg-security.test.mjs && node --test tests/node/next-security.test.mjs tests/node/next-process-ownership.test.mjs",
     "clean": "rm -rf .turbo apps/*/.turbo packages/*/.turbo apps/web/out apps/web/.next",
     "prepare": "husky"
   },

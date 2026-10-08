@@ -7,6 +7,10 @@ import { dirname, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
+import {
+  readLiveProcessFile,
+  recordOwnedChildren,
+} from "./next-process-ownership.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const web = resolve(root, "apps/web");
@@ -115,19 +119,7 @@ test("the actual developer MCP route admits local clients and refuses foreign or
   const pause = () =>
     new Promise((resolvePause) => setTimeout(resolvePause, 50));
   const observedChildren = new Map();
-  const trackChildren = () => {
-    // Observe owned children while the real CLI is live; never infer a reap from a timeout.
-    if (process.platform !== "linux") return;
-    const parentStat = readFileSync(
-      "/proc/" + child.pid + "/task/" + child.pid + "/children",
-      "utf8",
-    );
-    for (const value of parentStat.trim().split(/\s+/).filter(Boolean)) {
-      const path = "/proc/" + value + "/stat";
-      if (existsSync(path))
-        observedChildren.set(value, readFileSync(path, "utf8"));
-    }
-  };
+  const trackChildren = () => recordOwnedChildren(child.pid, observedChildren);
   try {
     const deadline = Date.now() + 45000; // Startup guard, never a security-performance oracle.
     while (!/Ready in/.test(output)) {
@@ -208,8 +200,8 @@ test("the actual developer MCP route admits local clients and refuses foreign or
       );
       for (const [pid, previous] of observedChildren) {
         const path = "/proc/" + pid + "/stat";
-        if (existsSync(path)) {
-          const current = readFileSync(path, "utf8");
+        const current = readLiveProcessFile(path);
+        if (current !== undefined) {
           const start = (value) =>
             value.slice(value.lastIndexOf(") ") + 2).split(" ")[19];
           assert.notEqual(

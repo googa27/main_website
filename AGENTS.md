@@ -89,7 +89,7 @@ React-folio consolidation evidence lives in `docs/REACT_FOLIO_CONSOLIDATION.md`.
 
 ### Exact commands
 
-- Setup: `corepack enable && pnpm install --frozen-lockfile && pnpm run check:dependency-build-policy && (cd apps/api && python -m pip install -e '.[dev,pdf]')`
+- Setup: `python -m pip install --upgrade -r requirements-bootstrap.txt && corepack enable && pnpm install --frozen-lockfile && pnpm run check:dependency-build-policy && (cd apps/api && python -m pip install -e '.[dev,pdf]')`
 - Tests: `pnpm test`
 - Lint/format: `pnpm run lint`
 - Build: `pnpm run build`

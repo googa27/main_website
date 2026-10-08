@@ -240,6 +240,33 @@ Real finite child tests exercise the reporting boundary without mocking process
 execution. A useful traceback is diagnosis evidence; dependency-version
 compatibility still needs its own installed consumer checks.
 
+Issue [#208](https://github.com/googa27/main_website/issues/208) owns the verification
+environment's installer and complete installed dependency graph. Each environment
+upgrades through its own Python using `requirements-bootstrap.txt` (pip 26.2.1),
+including CI's fresh normal wheel venv. This follows PyPA's maintained
+[installation command](https://pip.pypa.io/en/stable/installation/) and the
+[reviewed stable release](https://pypi.org/project/pip/26.2.1/).
+`scripts/check_installed_api_dependencies.py` uses an unrelated temporary cwd and
+`-I` to discover actual metadata through standard-library importlib.metadata.
+It refuses an ambient interpreter, editable/outside-prefix installs, normalized
+duplicates, unsafe or unpublished version forms, installer drift and unexpected
+first-party versions. PyPA packaging owns requirement/name/version parsing.
+
+The separate tooling profile pins [pip-audit 2.10.1](https://pypi.org/project/pip-audit/2.10.1/)
+and packaging 26.3; it never enters the API wheel's runtime dependencies. After
+target `pip check`, the gate writes every published installed exact pin, including
+pip, and invokes [PyPA pip-audit](https://github.com/pypa/pip-audit) with `--strict
+--no-deps --disable-pip`. No vulnerabilities or collection failures are ignored.
+Successful JSON must cover the complete pin set once with no skipped rows or
+findings. A fresh report directory retains metadata, pins, full scanner output
+and command exits. The single local `portfolio-api` exclusion is explicit and
+bound to project metadata; PyPI success does not verify that artifact. Built-wheel
+byte/RECORD identity and the installed public gate remain separate acceptance
+requirements. Public synthetic metadata/report controls exercise refusals;
+only an actual fresh noneditable installation and live complete audit verify the
+selected profile. Other Python minors, Windows, deployment and exploitability
+are not inferred from Ubuntu/Python 3.12 CI.
+
 ### CV completion and retry ownership
 
 The CV orchestration passes `defer_completion=True` to the existing provider sync

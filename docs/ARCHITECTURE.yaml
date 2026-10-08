@@ -226,7 +226,24 @@
         "maintained_boundary": "Python subprocess.run owns isolated execution, timeout termination and waiting; bytes.decode owns UTF-8 replacement. The small reporting adapter owns byte-tail and diagnostic JSON semantics without a new dependency.",
         "source": "https://docs.python.org/3.12/library/subprocess.html"
       },
-      "generated_files": "Mypy source discovery excludes only the root build/ directory created by Setuptools; existing per-module type coverage is unchanged."
+      "generated_files": "Mypy source discovery excludes only the root build/ directory created by Setuptools; existing per-module type coverage is unchanged.",
+      "installed_dependency_gate": {
+        "issue": "https://github.com/googa27/main_website/issues/208",
+        "bootstrap_owner": "requirements-bootstrap.txt; pip26.2.1; selected environment python -m pip install --upgrade -r requirements-bootstrap.txt before API installs",
+        "tooling_owner": "requirements-security.txt; pip-audit2.10.1 and packaging26.3 outside the API wheel environment",
+        "command": "python scripts/check_installed_api_dependencies.py --python /absolute/path/to/wheel-venv/bin/python --report-dir /fresh/audit-directory",
+        "collection": "Real isolated importlib.metadata child outside the source tree; normal inside-prefix noneditable distributions, unique normalized names, stable exact published pins, exact reviewed installer and expected firstparty version",
+        "audit": "Target pip check then every published installed pin including pip through PyPA pip-audit --strict --no-deps --disable-pip; complete JSON set equality, no skipped rows, ignored vulnerabilities or missing packages",
+        "firstparty_boundary": "Only expected portfolio-api is excluded from PyPI; built-wheel source/RECORD identity and check_installed_api.py remain required separately",
+        "evidence": "Fresh report directory retains actual metadata, pins, pip check/audit argv/cwd/exits/full output. Dated no-known-findings is not a general security, deployment, Windows or scientific claim.",
+        "fitness_test": "tests/architecture/test_installed_dependency_gate.py",
+        "references": [
+          "https://pip.pypa.io/en/stable/installation/",
+          "https://pypi.org/project/pip/26.2.1/",
+          "https://github.com/pypa/pip-audit",
+          "https://pypi.org/project/pip-audit/2.10.1/"
+        ]
+      }
     },
     "node_peer_compatibility": {
       "package_manager_policy": ".npmrc requires strict-peer-dependencies=true",

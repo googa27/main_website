@@ -350,6 +350,22 @@
       "consumer_owner": "tests/node/brace-expansion.test.mjs",
       "behavioral_oracles": "Installed minimatch CommonJS and modern ES-module braceExpand/Minimatch entrypoints; ordinary range/matching/quirk behavior; both upstream parser vectors and nesting sites; excessive rewrites preserved literally, without a wall-clock threshold. The argument-array vector exceeds the minimatch length limit and exercises the resolved brace-expansion public export directly.",
       "scope": "Local installed frontend build/lint/glob toolchain only; package presence does not prove an untrusted deployment input or a live service."
+    },
+    "source_map_policy": {
+      "owner": "https://github.com/googa27/main_website/issues/198",
+      "version": "1.2.2",
+      "parents": [
+        "postcss@8.5.23",
+        "@tailwindcss/node@4.3.3"
+      ],
+      "consumer_command": "pnpm run check:dependency-build-policy",
+      "consumer_owner": "tests/node/source-map-offsets.test.mjs",
+      "upstream_advisory": "https://github.com/7rulnik/source-map-js/issues/76",
+      "maintained_patch": "https://github.com/7rulnik/source-map-js/commit/cf7658058ceeaa8619d5ae0ec90be6905209d016",
+      "maintained_release": "https://github.com/7rulnik/source-map-js/commit/0a1d334fd1e55a47df97fcd60a7915d46df3b08a",
+      "behavioral_oracles": "Real resolved dependencies of both locked parents: literal generator/consumer/SourceNode round trips and indexed generated-line offsets. Admitted large section lines preserve generated code with padding bounded by actual content. The maintained release refuses invalid, unsafe or excessive offsets and accumulated nested line offsets. A test-only public add-method circuit breaker bounds the vulnerable-version reproduction, without production monkeypatching or timing claims. Exact section-start lookup and nonzero section-column correctness have a distinct pre-existing owner; this security repair does not claim to fix them.",
+      "scope": "Local installed PostCSS/Tailwind toolchain only. Package presence and synthetic controls do not prove untrusted live input, exploitation, deployment or a scientific result.",
+      "correctness_limit_owner": "https://github.com/googa27/main_website/issues/204"
     }
   },
   "source_layout": {

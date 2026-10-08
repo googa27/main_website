@@ -217,6 +217,15 @@
       "issue": "https://github.com/googa27/main_website/issues/113",
       "required_data": "Setuptools explicitly includes app/static/cv/*.json; application and CV public imports work from the installed wheel outside the source tree.",
       "gate": "scripts/check_installed_api.py --python /absolute/path/to/wheel-venv/bin/python; isolated interpreter and temporary cwd; checks public fixture export and contact-redacted AI context.",
+      "failure_diagnostics": {
+        "issue": "https://github.com/googa27/main_website/issues/191",
+        "contract": "A child nonzero exit or real 30-second timeout keeps failure status and the original exit code or TimeoutExpired identity. Each captured stream reports its final 4096 raw bytes as UTF-8 replacement-decoded text, original captured byte count and explicit truncation flag. Missing interpreter preserves OSError type and errno; successful public output and venv symlink identity remain unchanged.",
+        "boundary": "Only the fixed public fixture probe is intended for this gate; it does not print the environment, command or private fixture metadata. The report tail is bounded; subprocess.run still buffers captured streams in memory and is not an output-memory sandbox. Diagnosis alone does not accept a proposed dependency version, provider operation or deployed service.",
+        "owner": "scripts/check_installed_api.py",
+        "fitness_test": "tests/architecture/test_installed_api_gate.py; real finite public child success/nonzero/undecodable/large output/timeout/missing-interpreter controls, including a real venv symlink",
+        "maintained_boundary": "Python subprocess.run owns isolated execution, timeout termination and waiting; bytes.decode owns UTF-8 replacement. The small reporting adapter owns byte-tail and diagnostic JSON semantics without a new dependency.",
+        "source": "https://docs.python.org/3.12/library/subprocess.html"
+      },
       "generated_files": "Mypy source discovery excludes only the root build/ directory created by Setuptools; existing per-module type coverage is unchanged."
     },
     "node_peer_compatibility": {

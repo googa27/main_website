@@ -214,6 +214,16 @@ fields. It does not contact providers or exercise a deployed database. Setuptool
 build output is excluded from Mypy's discovery of source files; existing type-check
 coverage and legacy per-module exclusions are unchanged.
 
+On a child failure or a 30-second timeout, the gate retains the real exit or
+error identity and the final 4096 captured bytes from each output stream. Its
+JSON includes the original byte counts and truncation flags; invalid UTF-8 bytes
+use replacement characters so an encoding error does not hide the primary
+failure. The printed diagnostics are bounded, while the subprocess library still
+buffers child output. The gate runs only its fixed public-fixture check and does
+not print environment or private fixture metadata. Run `python -m pytest
+tests/architecture/test_installed_api_gate.py` for the real child-process
+regressions; the timeout control executes the actual deadline.
+
 ## Deployment notes
 
 - Frontend: `apps/web` can be deployed as a Next.js app after `pnpm --filter web build` passes.

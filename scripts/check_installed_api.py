@@ -6,6 +6,8 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+DIAGNOSTIC_TAIL_BYTES = 4096
+
 PROBE = """
 import asyncio
 import hashlib
@@ -59,6 +61,16 @@ asyncio.run(verify())
 """
 
 
+def _captured_tail(output: bytes | str | None) -> dict[str, str | int | bool]:
+    """Retain the final error context without printing unbounded diagnostics."""
+    raw = output.encode("utf-8") if isinstance(output, str) else output or b""
+    return {
+        "text": raw[-DIAGNOSTIC_TAIL_BYTES:].decode("utf-8", errors="replace"),
+        "captured_bytes": len(raw),
+        "truncated": len(raw) > DIAGNOSTIC_TAIL_BYTES,
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--python", type=Path, required=True)
@@ -71,15 +83,47 @@ def main() -> int:
                 [str(interpreter), "-I", "-c", PROBE],
                 cwd=cwd,
                 capture_output=True,
-                text=True,
                 timeout=30,
                 check=True,
             )
-        print(result.stdout, end="")
+        print(result.stdout.decode("utf-8", errors="replace"), end="")
     except subprocess.CalledProcessError as exc:
-        print(json.dumps({"status": "failed", "exit_code": exc.returncode}))
+        print(
+            json.dumps(
+                {
+                    "status": "failed",
+                    "exit_code": exc.returncode,
+                    "stdout": _captured_tail(exc.stdout),
+                    "stderr": _captured_tail(exc.stderr),
+                }
+            )
+        )
         return 1
-    except (OSError, subprocess.SubprocessError) as exc:
+    except subprocess.TimeoutExpired as exc:
+        print(
+            json.dumps(
+                {
+                    "status": "failed",
+                    "error_type": type(exc).__name__,
+                    "timeout_seconds": exc.timeout,
+                    "stdout": _captured_tail(exc.stdout),
+                    "stderr": _captured_tail(exc.stderr),
+                }
+            )
+        )
+        return 1
+    except OSError as exc:
+        print(
+            json.dumps(
+                {
+                    "status": "failed",
+                    "error_type": type(exc).__name__,
+                    "errno": exc.errno,
+                }
+            )
+        )
+        return 1
+    except subprocess.SubprocessError as exc:
         print(json.dumps({"status": "failed", "error_type": type(exc).__name__}))
         return 1
     return 0

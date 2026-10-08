@@ -189,6 +189,21 @@ The static mount is also module-relative. The packaging rule uses maintained
 [Setuptools package-data support](https://setuptools.pypa.io/en/latest/userguide/datafiles.html),
 and the real installed-wheel gate provides the regression oracle.
 
+The gate also retains the cause of a failed child invocation ([#191](https://github.com/googa27/main_website/issues/191)).
+A nonzero exit keeps its actual exit code; an actual 30-second timeout keeps
+`TimeoutExpired` and its deadline. Each `stdout` and `stderr` diagnostic contains
+the last 4096 captured bytes as UTF-8 text with replacement for invalid bytes,
+the original byte count and a truncation flag. An interpreter launch error keeps
+its error type and errno. Successful output, isolated execution, temporary cwd
+and the supplied virtual-environment symlink identity are preserved.
+Python's maintained [subprocess API](https://docs.python.org/3.12/library/subprocess.html)
+owns execution and timeout handling. These report bounds do not limit the total
+output buffered by `subprocess.run`. The fixed probe uses the reviewed public
+fixture; the wrapper does not print environment or private fixture metadata.
+Real finite child tests exercise the reporting boundary without mocking process
+execution. A useful traceback is diagnosis evidence; dependency-version
+compatibility still needs its own installed consumer checks.
+
 ### CV completion and retry ownership
 
 The CV orchestration passes `defer_completion=True` to the existing provider sync

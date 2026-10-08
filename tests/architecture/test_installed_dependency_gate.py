@@ -200,10 +200,12 @@ def test_timeout_keeps_partial_streams_and_attempt_metadata(tmp_path, monkeypatc
         sys.executable,
         "-I",
         "-c",
-        "import os, sys, time; "
-        "print('partial:' + str(os.getpid()), flush=True); "
-        "sys.stderr.buffer.write(b'partial-error\\xff'); "
-        "sys.stderr.buffer.flush(); time.sleep(30)",
+        (
+            "import os, sys, time; "
+            "print('partial:' + str(os.getpid()), flush=True); "
+            "sys.stderr.buffer.write(b'partial-error\\xff'); "
+            "sys.stderr.buffer.flush(); time.sleep(30)"
+        ),
     ]
     with pytest.raises(subprocess.TimeoutExpired) as caught:
         gate.recorded_command(tmp_path, "probe", argv)
@@ -241,8 +243,10 @@ def test_nonzero_command_keeps_raw_streams_and_real_exit(tmp_path):
         sys.executable,
         "-I",
         "-c",
-        "import os, sys; os.write(1, b'public-out\\xff'); "
-        "os.write(2, b'public-error\\xfe'); sys.exit(7)",
+        (
+            "import os, sys; os.write(1, b'public-out\\xff'); "
+            "os.write(2, b'public-error\\xfe'); sys.exit(7)"
+        ),
     ]
     with pytest.raises(subprocess.CalledProcessError) as caught:
         gate.recorded_command(tmp_path, "probe", argv)

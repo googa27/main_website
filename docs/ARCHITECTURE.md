@@ -62,6 +62,22 @@ rendered-style and assistive-technology results must be recorded separately.
 
 This split avoids a risky application-wide HTTP-client migration while removing the deprecation path actually exercised by tests.
 
+### Optional API database driver selection
+
+The API declares `psycopg2-binary`. A `DATABASE_URL` with the plain `postgresql`
+scheme therefore selects `postgresql+psycopg2` explicitly before engine
+construction ([#192](https://github.com/googa27/main_website/issues/192)).
+SQLAlchemy's maintained `make_url` and immutable `URL.set` retain escaped
+credentials, query parameters and other components; explicit drivers and other
+backends retain their supplied selection and actual import/refusal behavior.
+This avoids relying on the implicit PostgreSQL default, which
+[changed in SQLAlchemy 2.1](https://docs.sqlalchemy.org/en/21/changelog/migration_21.html#default-postgresql-driver-changed-to-psycopg-psycopg-3).
+The five real isolated engine-import controls in
+`apps/api/tests/test_database_driver_selection.py` also run as a standalone
+unittest suite against normally installed dependency proposals. They never open
+a database connection. Import compatibility does not accept a dependency
+cohort, live PostgreSQL operations, migrations or deployment.
+
 ### Executive summary: monorepo tooling and lifecycle policy
 
 | Boundary           | Decision                                                                                                 | Why                                                                                                                                                                    | Executable evidence                                   |

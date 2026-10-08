@@ -253,7 +253,10 @@ duplicates, unsafe or unpublished version forms, installer drift and unexpected
 first-party versions. PyPA packaging owns requirement/name/version parsing.
 
 The separate tooling profile pins [pip-audit 2.10.1](https://pypi.org/project/pip-audit/2.10.1/)
-and packaging 26.3; it never enters the API wheel's runtime dependencies.
+and packaging 26.3 plus the complete reviewed Python 3.12 Linux installed
+auditor cohort with exact transitive pins; it never enters the API wheel's
+runtime dependencies. These pins make version resolution repeatable; they do not
+claim artifact hashes or verification on other Python/platform profiles.
 It includes the canonical installer pin and selects IDNA 3.19, matching the
 reviewed application cohort, so standalone source resolution cannot select
 older vulnerable tooling dependencies. After
@@ -262,7 +265,9 @@ pip, and invokes [PyPA pip-audit](https://github.com/pypa/pip-audit) with `--str
 --no-deps --disable-pip`. No vulnerabilities or collection failures are ignored.
 Successful JSON must cover the complete pin set once with no skipped rows or
 findings. A fresh report directory retains metadata, pins, full scanner output
-and command exits. The single local `portfolio-api` exclusion is explicit and
+and attempted commands with actual exits. Timeouts retain actual partial raw
+streams; launch errors retain the attempted argv/cwd and error without inventing
+a process exit. Both propagate failure. The single local `portfolio-api` exclusion is explicit and
 bound to project metadata; PyPI success does not verify that artifact. Built-wheel
 byte/RECORD identity and the installed public gate remain separate acceptance
 requirements. Public synthetic metadata/report controls exercise refusals;

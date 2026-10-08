@@ -78,7 +78,7 @@ jobs:
           python scripts/check_installed_api.py --python "$RUNNER_TEMP/api-wheel-env/bin/python"
           python -m pip install -r requirements-security.txt
           if ! python scripts/check_installed_api_dependencies.py --python "$RUNNER_TEMP/api-wheel-env/bin/python" --report-dir "$RUNNER_TEMP/api-installed-audit"; then
-            for evidence in pip-audit.json pip-audit.stderr pip-check.stdout pip-check.stderr; do
+            for evidence in pip-audit.command.json pip-audit.json pip-audit.stdout pip-audit.stderr pip-check.command.json pip-check.stdout pip-check.stderr; do
               if [ -f "$RUNNER_TEMP/api-installed-audit/$evidence" ]; then
                 cat "$RUNNER_TEMP/api-installed-audit/$evidence"
               fi

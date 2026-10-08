@@ -230,7 +230,7 @@
       "installed_dependency_gate": {
         "issue": "https://github.com/googa27/main_website/issues/208",
         "bootstrap_owner": "requirements-bootstrap.txt; pip26.2.1; selected environment python -m pip install --upgrade -r requirements-bootstrap.txt before API installs",
-        "tooling_owner": "requirements-security.txt includes canonical requirements-bootstrap.txt and pins pip-audit2.10.1/packaging26.3/IDNA3.19 outside the API wheel environment; standalone source resolution must not select old vulnerable pip/IDNA",
+        "tooling_owner": "requirements-security.txt locks the complete reviewed Python3.12 Linux auditor cohort with exact transitive pins and canonical requirements-bootstrap.txt; tooling stays outside the API wheel environment; other platforms and artifact hashes are not inferred.",
         "command": "python scripts/check_installed_api_dependencies.py --python /absolute/path/to/wheel-venv/bin/python --report-dir /fresh/audit-directory",
         "collection": "Real isolated importlib.metadata child outside the source tree; normal inside-prefix noneditable distributions, unique normalized names, stable exact published pins, exact reviewed installer and expected firstparty version",
         "audit": "Target pip check then every published installed pin including pip through PyPA pip-audit --strict --no-deps --disable-pip; complete JSON set equality, no skipped rows, ignored vulnerabilities or missing packages",
@@ -242,7 +242,8 @@
           "https://pypi.org/project/pip/26.2.1/",
           "https://github.com/pypa/pip-audit",
           "https://pypi.org/project/pip-audit/2.10.1/"
-        ]
+        ],
+        "command_evidence": "Attempted argv/cwd/deadline retained before launch; raw stdout/stderr and actual exit retained on completion; timeout retains actual partial bytes and no invented exit; OSError retains launch failure; both still fail."
       }
     },
     "node_peer_compatibility": {

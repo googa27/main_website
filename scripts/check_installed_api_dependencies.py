@@ -107,17 +107,43 @@ def check_audit_coverage(report: dict, requirements: str) -> None:
 
 
 def recorded_command(directory: Path, name: str, argv: list[str]) -> None:
-    result = subprocess.run(
-        argv, cwd=directory, capture_output=True, timeout=180, check=False
-    )
-    (directory / f"{name}.stdout").write_bytes(result.stdout)
-    (directory / f"{name}.stderr").write_bytes(result.stderr)
-    (directory / f"{name}.command.json").write_text(
-        json.dumps(
-            {"argv": argv, "cwd": str(directory), "exit_code": result.returncode}
+    record = {
+        "argv": argv,
+        "cwd": str(directory),
+        "exit_code": None,
+        "status": "attempted",
+        "timeout_seconds": 180,
+    }
+
+    def retain(stdout: bytes = b"", stderr: bytes = b"") -> None:
+        (directory / f"{name}.stdout").write_bytes(stdout)
+        (directory / f"{name}.stderr").write_bytes(stderr)
+        (directory / f"{name}.command.json").write_text(json.dumps(record) + "\n")
+
+    retain()
+    try:
+        result = subprocess.run(
+            argv, cwd=directory, capture_output=True, timeout=180, check=False
         )
-        + "\n"
-    )
+    except subprocess.TimeoutExpired as exc:
+        record.update(
+            status="timed_out",
+            error_type=type(exc).__name__,
+            timeout_seconds=exc.timeout,
+        )
+        retain(exc.stdout or b"", exc.stderr or b"")
+        raise
+    except OSError as exc:
+        record.update(
+            status="execution_error",
+            error_type=type(exc).__name__,
+            errno=exc.errno,
+            error=str(exc),
+        )
+        retain()
+        raise
+    record.update(status="completed", exit_code=result.returncode)
+    retain(result.stdout, result.stderr)
     result.check_returncode()
 
 

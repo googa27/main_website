@@ -183,3 +183,72 @@ def test_actual_isolated_child_reads_only_selected_venv_metadata():
         )
         with pytest.raises(ValueError, match="installation"):
             requirements(gate.collect_snapshot(python))
+
+
+def test_timeout_keeps_partial_streams_and_attempt_metadata(tmp_path, monkeypatch):
+    import subprocess
+
+    real_run = subprocess.run
+
+    def real_run_with_short_deadline(argv, **kwargs):
+        # Only shorten the deadline; execution and timeout handling stay real.
+        kwargs["timeout"] = 1
+        return real_run(argv, **kwargs)
+
+    monkeypatch.setattr(gate.subprocess, "run", real_run_with_short_deadline)
+    argv = [
+        sys.executable,
+        "-I",
+        "-c",
+        "import os, sys, time; "
+        "print('partial:' + str(os.getpid()), flush=True); "
+        "sys.stderr.buffer.write(b'partial-error\\xff'); "
+        "sys.stderr.buffer.flush(); time.sleep(30)",
+    ]
+    with pytest.raises(subprocess.TimeoutExpired) as caught:
+        gate.recorded_command(tmp_path, "probe", argv)
+    pid = int(caught.value.stdout.decode().strip().split(":")[1])
+    if sys.platform == "linux":
+        assert not Path("/proc", str(pid)).exists()
+    assert (tmp_path / "probe.stdout").read_bytes() == caught.value.stdout
+    assert (tmp_path / "probe.stderr").read_bytes() == caught.value.stderr
+    record = json.loads((tmp_path / "probe.command.json").read_text())
+    assert record["argv"] == argv and record["cwd"] == str(tmp_path)
+    assert record["status"] == "timed_out"
+    assert record["exit_code"] is None
+    assert record["error_type"] == "TimeoutExpired"
+    assert record["timeout_seconds"] == 1
+
+
+def test_launch_failure_keeps_attempt_without_inventing_exit(tmp_path):
+    argv = [str(tmp_path / "absent-public-fixture-executable")]
+    with pytest.raises(FileNotFoundError):
+        gate.recorded_command(tmp_path, "probe", argv)
+    record = json.loads((tmp_path / "probe.command.json").read_text())
+    assert record["argv"] == argv and record["cwd"] == str(tmp_path)
+    assert record["status"] == "execution_error"
+    assert record["exit_code"] is None
+    assert record["error_type"] == "FileNotFoundError"
+    assert record["errno"] == 2
+    assert (tmp_path / "probe.stdout").read_bytes() == b""
+    assert (tmp_path / "probe.stderr").read_bytes() == b""
+
+
+def test_nonzero_command_keeps_raw_streams_and_real_exit(tmp_path):
+    import subprocess
+
+    argv = [
+        sys.executable,
+        "-I",
+        "-c",
+        "import os, sys; os.write(1, b'public-out\\xff'); "
+        "os.write(2, b'public-error\\xfe'); sys.exit(7)",
+    ]
+    with pytest.raises(subprocess.CalledProcessError) as caught:
+        gate.recorded_command(tmp_path, "probe", argv)
+    assert caught.value.returncode == 7
+    assert (tmp_path / "probe.stdout").read_bytes() == b"public-out\xff"
+    assert (tmp_path / "probe.stderr").read_bytes() == b"public-error\xfe"
+    record = json.loads((tmp_path / "probe.command.json").read_text())
+    assert record["argv"] == argv and record["cwd"] == str(tmp_path)
+    assert record["status"] == "completed" and record["exit_code"] == 7

@@ -553,7 +553,7 @@
           "Mako revision templates through Alembic with SQLAlchemy"
         ],
         "selected_versions": {
-          "mako": "1.4.1",
+          "mako": "1.4.3",
           "alembic": "1.20.0",
           "sqlalchemy": "2.0.54"
         },
@@ -564,10 +564,11 @@
         "evidence": "apps/api/alembic/script.py.mako and apps/api/tests/test_dependency_consumers.py",
         "adapter_boundary": "Existing Alembic script template; no application template engine or runtime custom parser added.",
         "custom_code_reason": "Alembic generates revisions through maintained Mako; repository tests assert selected-template compatibility, package ownership, and structured selected-version parity with both runtime manifests. The selected sentence contains package names only; its separate structured map owns exact selected versions. The SQLAlchemy requirement is supported by upstream release and checked installed distribution metadata, not claimed as a separately enforced architecture check.",
-        "maintenance_evidence": "https://github.com/sqlalchemy/mako/releases/tag/rel_1_4_1 and https://github.com/sqlalchemy/alembic/releases/tag/rel_1_20_0",
-        "api_stability_evidence": "https://raw.githubusercontent.com/sqlalchemy/mako/rel_1_4_1/doc/build/changelog.rst and https://pypi.org/pypi/alembic/1.20.0/json",
-        "license_evidence": "https://github.com/sqlalchemy/mako/blob/rel_1_4_1/LICENSE and https://github.com/sqlalchemy/alembic/blob/rel_1_20_0/LICENSE",
-        "api_license_evidence": "Mako 1.4.1 and Alembic 1.20.0 are MIT and require Python>=3.10; Alembic 1.20.0 requires SQLAlchemy>=2.0, satisfied by the selected 2.0.54. PyPI release metadata and installed distribution metadata/RECORD were checked in the task evidence. Template tests do not exercise database migrations.",
+        "maintenance_evidence": "https://github.com/sqlalchemy/mako/releases/tag/rel_1_4_3 and https://github.com/sqlalchemy/alembic/releases/tag/rel_1_20_0",
+        "api_stability_evidence": "https://github.com/sqlalchemy/mako/commit/000ed85e4e48771eff460bf4fc721fb43de80e08 and https://pypi.org/pypi/alembic/1.20.0/json",
+        "license_evidence": "https://github.com/sqlalchemy/mako/blob/rel_1_4_3/LICENSE and https://github.com/sqlalchemy/alembic/blob/rel_1_20_0/LICENSE",
+        "api_license_evidence": "Mako 1.4.3 and Alembic 1.20.0 are MIT and require Python>=3.10; Alembic 1.20.0 requires SQLAlchemy>=2.0, satisfied by the selected 2.0.54. PyPI release metadata identifies these constraints; installed rendering and distribution ownership are separate executable gates. Template tests do not exercise database migrations.",
+        "dependency_security_note": "GHSA-5639-2j2p-m4mx affects Mako through 1.4.1 and is patched in 1.4.2. The independent minimum is 1.4.2; the selected maintained 1.4.3 also contains the upstream test-portability correction. Literal affected/patched boundary controls do not derive their oracle from the minimum map. This update does not establish a deployed vulnerable template route, actual Windows execution or full dependency-security acceptance. See https://github.com/sqlalchemy/mako/security/advisories/GHSA-5639-2j2p-m4mx and docs/ARCHITECTURE.md.",
         "oracle_or_reference_tests": [
           "apps/api/tests/test_dependency_consumers.py::test_alembic_renders_real_revision_templates_without_database",
           "apps/api/tests/test_dependency_consumers.py::test_mako_distribution_does_not_own_stray_tools_package",
@@ -662,7 +663,7 @@
       "protected_form": "One unambiguous normalized name with one == stable public version at or above its minimum; no URL, wildcard, range/compound, arbitrary equality, marker, extras, prerelease/dev/local version.",
       "parity": "Every declaration is parsed before comparison; duplicate normalized names fail rather than disappearing into sets. Full runtime and dev declarations must match their pyproject arrays.",
       "include_policy": "Only one exact -r requirements.txt development include is allowed, without recursive expansion; comments and blank lines are supported.",
-      "oracles": "Actual selected manifests; independent exact-minimum copied fixtures; synchronized newer IDNA/Mako pins; each below-floor case; missing/duplicate declarations; full parity; malformed forms; explicit runtime and development include controls.",
+      "oracles": "Actual selected manifests; copied exact-minimum fixtures; literal upstream Mako 1.4.1 refusal and 1.4.2/1.4.3 acceptance independent of the policy map; synchronized newer IDNA/Mako pins; each below-floor case; missing/duplicate declarations; full parity; malformed forms; explicit runtime and development include controls.",
       "ci_setup": "CI test job installs requirements-architecture.txt plus pytest before tests/architecture; all Python dependency audits remain required."
     },
     "python_dependency_consumers": {

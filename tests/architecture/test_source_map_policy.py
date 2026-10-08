@@ -37,9 +37,13 @@ def _assert_policy(package: dict, lock: dict, policy: dict) -> None:
     }
     assert set(parents) == set(policy["parents"]), "Untested source-map parent"
     assert all(version == PATCHED for version in parents.values())
-    assert "node --test tests/node/source-map-offsets.test.mjs" in package[
-        "scripts"
-    ]["check:dependency-build-policy"], "Public consumer gate is absent"
+    commands = {
+        command.strip()
+        for command in package["scripts"]["check:dependency-build-policy"].split("&&")
+    }
+    assert "node --test tests/node/source-map-offsets.test.mjs" in commands, (
+        "Public consumer gate is absent"
+    )
 
 
 def test_selected_source_map_route_is_patched_and_exercised() -> None:
@@ -83,5 +87,24 @@ def test_the_required_consumer_gate_cannot_be_removed() -> None:
     package["scripts"]["check:dependency-build-policy"] = (
         "node scripts/check-dependency-build-policy.mjs"
     )
+    with pytest.raises(AssertionError, match="Public consumer gate is absent"):
+        _assert_policy(package, lock, policy)
+
+
+@pytest.mark.parametrize(
+    "replacement",
+    [
+        "node --test tests/node/source-map-offsets.test.mjs.backup",
+        "node --test tests/node/source-map-offsets.test.mjs-other",
+        "echo node --test tests/node/source-map-offsets.test.mjs",
+    ],
+)
+def test_a_similar_filename_or_echo_cannot_replace_the_consumer_gate(
+    replacement: str,
+) -> None:
+    package, lock, policy = copy.deepcopy(_current())
+    package["scripts"]["check:dependency-build-policy"] = package["scripts"][
+        "check:dependency-build-policy"
+    ].replace("node --test tests/node/source-map-offsets.test.mjs", replacement)
     with pytest.raises(AssertionError, match="Public consumer gate is absent"):
         _assert_policy(package, lock, policy)

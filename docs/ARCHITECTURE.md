@@ -253,7 +253,10 @@ duplicates, unsafe or unpublished version forms, installer drift and unexpected
 first-party versions. PyPA packaging owns requirement/name/version parsing.
 
 The separate tooling profile pins [pip-audit 2.10.1](https://pypi.org/project/pip-audit/2.10.1/)
-and packaging 26.3; it never enters the API wheel's runtime dependencies. After
+and packaging 26.3; it never enters the API wheel's runtime dependencies.
+It includes the canonical installer pin and selects IDNA 3.19, matching the
+reviewed application cohort, so standalone source resolution cannot select
+older vulnerable tooling dependencies. After
 target `pip check`, the gate writes every published installed exact pin, including
 pip, and invokes [PyPA pip-audit](https://github.com/pypa/pip-audit) with `--strict
 --no-deps --disable-pip`. No vulnerabilities or collection failures are ignored.

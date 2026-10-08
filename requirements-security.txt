@@ -1,2 +1,4 @@
+-r requirements-bootstrap.txt
+idna==3.19
 packaging==26.3
 pip-audit==2.10.1

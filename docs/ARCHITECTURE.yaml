@@ -230,7 +230,7 @@
       "installed_dependency_gate": {
         "issue": "https://github.com/googa27/main_website/issues/208",
         "bootstrap_owner": "requirements-bootstrap.txt; pip26.2.1; selected environment python -m pip install --upgrade -r requirements-bootstrap.txt before API installs",
-        "tooling_owner": "requirements-security.txt; pip-audit2.10.1 and packaging26.3 outside the API wheel environment",
+        "tooling_owner": "requirements-security.txt includes canonical requirements-bootstrap.txt and pins pip-audit2.10.1/packaging26.3/IDNA3.19 outside the API wheel environment; standalone source resolution must not select old vulnerable pip/IDNA",
         "command": "python scripts/check_installed_api_dependencies.py --python /absolute/path/to/wheel-venv/bin/python --report-dir /fresh/audit-directory",
         "collection": "Real isolated importlib.metadata child outside the source tree; normal inside-prefix noneditable distributions, unique normalized names, stable exact published pins, exact reviewed installer and expected firstparty version",
         "audit": "Target pip check then every published installed pin including pip through PyPA pip-audit --strict --no-deps --disable-pip; complete JSON set equality, no skipped rows, ignored vulnerabilities or missing packages",

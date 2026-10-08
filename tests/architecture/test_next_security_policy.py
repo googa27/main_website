@@ -35,6 +35,10 @@ def _assert_policy(package: dict, web: dict, lock: dict, policy: dict) -> None:
     assert _version(selected) >= (16, 3, 8), "Unpatched Next selection"
     assert lock["overrides"].get(SELECTOR) == selected, "Next manifest/lock mismatch"
     assert policy.get("version") == selected, "Unreviewed Next selection"
+    assert policy.get("minimum_version") == selected, "Next minimum floor mismatch"
+    assert policy.get("consumer_command") == CONSUMER, (
+        "Documented Next consumer mismatch"
+    )
     importer = lock["importers"]["apps/web"]
     for section, name in [
         ("dependencies", "next"),
@@ -135,4 +139,24 @@ def test_lookalike_or_removed_real_consumer_gate_is_refused(replacement: str) ->
         "check:dependency-build-policy"
     ].replace(CONSUMER, replacement)
     with pytest.raises(AssertionError, match="Actual Next consumer gate missing"):
+        _assert_policy(package, web, lock, policy)
+
+
+@pytest.mark.parametrize("replacement", ["16.3.5", "16.3.9", None])
+def test_changed_minimum_version_is_refused(replacement: str | None) -> None:
+    package, web, lock, policy = copy.deepcopy(_current())
+    policy["minimum_version"] = replacement
+    with pytest.raises(AssertionError, match="Next minimum floor mismatch"):
+        _assert_policy(package, web, lock, policy)
+
+
+@pytest.mark.parametrize(
+    "replacement", [CONSUMER + ".backup", "echo " + CONSUMER, None]
+)
+def test_changed_documented_consumer_command_is_refused(
+    replacement: str | None,
+) -> None:
+    package, web, lock, policy = copy.deepcopy(_current())
+    policy["consumer_command"] = replacement
+    with pytest.raises(AssertionError, match="Documented Next consumer mismatch"):
         _assert_policy(package, web, lock, policy)

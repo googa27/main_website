@@ -466,3 +466,40 @@ side-effect task demonstrates both the unsafe unprotected invocation and the
 protected command. `check:dependency-build-policy` runs these fixtures in CI.
 Hook activation and the separate optional pre-commit workflow are unchanged. No
 arbitrary-task, concurrent-worktree, Windows or scientific acceptance is implied.
+
+### Real Uvicorn server release controls
+
+[Issue 233](https://github.com/googa27/main_website/issues/233) owns the real-server
+coverage gap. In-process TestClient tests do not start Uvicorn. The selected
+`uvicorn[standard]` candidate is 0.54.0, a BSD-3-Clause release supporting
+Python >=3.10 and therefore this application's Python >=3.12 requirement.
+[Tagged release notes](https://github.com/Kludex/uvicorn/blob/0.54.0/docs/release-notes.md)
+and [license](https://raw.githubusercontent.com/Kludex/uvicorn/0.54.0/LICENSE.md)
+own the upstream API and maintenance rationale.
+
+The genuine normal-wheel 0.52.4 baseline at
+[9f082ab](https://github.com/googa27/main_website/actions/runs/37968076254)
+ran all five server methods: two httptools mixed-case close-token cases timed out
+instead of observing connection closure, and the IPv6 default-trust assertion
+failed. The WebSocket, loop, actual-app and graceful-child controls passed that
+baseline; no WebSocket failure is attributed to it. Original proposal 182 is
+preserved through an ordinary two-parent integration. Candidate and actual
+resulting-default source, installed and frontend gates remain required.
+
+`apps/api/tests/test_uvicorn_server_contract.py` starts owned loopback children
+through public Uvicorn Config/Server APIs and uses standard-library HTTP parsing
+and the declared WebSockets client. It specifies case-insensitive comma-separated
+Connection-close tokens, HTTP-to-WebSocket keep-alive transition, IPv4/IPv6
+default trust and explicit forwarding denial, native/default/asyncio loops, and
+the actual portfolio root. Every child must report startup and shutdown and
+terminate gracefully; killing an overdue owned child fails the control.
+
+The backend suite runs the development profile. CI also invokes the unchanged
+test file with the normal wheel interpreter, `-I`, and `--require-installed`;
+that profile refuses a source-visible portfolio application. The canonical
+`tests.uvicorn_server_policy` records the selected pin, command and limits, and
+architecture controls reject omitted, duplicated or weakened invocations.
+
+These are POSIX loopback HTTP/1 and WebSocket checks. They do not prove Windows,
+external proxy/TLS, experimental HTTP/2, deployment, live-provider or scientific
+behavior. The standard extra does not select the experimental zttp HTTP/2 route.

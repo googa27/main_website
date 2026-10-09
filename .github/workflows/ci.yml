@@ -78,6 +78,7 @@ jobs:
           python scripts/check_installed_api.py --python "$RUNNER_TEMP/api-wheel-env/bin/python"
           "$RUNNER_TEMP/api-wheel-env/bin/python" -I apps/api/tests/test_database_driver_selection.py
           "$RUNNER_TEMP/api-wheel-env/bin/python" -I apps/api/tests/test_alembic_driver_selection.py
+          "$RUNNER_TEMP/api-wheel-env/bin/python" -I apps/api/tests/test_uvicorn_server_contract.py --require-installed
 
       - name: Audit installed API with isolated tools
         run: |

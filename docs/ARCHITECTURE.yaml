@@ -433,7 +433,7 @@
       "version": "0.35.5",
       "minimum_rsvg": "2.63.2",
       "parents": [
-        "next@16.3.8(@babel/core@7.29.7)(@types/node@24.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)"
+        "next@16.3.8(@babel/core@7.29.7)(@types/node@24.19.1)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)"
       ],
       "optional_dependencies": {
         "@img/sharp-darwin-arm64": "0.35.5",

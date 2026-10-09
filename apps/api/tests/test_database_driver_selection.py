@@ -75,11 +75,15 @@ class DatabaseDriverSelectionTests(unittest.TestCase):
         self.assertEqual(result["query"], {"application_name": "explicit"})
 
     def test_sqlite_keeps_its_backend_and_query(self) -> None:
-        result = self.successful("sqlite:///:memory:?cache=shared")
+        result = self.successful(
+            "sqlite:///file:public_driver_fixture?mode=memory&cache=shared&uri=true"
+        )
         self.assertEqual(result["backend"], "sqlite")
         self.assertEqual(result["driver"], "pysqlite")
-        self.assertEqual(result["database"], ":memory:")
-        self.assertEqual(result["query"], {"cache": "shared"})
+        self.assertEqual(result["database"], "file:public_driver_fixture")
+        self.assertEqual(
+            result["query"], {"mode": "memory", "cache": "shared", "uri": "true"}
+        )
 
     def test_unsupported_explicit_driver_refuses_instead_of_falling_back(self) -> None:
         result = self.invoke(

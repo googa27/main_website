@@ -181,6 +181,11 @@
       },
       "prettier": {
         "version": "3.9.8",
+        "registry_manifests": [
+          "https://registry.npmjs.org/prettier/3.9.8"
+        ],
+        "update_precondition": "Set the reviewed candidate version in this policy and both exact formatter declarations before regenerating the lock; this command consumes those pins and does not select a new version.",
+        "update_command": "pnpm install --lockfile-only --config.minimum-release-age=10080 --config.strict-peer-dependencies=true",
         "importers": [
           ".",
           "packages/config"
@@ -193,7 +198,7 @@
           "tests/node/prettier-math.test.mjs"
         ],
         "revisit_when": "The candidate preserves independent inline superscript, subscript, TeX macro, display-math, code-dollar and currency oracles in both actual installed consumers, and the frozen workspace/lifecycle/lint/typecheck/format/build/architecture gates pass.",
-        "boundary": "Selected formatter content and installed importer identities; this does not prove arbitrary TeX correctness, all Markdown cases, browser delivery, deployment or scientific validity."
+        "boundary": "Selected formatter content and installed importer identities; this does not prove arbitrary TeX correctness, all Markdown cases, browser delivery, deployment or scientific validity. The documented local pin/lock regeneration procedure does not establish hosted updater recovery."
       }
     },
     "extension_points": [

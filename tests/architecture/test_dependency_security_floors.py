@@ -19,7 +19,7 @@ API = ROOT / "apps" / "api"
 _SECURITY_MINIMUMS = {
     "runtime": {
         "idna": "3.18",
-        "mako": "1.3.12",
+        "mako": "1.4.2",
         "httpx": "0.28.1",
         "anyio": "4.14.2",
     },
@@ -261,7 +261,7 @@ def _replace_declaration(
     "old,new",
     [
         ("idna==3.18", "idna==3.19"),
-        ("Mako==1.3.12", "Mako==1.4.1"),
+        ("Mako==1.4.2", "Mako==1.4.3"),
         ("anyio==4.14.2", "anyio==4.15.1"),
     ],
 )
@@ -276,11 +276,22 @@ def test_exact_minimum_pins_are_accepted(manifests: Path) -> None:
     test_python_security_floors_are_synchronized_across_manifests()
 
 
+@pytest.mark.parametrize("version", ["1.4.2", "1.4.3"])
+def test_mako_advisory_patched_releases_meet_security_policy(version: str) -> None:
+    # Literal upstream advisory boundaries are independent of the policy map.
+    _declarations_by_name([f"Mako=={version}"])
+
+
+def test_mako_advisory_last_affected_release_is_refused() -> None:
+    with pytest.raises(AssertionError, match="Below security minimum: mako"):
+        _declarations_by_name(["Mako==1.4.1"])
+
+
 @pytest.mark.parametrize(
     "owner,old,below",
     [
         ("runtime", "idna==3.18", "idna==3.17"),
-        ("runtime", "Mako==1.3.12", "Mako==1.3.11"),
+        ("runtime", "Mako==1.4.2", "Mako==1.4.1"),
         ("runtime", "httpx==0.28.1", "httpx==0.28.0"),
         ("runtime", "anyio==4.14.2", "anyio==4.14.1"),
         ("dev", "Pygments==2.20.0", "Pygments==2.19.2"),

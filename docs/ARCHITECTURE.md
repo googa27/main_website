@@ -62,7 +62,40 @@ rendered-style and assistive-technology results must be recorded separately.
 
 This split avoids a risky application-wide HTTP-client migration while removing the deprecation path actually exercised by tests.
 
+### Optional API database driver selection
+
+The API declares `psycopg2-binary`. A `DATABASE_URL` with the plain `postgresql`
+scheme therefore selects `postgresql+psycopg2` explicitly before engine
+construction ([#192](https://github.com/googa27/main_website/issues/192)).
+SQLAlchemy's maintained `make_url` and immutable `URL.set` retain escaped
+credentials, query parameters and other components; explicit drivers and other
+backends retain their supplied selection and actual import/refusal behavior.
+This avoids relying on the implicit PostgreSQL default, which
+[changed in SQLAlchemy 2.1](https://docs.sqlalchemy.org/en/21/changelog/migration_21.html#default-postgresql-driver-changed-to-psycopg-psycopg-3).
+The five real isolated engine-import controls in
+`apps/api/tests/test_database_driver_selection.py` also run as a standalone
+unittest suite against normally installed dependency proposals. They never open
+a database connection. Import compatibility does not accept a dependency
+cohort, live PostgreSQL operations, migrations or deployment.
+
 ### Executive summary: monorepo tooling and lifecycle policy
+
+The optional API selects Mako 1.4.3 for Alembic's existing revision templates
+([#193](https://github.com/googa27/main_website/issues/193)). The separate security
+minimum is 1.4.2, the patched boundary in
+[GHSA-5639-2j2p-m4mx](https://github.com/sqlalchemy/mako/security/advisories/GHSA-5639-2j2p-m4mx).
+Literal tests reject the affected 1.4.1 release and accept 1.4.2/1.4.3 without
+deriving that oracle from the minimum map. The structured library selection
+must also match both runtime manifests; a version-only bump leaves that
+contract stale.
+
+The maintained [1.4.3 release](https://github.com/sqlalchemy/mako/releases/tag/rel_1_4_3)
+includes the upstream test-portability correction after the 1.4.2 traversal
+repair. Existing consumer tests render both installed Alembic and repository
+templates into temporary revisions and check Python syntax, revision IDs,
+upgrade/downgrade contents, and distribution ownership. They do not run
+`env.py`, connect to a database, prove a deployed vulnerable template route,
+or substitute for actual Windows or full dependency-security verification.
 
 | Boundary           | Decision                                                                                                 | Why                                                                                                                                                                    | Executable evidence                                   |
 | ------------------ | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
@@ -192,6 +225,59 @@ The static mount is also module-relative. The packaging rule uses maintained
 [Setuptools package-data support](https://setuptools.pypa.io/en/latest/userguide/datafiles.html),
 and the real installed-wheel gate provides the regression oracle.
 
+The gate also retains the cause of a failed child invocation ([#191](https://github.com/googa27/main_website/issues/191)).
+A nonzero exit keeps its actual exit code; an actual 30-second timeout keeps
+`TimeoutExpired` and its deadline. Each `stdout` and `stderr` diagnostic contains
+the last 4096 captured bytes as UTF-8 text with replacement for invalid bytes,
+the original byte count and a truncation flag. An interpreter launch error keeps
+its error type and errno. Successful output, isolated execution, temporary cwd
+and the supplied virtual-environment symlink identity are preserved. A zero-exit
+child must emit valid UTF-8 on both streams; invalid bytes fail with
+`UnicodeDecodeError` and the same bounded diagnostics before any successful
+output is printed.
+Python's maintained [subprocess API](https://docs.python.org/3.12/library/subprocess.html)
+owns execution and timeout handling. These report bounds do not limit the total
+output buffered by `subprocess.run`. The fixed probe uses the reviewed public
+fixture; the wrapper does not print environment or private fixture metadata.
+Real finite child tests exercise the reporting boundary without mocking process
+execution. A useful traceback is diagnosis evidence; dependency-version
+compatibility still needs its own installed consumer checks.
+
+Issue [#208](https://github.com/googa27/main_website/issues/208) owns the verification
+environment's installer and complete installed dependency graph. Each environment
+upgrades through its own Python using `requirements-bootstrap.txt` (pip 26.2.1),
+including CI's fresh normal wheel venv. This follows PyPA's maintained
+[installation command](https://pip.pypa.io/en/stable/installation/) and the
+[reviewed stable release](https://pypi.org/project/pip/26.2.1/).
+`scripts/check_installed_api_dependencies.py` uses an unrelated temporary cwd and
+`-I` to discover actual metadata through standard-library importlib.metadata.
+It refuses an ambient interpreter, editable/outside-prefix installs, normalized
+duplicates, unsafe or unpublished version forms, installer drift and unexpected
+first-party versions. PyPA packaging owns requirement/name/version parsing.
+
+The separate tooling profile pins [pip-audit 2.10.1](https://pypi.org/project/pip-audit/2.10.1/)
+and packaging 26.3 plus the complete reviewed Python 3.12 Linux installed
+auditor cohort with exact transitive pins; it never enters the API wheel's
+runtime dependencies. These pins make version resolution repeatable; they do not
+claim artifact hashes or verification on other Python/platform profiles.
+It includes the canonical installer pin and selects IDNA 3.19, matching the
+reviewed application cohort, so standalone source resolution cannot select
+older vulnerable tooling dependencies. After
+target `pip check`, the gate writes every published installed exact pin, including
+pip, and invokes [PyPA pip-audit](https://github.com/pypa/pip-audit) with `--strict
+--no-deps --disable-pip`. No vulnerabilities or collection failures are ignored.
+Successful JSON must cover the complete pin set once with no skipped rows or
+findings. A fresh report directory retains metadata, pins, full scanner output
+and attempted commands with actual exits. Timeouts retain actual partial raw
+streams; launch errors retain the attempted argv/cwd and error without inventing
+a process exit. Both propagate failure. The single local `portfolio-api` exclusion is explicit and
+bound to project metadata; PyPI success does not verify that artifact. Built-wheel
+byte/RECORD identity and the installed public gate remain separate acceptance
+requirements. Public synthetic metadata/report controls exercise refusals;
+only an actual fresh noneditable installation and live complete audit verify the
+selected profile. Other Python minors, Windows, deployment and exploitability
+are not inferred from Ubuntu/Python 3.12 CI.
+
 ### CV completion and retry ownership
 
 The CV orchestration passes `defer_completion=True` to the existing provider sync
@@ -228,9 +314,9 @@ Protected pins reject ambiguous/conditional forms, extras, URL sources and prere
 
 Run `python -m pip install -r requirements-architecture.txt pytest`, then `python -m pytest tests/architecture` and `python scripts/check_portfolio_architecture.py`. The CI test job uses that declared setup after its API profile. packaging is governance-only, explicitly declared rather than inherited from pip/pytest. The pinned PyPA release supports Python >=3.9 and is licensed Apache-2.0 OR BSD-2-Clause; primary contracts are [Requirement](https://packaging.pypa.io/en/stable/requirements.html), [Version](https://packaging.pypa.io/en/stable/version.html) and [release metadata](https://pypi.org/project/packaging/26.3/).
 
-Selected IDNA 3.19 and Mako 1.4.1 retain the independent security minimums. `apps/api/tests/test_dependency_consumers.py` exercises ContactCreate/EmailStr, email-validator and runtime HTTPX request preparation with Unicode, ASCII and invalid/noncanonical domains. EmailStr retains normalized Unicode; email-validator's ASCII email and HTTPX's raw host expose wire normalization. HTTPX bypasses IDNA for entirely ASCII hosts, so its canonical-label negative includes a Unicode label. Socket/DNS operations are refused by these tests.
+The runtime manifests own the selected IDNA and Mako pins. Their independent security minimums are enforced by `_SECURITY_MINIMUMS` in `tests/architecture/test_dependency_security_floors.py`, as recorded by `tests.python_dependency_policy.minimum_owner` in `docs/ARCHITECTURE.yaml`. `apps/api/tests/test_dependency_consumers.py` exercises ContactCreate/EmailStr, email-validator and runtime HTTPX request preparation with Unicode, ASCII and invalid/noncanonical domains. EmailStr retains normalized Unicode; email-validator's ASCII email and HTTPX's raw host expose wire normalization. HTTPX bypasses IDNA for entirely ASCII hosts, so its canonical-label negative includes a Unicode label. Socket/DNS operations are refused by these tests.
 
-The same owner uses actual installed Alembic generic and repository revision templates to generate temporary revisions and verify metadata, upgrade/downgrade content and Python syntax, without database access, env.py, autogeneration or post-write hooks. The structured selected-version map in the machine contract owns the current Alembic, Mako and SQLAlchemy pins, and the manifest-parity test checks that map. [Alembic release metadata](https://pypi.org/pypi/alembic/1.20.0/json) states the SQLAlchemy minimum for the selected release; task evidence checked installed distribution metadata and RECORD. This compatibility statement is not a separate architecture gate. `apps/api/tests/test_dependency_consumers.py` verifies that the Mako distribution does not own the stray top-level tools package reported in the linked Mako changelog. Policy controls normalize owned copies to minimum pins independently of selected versions; actual repository parity remains a separate test. The machine-readable selected sentence names the three packages without version digits; only its structured version map is checked against both runtime manifests. Alembic is not assigned a security minimum because no advisory floor is claimed. Primary behavioral references are the [IDNA history](https://raw.githubusercontent.com/kjd/idna/v3.19/HISTORY.md), [Mako changelog](https://raw.githubusercontent.com/sqlalchemy/mako/rel_1_4_1/doc/build/changelog.rst), and [Alembic release notes](https://github.com/sqlalchemy/alembic/releases/tag/rel_1_20_0). These controls do not establish live provider, DNS, database or deployment behavior.
+The same owner uses actual installed Alembic generic and repository revision templates to generate temporary revisions and verify metadata, upgrade/downgrade content and Python syntax, without database access, env.py, autogeneration or post-write hooks. The structured selected-version map in the machine contract owns the current Alembic, Mako and SQLAlchemy pins, and the manifest-parity test checks that map. [Alembic release metadata](https://pypi.org/pypi/alembic/1.20.0/json) states the SQLAlchemy minimum for the selected release; task evidence checked installed distribution metadata and RECORD. This compatibility statement is not a separate architecture gate. `apps/api/tests/test_dependency_consumers.py` verifies that the Mako distribution does not own the stray top-level tools package reported in the linked Mako changelog. Policy controls normalize owned copies to minimum pins independently of selected versions; actual repository parity remains a separate test. The machine-readable selected sentence names the three packages without version digits; only its structured version map is checked against both runtime manifests. Alembic is not assigned a security minimum because no advisory floor is claimed. Primary behavioral references are the [IDNA history](https://raw.githubusercontent.com/kjd/idna/v3.19/HISTORY.md), [Mako changelog](https://raw.githubusercontent.com/sqlalchemy/mako/rel_1_4_3/doc/build/changelog.rst), and [Alembic release notes](https://github.com/sqlalchemy/alembic/releases/tag/rel_1_20_0). These controls do not establish live provider, DNS, database or deployment behavior.
 
 AnyIO 4.15.1 is explicitly constrained in both runtime manifests as an existing
 transitive async dependency; dev/PDF requirements inherit the base declaration.
@@ -248,3 +334,109 @@ but does not establish what a fresh resolver will select or that the full scan
 will pass. Recheck backend tests, base/dev/PDF pip-audit and the real full OSV
 scan; retain any resolution failure without suppressing either advisory or
 transitive scanning.
+
+## Brace-expansion consumer security route
+
+[Issue #194](https://github.com/googa27/main_website/issues/194) updates the existing
+brace-expansion override route to 1.1.21 and 5.0.12. The installed minimatch 3.1.5
+parent accepts `^1.1.7`; minimatch 10.2.5 and 10.2.6 accept `^5.0.5` and `^5.0.8`.
+The selected patched versions satisfy these actual parent ranges without changing
+minimatch versions. The retained v2 override moves to 2.1.7, but no installed v2
+or v3 consumer acceptance is claimed. The pre-existing v4-to-v5 override boundary
+is retained; no installed v4 parent was found in this cohort.
+
+The maintained package is MIT licensed. The published 5.0.12 distribution retains
+CommonJS and ES-module exports and supports Node `20 || >=22`, including the
+managed Node 24.19.0. Published tarball integrity and manifests were checked;
+neither selected branch adds an install lifecycle hook. This uses the upstream
+parser repair rather than a custom brace parser. The selected cohort and exact
+consumer list live in `architecture.brace_expansion_policy`; PyYAML parses the
+lockfile package and snapshot sections for the architecture gate. A new parent
+or branch requires a reviewed selection and corresponding executable consumer
+coverage. No vulnerability suppression or scanner bypass is added.
+
+`pnpm run check:dependency-build-policy` now also runs the installed consumer tests
+in `tests/node/brace-expansion.test.mjs`. They use actual minimatch public
+`braceExpand`, `Minimatch`, and CommonJS/modern ES-module entrypoints. Literal
+ordinary expansion and matching controls accompany the upstream advisory inputs:
+[recursive comma parsing](https://github.com/juliangruber/brace-expansion/security/advisories/GHSA-6j4f-fj2g-mc7p),
+[both nesting sites](https://github.com/juliangruber/brace-expansion/security/advisories/GHSA-qhr7-859c-m2p7),
+and [excessive rewrite preservation](https://github.com/juliangruber/brace-expansion/security/advisories/GHSA-q2hr-2g5m-vwhr).
+The argument-array input exceeds minimatch's length limit and therefore tests its
+resolved brace-expansion public export directly. Parser payloads used through
+minimatch remain below that limit. Excessive rewrite behavior uses the upstream
+literal-output contract rather than a wall-clock performance assertion. These are
+local toolchain checks, not evidence of an exploitable deployment, live service,
+or scientific result. The full frozen install, lifecycle, frontend/API/architecture
+gates, all Python audits and unsuppressed OSV scan remain required.
+
+### Indexed source-map resource bounds
+
+The structured `architecture.source_map_policy` owns the reviewed source-map-js
+selection and both actual PostCSS/Tailwind parents. The
+[upstream advisory](https://github.com/7rulnik/source-map-js/issues/76) identifies
+line-padding past the generated content in `SourceNode.fromStringWithSourceMap`.
+The maintained 1.2.2 release stops that padding once the content is exhausted.
+The same release validates non-negative safe integer section offsets, caps
+individual and accumulated nested section lines, and rejects excessive offsets.
+
+The required dependency policy command exercises the real resolved library from
+each parent: generator/consumer/SourceNode round trips, indexed generated-line offsets,
+large admitted offsets with literal generated-code preservation, and refusal
+of invalid or excessive individual and accumulated nested offsets. Exact
+section-start lookup and nonzero section-column correctness remain a distinct
+pre-existing upstream limitation tracked in [issue204](https://github.com/googa27/main_website/issues/204),
+separately from the security repair. A test-only public `add` circuit breaker prevents the old library
+from consuming unbounded resources during reproduction; it delegates every
+accepted call and is never installed as a production workaround. Full frontend
+build consumers and the unsuppressed scanner remain required. These controls do
+not establish a deployed vulnerable input path or a live exploit.
+
+## Maintained native SVG dependency
+
+[Issue #197](https://github.com/googa27/main_website/issues/197) selects Sharp
+0.35.5 and its matching native packages through the maintained Next 16.3.8 parent.
+The maintained release fixes
+[GHSA-wq5f-xc86-pv6w](https://github.com/lovell/sharp/security/advisories/GHSA-wq5f-xc86-pv6w)
+and ships libvips 8.18.7 with librsvg 2.63.2. The manifest override and frozen
+lock retain the complete published optional dependency cohort. Sharp and its
+GNU binding are Apache-2.0 licensed; the prebuilt libvips package is
+LGPL-3.0-or-later. Their reviewed manifests have no install lifecycle hooks.
+The maintained runtime loader loads the selected prebuilt native module or
+fails with diagnostics; no new download wrapper or custom renderer is added.
+
+`architecture.sharp_policy` records the reviewed parent, published tarball
+integrities and GNU asset hashes. The required dependency policy command
+executes the actual Sharp export resolved by Next. Hand-derived red pixels,
+resize, PNG roundtrip, malformed SVG and explicit pixel-limit controls preserve
+public rendering behavior. The exported librsvg version comes from package
+metadata; separate controls compare the installed binding, shared library and
+version file with independently verified published bytes and require the two
+binaries to appear in the consumer process mappings. They prevent accepting an
+ambient or substituted GNU renderer merely from a version string.
+
+These gates verify the local GNU Linux x64 dependency and public library
+consumer. They do not reproduce the use-after-free exploit, verify other
+platform native execution or establish a deployed image endpoint. The static
+frontend's unoptimized image behavior is unchanged. Full source, frontend, API,
+architecture, normal installed-package and unsuppressed security gates remain
+required; other existing security owners remain separate.
+
+## Maintained Next security cohort
+
+Next and its ESLint config resolve as one 16.3.8 cohort, with a pnpm floor preventing older 16.x consumers from returning. The selected release repairs the six 16.3.8 advisory ranges and includes the next/og 16.3.6 repair. Canonical advisory IDs, exact independently published GNU compiler identities, optional platform selections and executable acceptance live in `next_security_policy` in ARCHITECTURE.yaml. Upstream pages currently contain placeholder patch fields; the maintained [16.3.8 release](https://github.com/vercel/next.js/releases/tag/v16.3.8), published registry identities and full OSV affected ranges establish the selected boundary.
+
+The required Next control starts the actual declared Turbopack developer server on an ephemeral loopback listener. A local MCP initialization succeeds; foreign/opaque origins are refused, and lookalike paths do not expose the MCP response. Explicit foreign-origin requests already failed on the prior release; only the exact-path case is the observed middleware regression. The test stops the real CLI and verifies observed owned children are absent. A shared process observer tolerates only missing proc entries during exit races; cleanup still awaits the real exit. A naturally exited real child exercises that regression. Both initialization and tools/list have valid local controls and foreign/opaque Origin refusal checks. A bounded observer records output-limit and process-error state; asynchronous event handlers do not assert or reject. Assertions stay in the controlled try/finally flow, and cleanup waits for the actual close event, including stdio closure. Real output flooding and missing-executable fixtures verify those failure paths without inventing a PID or reaping. These controls belong to issues [210](https://github.com/googa27/main_website/issues/210) and [211](https://github.com/googa27/main_website/issues/211); policy minimum_version and consumer_command must match the reviewed selected version and actual root command. The [managed Node child-process contract](https://nodejs.org/download/release/v24.19.0/docs/api/child_process.html) defines close after exit or a failed spawn; an error alone is not exit proof. Its startup/request deadlines are bounded test guards, not security performance claims. GNU compiler hashes are derived from independently published tarballs, and live process mappings plus a literal TypeScript result verify the actual Next compiler. Other platforms are locked but unexecuted.
+
+The frontend retains static export with unoptimized images. This source has no enabled draft-cache previews, ISR server, dynamic metadata image routes or attacker-controlled next/og renderer. Version/lock controls and the full unsuppressed dependency scan cover the owned advisory cohort; they do not demonstrate a deployed exploit or a live server. Existing full frontend/architecture/backend and fresh normal installed-API gates remain required. Next's generated web agent guidance is retained for version-accurate documentation discovery; it grants no additional authority over the user or root constitution. Unrelated Node 26/TypeScript 7 migrations, braces issue 195, source-map correctness issue 204, documentation issues 200/202 and broader issue 136 remain separate.
+
+### Formatter content preservation
+
+`dependency_update_policy.prettier` owns the exact version and two importer
+identities. The public Prettier consumer test in
+`tests/node/prettier-math.test.mjs` preserves independent inline superscript,
+subscript, TeX macro, display-math, code-dollar and currency fixtures. Root
+`check:dependency-build-policy` invokes that test, so existing required workspace
+gates cover formatter upgrades. Prettier 3.9.9 has a reproduced inline-math
+regression; 3.9.8 is the selected replacement. This bounded content contract does
+not assert arbitrary TeX correctness or scientific validation.

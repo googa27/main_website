@@ -145,7 +145,7 @@
       "security_updates": "enabled; semver-type major holds do not apply to security-only updates",
       "typescript_compatibility": {
         "decision": "retain TypeScript 5",
-        "reason": "The locked TypeScript-ESLint 8.63.0 peer range is >=4.8.4 <6.1.0 and TypeScript 7.0 lacks the stable programmatic API required by tooling consumers.",
+        "reason": "The locked TypeScript-ESLint 8.71.0 peer range is >=4.8.4 <6.1.0 and TypeScript 7.0 lacks the stable programmatic API required by tooling consumers.",
         "revisit_when": "Actual compiler API consumers support the candidate, peer ranges agree, and lint, typecheck and build all pass."
       },
       "node_compatibility": {
@@ -166,6 +166,40 @@
         "decision": "retain accepted ESLint majors per importer (web/config 9, UI 10)",
         "reason": "The web import, React and JSX accessibility plugins do not admit ESLint 10 in their published peer ranges.",
         "revisit_when": "All consuming plugin peer ranges admit the candidate and strict frozen install, lint, typecheck and build pass."
+      },
+      "typescript_eslint_cohort": {
+        "version": "8.71.0",
+        "manifest_range": "^8.71.0",
+        "importer": "packages/config",
+        "issue": "https://github.com/googa27/main_website/issues/212",
+        "upstream_same_version_policy": "https://typescript-eslint.io/users/versioning/",
+        "registry_manifests": [
+          "https://registry.npmjs.org/@typescript-eslint/eslint-plugin/8.71.0",
+          "https://registry.npmjs.org/@typescript-eslint/parser/8.71.0"
+        ],
+        "update_command": "pnpm --filter @repo/config update @typescript-eslint/eslint-plugin@8.71.0 @typescript-eslint/parser@8.71.0 --lockfile-only --config.minimum-release-age=10080 --config.strict-peer-dependencies=true",
+        "boundary": "Local atomic selection and source/installed fitness checks. Existing hosted individual candidate resolution failed; no hosted updater recovery is inferred."
+      },
+      "prettier": {
+        "version": "3.9.8",
+        "registry_manifests": [
+          "https://registry.npmjs.org/prettier/3.9.8"
+        ],
+        "update_precondition": "Set the reviewed candidate version in this policy and both exact formatter declarations before regenerating the lock; this command consumes those pins and does not select a new version.",
+        "update_command": "pnpm install --lockfile-only --config.minimum-release-age=10080 --config.strict-peer-dependencies=true",
+        "importers": [
+          ".",
+          "packages/config"
+        ],
+        "issue": "https://github.com/googa27/main_website/issues/216",
+        "upstream_regression": "https://github.com/prettier/prettier/issues/20199",
+        "decision": "Pin both formatter declarations exactly to the math-preserving release; do not ignore version ranges or disable security updates.",
+        "verification_command": "pnpm run check:formatter-contract",
+        "fitness_tests": [
+          "tests/node/prettier-math.test.mjs"
+        ],
+        "revisit_when": "The candidate preserves independent inline superscript, subscript, TeX macro, display-math, code-dollar and currency oracles in both actual installed consumers, and the frozen workspace/lifecycle/lint/typecheck/format/build/architecture gates pass.",
+        "boundary": "Selected formatter content and installed importer identities; this does not prove arbitrary TeX correctness, all Markdown cases, browser delivery, deployment or scientific validity. The documented local pin/lock regeneration procedure does not establish hosted updater recovery."
       }
     },
     "extension_points": [
@@ -218,7 +252,34 @@
       "issue": "https://github.com/googa27/main_website/issues/113",
       "required_data": "Setuptools explicitly includes app/static/cv/*.json; application and CV public imports work from the installed wheel outside the source tree.",
       "gate": "scripts/check_installed_api.py --python /absolute/path/to/wheel-venv/bin/python; isolated interpreter and temporary cwd; checks public fixture export and contact-redacted AI context.",
-      "generated_files": "Mypy source discovery excludes only the root build/ directory created by Setuptools; existing per-module type coverage is unchanged."
+      "failure_diagnostics": {
+        "issue": "https://github.com/googa27/main_website/issues/191",
+        "contract": "A child nonzero exit or real 30-second timeout keeps failure status and the original exit code or TimeoutExpired identity. Each captured stream reports its final 4096 raw bytes as UTF-8 replacement-decoded text, original captured byte count and explicit truncation flag. Missing interpreter preserves OSError type and errno. Zero-exit output is decoded strictly on both streams: invalid UTF-8 fails with UnicodeDecodeError and the same bounded stdout/stderr diagnostics before printing success. Valid successful public output and venv symlink identity remain unchanged.",
+        "boundary": "Only the fixed public fixture probe is intended for this gate; it does not print the environment, command or private fixture metadata. The report tail is bounded; subprocess.run still buffers captured streams in memory and is not an output-memory sandbox. Diagnosis alone does not accept a proposed dependency version, provider operation or deployed service.",
+        "owner": "scripts/check_installed_api.py",
+        "fitness_test": "tests/architecture/test_installed_api_gate.py; real finite public child success/nonzero/undecodable/large output/timeout/missing-interpreter controls, including a real venv symlink",
+        "maintained_boundary": "Python subprocess.run owns isolated execution, timeout termination and waiting; bytes.decode owns UTF-8 replacement. The small reporting adapter owns byte-tail and diagnostic JSON semantics without a new dependency.",
+        "source": "https://docs.python.org/3.12/library/subprocess.html"
+      },
+      "generated_files": "Mypy source discovery excludes only the root build/ directory created by Setuptools; existing per-module type coverage is unchanged.",
+      "installed_dependency_gate": {
+        "issue": "https://github.com/googa27/main_website/issues/208",
+        "bootstrap_owner": "requirements-bootstrap.txt; pip26.2.1; selected environment python -m pip install --upgrade -r requirements-bootstrap.txt before API installs",
+        "tooling_owner": "requirements-security.txt locks the complete reviewed Python3.12 Linux auditor cohort with exact transitive pins and canonical requirements-bootstrap.txt; tooling stays outside the API wheel environment; other platforms and artifact hashes are not inferred.",
+        "command": "python scripts/check_installed_api_dependencies.py --python /absolute/path/to/wheel-venv/bin/python --report-dir /fresh/audit-directory",
+        "collection": "Real isolated importlib.metadata child outside the source tree; normal inside-prefix noneditable distributions, unique normalized names, stable exact published pins, exact reviewed installer and expected firstparty version",
+        "audit": "Target pip check then every published installed pin including pip through PyPA pip-audit --strict --no-deps --disable-pip; complete JSON set equality, no skipped rows, ignored vulnerabilities or missing packages",
+        "firstparty_boundary": "Only expected portfolio-api is excluded from PyPI; built-wheel source/RECORD identity and check_installed_api.py remain required separately",
+        "evidence": "Fresh report directory retains actual metadata, pins, pip check/audit argv/cwd/exits/full output. Dated no-known-findings is not a general security, deployment, Windows or scientific claim.",
+        "fitness_test": "tests/architecture/test_installed_dependency_gate.py",
+        "references": [
+          "https://pip.pypa.io/en/stable/installation/",
+          "https://pypi.org/project/pip/26.2.1/",
+          "https://github.com/pypa/pip-audit",
+          "https://pypi.org/project/pip-audit/2.10.1/"
+        ],
+        "command_evidence": "Attempted argv/cwd/deadline retained before launch; raw stdout/stderr and actual exit retained on completion; timeout retains actual partial bytes and no invented exit; OSError retains launch failure; both still fail."
+      }
     },
     "node_peer_compatibility": {
       "package_manager_policy": ".npmrc requires strict-peer-dependencies=true",
@@ -227,9 +288,12 @@
         "https://registry.npmjs.org/@typescript-eslint/parser/8.63.0",
         "https://registry.npmjs.org/@typescript-eslint/eslint-plugin/8.63.0",
         "https://github.com/googa27/main_website/pull/89#issuecomment-5638237070",
-        "https://github.com/googa27/main_website/pull/91#issuecomment-5638238178"
+        "https://github.com/googa27/main_website/pull/91#issuecomment-5638238178",
+        "https://registry.npmjs.org/@typescript-eslint/eslint-plugin/8.71.0",
+        "https://registry.npmjs.org/@typescript-eslint/parser/8.71.0",
+        "https://registry.npmjs.org/ignore/7.0.11"
       ],
-      "fitness": "Frozen pnpm install rejects unsupported peer combinations; workspace-specific lint and typecheck verify their public CLI behavior."
+      "fitness": "Frozen pnpm install rejects unsupported peer combinations; workspace-specific lint and typecheck verify their public CLI behavior. The direct shared-config plugin and parser declarations, lock peer identity and installed manifests must match the reviewed same-version cohort."
     },
     "node_security_remediation": {
       "issue": "https://github.com/googa27/main_website/issues/108",
@@ -325,6 +389,167 @@
         "apps/api/tests/test_project_fallback.py",
         "tests/architecture/test_project_identifiers.py"
       ]
+    },
+    "brace_expansion_policy": {
+      "owner": "https://github.com/googa27/main_website/issues/194",
+      "brace_versions": [
+        "1.1.21",
+        "5.0.12"
+      ],
+      "minimatch_versions": [
+        "3.1.5",
+        "10.2.5",
+        "10.2.6"
+      ],
+      "selection_boundary": "Exact reviewed installed cohort, enforced with PyYAML-parsed package and snapshot sections; other cohorts require maintained parent review and consumer coverage. The retained unused v2 override targets 2.1.7; no v2 or v3 installed consumer acceptance is claimed.",
+      "consumer_command": "pnpm run check:dependency-build-policy",
+      "consumer_owner": "tests/node/brace-expansion.test.mjs",
+      "behavioral_oracles": "Installed minimatch CommonJS and modern ES-module braceExpand/Minimatch entrypoints; ordinary range/matching/quirk behavior; both upstream parser vectors and nesting sites; excessive rewrites preserved literally, without a wall-clock threshold. The argument-array vector exceeds the minimatch length limit and exercises the resolved brace-expansion public export directly.",
+      "scope": "Local installed frontend build/lint/glob toolchain only; package presence does not prove an untrusted deployment input or a live service."
+    },
+    "source_map_policy": {
+      "owner": "https://github.com/googa27/main_website/issues/198",
+      "version": "1.2.2",
+      "parents": [
+        "postcss@8.5.23",
+        "@tailwindcss/node@4.3.3"
+      ],
+      "consumer_command": "pnpm run check:dependency-build-policy",
+      "consumer_owner": "tests/node/source-map-offsets.test.mjs",
+      "upstream_advisory": "https://github.com/7rulnik/source-map-js/issues/76",
+      "maintained_patch": "https://github.com/7rulnik/source-map-js/commit/cf7658058ceeaa8619d5ae0ec90be6905209d016",
+      "maintained_release": "https://github.com/7rulnik/source-map-js/commit/0a1d334fd1e55a47df97fcd60a7915d46df3b08a",
+      "behavioral_oracles": "Real resolved dependencies of both locked parents: literal generator/consumer/SourceNode round trips and indexed generated-line offsets. Admitted large section lines preserve generated code with padding bounded by actual content. The maintained release refuses invalid, unsafe or excessive offsets and accumulated nested line offsets. A test-only public add-method circuit breaker bounds the vulnerable-version reproduction, without production monkeypatching or timing claims. Exact section-start lookup and nonzero section-column correctness have a distinct pre-existing owner; this security repair does not claim to fix them.",
+      "scope": "Local installed PostCSS/Tailwind toolchain only. Package presence and synthetic controls do not prove untrusted live input, exploitation, deployment or a scientific result.",
+      "correctness_limit_owner": "https://github.com/googa27/main_website/issues/204"
+    },
+    "sharp_policy": {
+      "issue": "https://github.com/googa27/main_website/issues/197",
+      "version": "0.35.5",
+      "minimum_rsvg": "2.63.2",
+      "parents": [
+        "next@16.3.8(@babel/core@7.29.7)(@types/node@24.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)"
+      ],
+      "optional_dependencies": {
+        "@img/sharp-darwin-arm64": "0.35.5",
+        "@img/sharp-darwin-x64": "0.35.5",
+        "@img/sharp-freebsd-wasm32": "0.35.5",
+        "@img/sharp-libvips-darwin-arm64": "1.3.4",
+        "@img/sharp-libvips-darwin-x64": "1.3.4",
+        "@img/sharp-libvips-linux-arm": "1.3.4",
+        "@img/sharp-libvips-linux-arm64": "1.3.4",
+        "@img/sharp-libvips-linux-ppc64": "1.3.4",
+        "@img/sharp-libvips-linux-riscv64": "1.3.4",
+        "@img/sharp-libvips-linux-s390x": "1.3.4",
+        "@img/sharp-libvips-linux-x64": "1.3.4",
+        "@img/sharp-libvips-linuxmusl-arm64": "1.3.4",
+        "@img/sharp-libvips-linuxmusl-x64": "1.3.4",
+        "@img/sharp-linux-arm": "0.35.5",
+        "@img/sharp-linux-arm64": "0.35.5",
+        "@img/sharp-linux-ppc64": "0.35.5",
+        "@img/sharp-linux-riscv64": "0.35.5",
+        "@img/sharp-linux-s390x": "0.35.5",
+        "@img/sharp-linux-x64": "0.35.5",
+        "@img/sharp-linuxmusl-arm64": "0.35.5",
+        "@img/sharp-linuxmusl-x64": "0.35.5",
+        "@img/sharp-webcontainers-wasm32": "0.35.5",
+        "@img/sharp-win32-arm64": "0.35.5",
+        "@img/sharp-win32-ia32": "0.35.5",
+        "@img/sharp-win32-x64": "0.35.5"
+      },
+      "published_integrities": {
+        "sharp": "sha512-Ywn4OnzGukp7CDMrp08RQ50YKmuwG47brZgIVPTvBaaAfQlRlygrRqSrxdCiL9M+LlzLBiJ68IR1QqvzHyjC7g==",
+        "@img/sharp-linux-x64": "sha512-SxFtLTeJInhAA9Q836kux2vZNeOBQEx658qvbboZScr0wIARym3IcGmW7KpVD5sbVg0Ojy+udFQdayYIZyoNog==",
+        "@img/sharp-libvips-linux-x64": "sha512-GJ//SSXbnwSDes02umB3nDJLFcQzw8a18V8fyhqr6tV515tOEMdImjjxj1AoafMRz56F3PHgftnj1QEKSU1zkw=="
+      },
+      "native_assets": {
+        "binding": {
+          "path": "lib/sharp-linux-x64-0.35.5.node",
+          "sha256": "cf896cc1b7f3ae9c3e8eb3d7b2b198b8de2824ff7d0681d684bab5a825def335"
+        },
+        "libvips": {
+          "path": "lib/libvips-cpp.so.8.18.7",
+          "sha256": "4aa73553408c3964071728f4a231a8e86918e39bc49f1fbae75355f7ea933ea9"
+        },
+        "versions": {
+          "path": "versions.json",
+          "sha256": "e2611d5d854815a8b33c8a3d2ec649511a9596ccf16844e8eae7cf81e79881c4"
+        }
+      },
+      "published_manifests": {
+        "sharp": "ad4a2535d72eb638053a38867b1abf43c328cd1c1dbae5cf4172d498365a8b97",
+        "@img/sharp-linux-x64": "181c58413d16ac3ce035f39c94c614031e03c023d88315712a81ed210c9fa04c",
+        "@img/sharp-libvips-linux-x64": "2c5f6f9abf74c1492622d5dc4e4da056ab0712fd71de61e03a687c88b8cdab4e"
+      },
+      "licenses": {
+        "sharp": "Apache-2.0",
+        "@img/sharp-linux-x64": "Apache-2.0",
+        "@img/sharp-libvips-linux-x64": "LGPL-3.0-or-later"
+      },
+      "references": [
+        "https://github.com/lovell/sharp/security/advisories/GHSA-wq5f-xc86-pv6w",
+        "https://sharp.pixelplumbing.com/install/",
+        "https://sharp.pixelplumbing.com/api-constructor/"
+      ],
+      "fitness_tests": [
+        "tests/architecture/test_sharp_security_policy.py",
+        "tests/node/sharp-svg-security.test.mjs"
+      ],
+      "verification_boundary": "The exported rsvg version is package metadata. GNU Linux x64 controls separately hash the installed native binding, shared libvips and version file against published tarball bytes and require the two binaries to appear in the real consumer process mappings. Literal SVG pixels, resize, PNG roundtrip, malformed input and explicit pixel bounds exercise the public Sharp export resolved through the actual Next parent. Other platform assets are locked but not executed here. These controls are not a use-after-free exploit reproducer, deployed image endpoint, Windows proof or scientific evidence. The static frontend keeps its existing unoptimized image boundary."
+    },
+    "next_security_policy": {
+      "owner": "https://github.com/googa27/main_website/issues/196",
+      "version": "16.3.8",
+      "minimum_version": "16.3.8",
+      "optional_compilers": {
+        "@next/swc-darwin-x64": "16.3.8",
+        "@next/swc-darwin-arm64": "16.3.8",
+        "@next/swc-linux-x64-gnu": "16.3.8",
+        "@next/swc-linux-x64-musl": "16.3.8",
+        "@next/swc-win32-x64-msvc": "16.3.8",
+        "@next/swc-linux-arm64-gnu": "16.3.8",
+        "@next/swc-linux-arm64-musl": "16.3.8",
+        "@next/swc-win32-arm64-msvc": "16.3.8"
+      },
+      "published_assets": {
+        "next_manifest": "6da8fc4823b66b8f2906d150002618e3f3e0d2446ebf3823b2a2f7efe73a46a4",
+        "GNU_manifest": "dca7a240d53c8edd8833ad465f85d304d307637159ec6243da6190d02cd969fe",
+        "GNU_binary": "89fbdf990c4f0fdcf95c56463a026bbbc405e0b0970e6a0d8d12d50b773d97cd"
+      },
+      "published_integrities": {
+        "next": "sha512-U7QEZaTini6wKrb8A8hqLLqYQyCetegKjCpJOyxk642vWoMoU1x5PyZCJFvgYgiptA8xc5j/9xYlZFO7w9Sjmw==",
+        "eslint-config-next": "sha512-81vovwMe6NGnoFsl0KUJWzlS+y239i3fdsxs49gSEX3pDQW2cuKy+fxUPXNkQqqx6OCPheYPtBlSufc9aZ0k+w==",
+        "@next/eslint-plugin-next": "sha512-eCR9RcLTZrVS+K3+VOhi0xMdUUGNuriCHHhU1ZoABC/QQ/Gp0OWbLKQxV2/9DkmihYdYRcQWFmZXW8M1AMUXYw==",
+        "@next/env": "sha512-Al9zqHVV7TJv0eFuOU4U7Lvv74PTih4Ch63sk2xCIpSTkE3udFnaOcnzP2lQVymiL7yS9Cj2iClUXlR3EQ5sEw==",
+        "@next/swc-linux-x64-gnu": "sha512-lbqOuz3RPRcv+o9msNsJw5x4+Y1ZwPTs6vmL6DCf7i0fZfvng/F59wyeDwqHIvV0mK//RBy/jJkZ+nCKsSMXjQ=="
+      },
+      "advisories": [
+        "GHSA-39w2-rjm5-chcv",
+        "GHSA-3w37-wq28-93x7",
+        "GHSA-4jqv-mc3x-m676",
+        "GHSA-cjq9-62q9-8jv4",
+        "GHSA-f87g-xv8r-7p7x",
+        "GHSA-mcj8-r9mp-w47p",
+        "GHSA-vcvr-r3jv-pc5j"
+      ],
+      "references": [
+        "https://github.com/vercel/next.js/releases/tag/v16.3.8",
+        "https://nextjs.org/docs/app/api-reference/config/next-config-js/output",
+        "https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins",
+        "https://nodejs.org/download/release/v24.19.0/docs/api/child_process.html"
+      ],
+      "consumer_command": "node --test tests/node/next-security.test.mjs tests/node/next-process-ownership.test.mjs",
+      "fitness_tests": [
+        "tests/architecture/test_next_security_policy.py",
+        "tests/node/next-security.test.mjs",
+        "tests/node/next-process-ownership.test.mjs"
+      ],
+      "verification_boundary": "The real managed Turbopack developer MCP HTTP listener admits local initialization, refuses foreign/opaque Origin headers and does not treat lookalike paths as the MCP endpoint. Explicit-origin controls already passed on 16.3.5; literal-path rejection is the observed RED/GREEN regression. GNU Linux x64 compiler bytes match independently published tarballs and the actual loaded binary maps; a literal TypeScript result exercises that compiler through the synchronous Next build adapter, which loads installed native bindings without downloader fallback. That internal adapter is version-bound, not a stable public API; the full declared static export build remains the public acceptance command. All other native platforms are locked, unexecuted. Static export and unoptimized images stay configured; runtime ISR, draft-cache preview, dynamic metadata image routes and attacker-controlled next/og rendering are not exposed by this source. Full unsuppressed OSV ranges and configured build/installed API gates are separate acceptance evidence; no browser exploit, deployed service, Windows execution or scientific claim. Process observation tolerates only genuine ENOENT from disappearing parent/child proc entries; the caller still awaits the actual exit and bounded cleanup and never infers reaping from a missing path. A naturally exited real child supplies the deterministic regression control. Both initialize and tools/list are tested with valid local and foreign/opaque Origin headers. Captured process output uses a fixed byte bound and asynchronous handlers record flags and errors without asserting or rejecting; controlled assertions retain try/finally cleanup. Actual close is awaited after exit or failed spawn, including stdio closure; missing executables allocate no PID and output-flood fixtures require real termination/PID absence. Process errors alone never imply exit. Documented minimum_version is bound to the selected reviewed cohort and consumer_command to the exact executed root gate. Historical node_security_remediation stays dated and unchanged.",
+      "verification_owners": {
+        "bounded_process_cleanup": "https://github.com/googa27/main_website/issues/210",
+        "executed_policy_bindings": "https://github.com/googa27/main_website/issues/211",
+        "maintained_origin_controls": "https://github.com/googa27/main_website/issues/196"
+      }
     }
   },
   "source_layout": {
@@ -545,7 +770,7 @@
           "Mako revision templates through Alembic with SQLAlchemy"
         ],
         "selected_versions": {
-          "mako": "1.4.1",
+          "mako": "1.4.3",
           "alembic": "1.20.0",
           "sqlalchemy": "2.0.54"
         },
@@ -556,10 +781,11 @@
         "evidence": "apps/api/alembic/script.py.mako and apps/api/tests/test_dependency_consumers.py",
         "adapter_boundary": "Existing Alembic script template; no application template engine or runtime custom parser added.",
         "custom_code_reason": "Alembic generates revisions through maintained Mako; repository tests assert selected-template compatibility, package ownership, and structured selected-version parity with both runtime manifests. The selected sentence contains package names only; its separate structured map owns exact selected versions. The SQLAlchemy requirement is supported by upstream release and checked installed distribution metadata, not claimed as a separately enforced architecture check.",
-        "maintenance_evidence": "https://github.com/sqlalchemy/mako/releases/tag/rel_1_4_1 and https://github.com/sqlalchemy/alembic/releases/tag/rel_1_20_0",
-        "api_stability_evidence": "https://raw.githubusercontent.com/sqlalchemy/mako/rel_1_4_1/doc/build/changelog.rst and https://pypi.org/pypi/alembic/1.20.0/json",
-        "license_evidence": "https://github.com/sqlalchemy/mako/blob/rel_1_4_1/LICENSE and https://github.com/sqlalchemy/alembic/blob/rel_1_20_0/LICENSE",
-        "api_license_evidence": "Mako 1.4.1 and Alembic 1.20.0 are MIT and require Python>=3.10; Alembic 1.20.0 requires SQLAlchemy>=2.0, satisfied by the selected 2.0.54. PyPI release metadata and installed distribution metadata/RECORD were checked in the task evidence. Template tests do not exercise database migrations.",
+        "maintenance_evidence": "https://github.com/sqlalchemy/mako/releases/tag/rel_1_4_3 and https://github.com/sqlalchemy/alembic/releases/tag/rel_1_20_0",
+        "api_stability_evidence": "https://github.com/sqlalchemy/mako/commit/000ed85e4e48771eff460bf4fc721fb43de80e08 and https://pypi.org/pypi/alembic/1.20.0/json",
+        "license_evidence": "https://github.com/sqlalchemy/mako/blob/rel_1_4_3/LICENSE and https://github.com/sqlalchemy/alembic/blob/rel_1_20_0/LICENSE",
+        "api_license_evidence": "Mako 1.4.3 and Alembic 1.20.0 are MIT and require Python>=3.10; Alembic 1.20.0 requires SQLAlchemy>=2.0, satisfied by the selected 2.0.54. PyPI release metadata identifies these constraints; installed rendering and distribution ownership are separate executable gates. Template tests do not exercise database migrations.",
+        "dependency_security_note": "GHSA-5639-2j2p-m4mx affects Mako through 1.4.1 and is patched in 1.4.2. The independent minimum is 1.4.2; the selected maintained 1.4.3 also contains the upstream test-portability correction. Literal affected/patched boundary controls do not derive their oracle from the minimum map. This update does not establish a deployed vulnerable template route, actual Windows execution or full dependency-security acceptance. See https://github.com/sqlalchemy/mako/security/advisories/GHSA-5639-2j2p-m4mx and docs/ARCHITECTURE.md.",
         "oracle_or_reference_tests": [
           "apps/api/tests/test_dependency_consumers.py::test_alembic_renders_real_revision_templates_without_database",
           "apps/api/tests/test_dependency_consumers.py::test_mako_distribution_does_not_own_stray_tools_package",
@@ -630,6 +856,15 @@
       "architecture_setup": "python -m pip install -r requirements-architecture.txt pytest",
       "architecture_test": "python -m pytest tests/architecture"
     },
+    "database_driver_selection": {
+      "issue": "https://github.com/googa27/main_website/issues/192",
+      "owner": "apps/api/app/core/database.py",
+      "contract": "A driver-unspecified postgresql DATABASE_URL explicitly selects the already declared psycopg2-binary driver. SQLAlchemy make_url and immutable URL.set preserve parsed credentials, query parameters and every other URL component. Explicit driver names and other backends pass through unchanged; create_engine retains its actual driver import and refusal semantics.",
+      "fitness_test": "apps/api/tests/test_database_driver_selection.py; real isolated application/engine imports with public synthetic implicit PostgreSQL, escaped credentials/query, explicit psycopg2, SQLite and unsupported explicit-driver controls. The same standalone unittest controls run against normal installed current and proposed SQLAlchemy profiles.",
+      "maintained_boundary": "SQLAlchemy owns URL parsing, URL updates, dialect/DBAPI loading and engine construction. The repository adapter selects only its existing implicit PostgreSQL default, without a new parser or driver dependency.",
+      "source": "https://docs.sqlalchemy.org/en/21/changelog/migration_21.html#default-postgresql-driver-changed-to-psycopg-psycopg-3",
+      "scope": "Import-time installed-driver compatibility; controls construct engines without opening connections. No live PostgreSQL, migration, provider or deployment acceptance. A proposed SQLAlchemy version still needs separate dependency-cohort and consumer acceptance."
+    },
     "database_health_contract": {
       "statement": "The existing constant SELECT 1 probe is an explicit SQLAlchemy text statement executed through Session.",
       "healthy_oracle": "FastAPI TestClient with a real Session and thread-safe in-memory SQLite engine supplied through get_db.",
@@ -645,7 +880,7 @@
       "protected_form": "One unambiguous normalized name with one == stable public version at or above its minimum; no URL, wildcard, range/compound, arbitrary equality, marker, extras, prerelease/dev/local version.",
       "parity": "Every declaration is parsed before comparison; duplicate normalized names fail rather than disappearing into sets. Full runtime and dev declarations must match their pyproject arrays.",
       "include_policy": "Only one exact -r requirements.txt development include is allowed, without recursive expansion; comments and blank lines are supported.",
-      "oracles": "Actual selected manifests; independent exact-minimum copied fixtures; synchronized newer IDNA/Mako pins; each below-floor case; missing/duplicate declarations; full parity; malformed forms; explicit runtime and development include controls.",
+      "oracles": "Actual selected manifests; copied exact-minimum fixtures; literal upstream Mako 1.4.1 refusal and 1.4.2/1.4.3 acceptance independent of the policy map; synchronized newer IDNA/Mako pins; each below-floor case; missing/duplicate declarations; full parity; malformed forms; explicit runtime and development include controls.",
       "ci_setup": "CI test job installs requirements-architecture.txt plus pytest before tests/architecture; all Python dependency audits remain required."
     },
     "python_dependency_consumers": {

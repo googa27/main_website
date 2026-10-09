@@ -49,7 +49,7 @@ Important caveats:
 
 ### Web (`apps/web`)
 
-- Next.js 16.3.4 App Router.
+- Next.js App Router.
 - React 19 and TypeScript.
 - Tailwind CSS 4 via PostCSS.
 - Pages:
@@ -119,6 +119,12 @@ Prerequisites:
 - Python 3.12+ for `apps/api`.
 - PostgreSQL if you want database-backed project/contact routes instead of import/build smoke checks.
 
+The optional API installs `psycopg2-binary` and selects it explicitly for a plain
+`postgresql` database URL. Supplied explicit drivers and other backends keep
+their selection; their dependencies must be available. The real isolated driver
+controls in `apps/api/tests/test_database_driver_selection.py` construct engines
+without connecting. See `docs/ARCHITECTURE.md` for the contract and its limits.
+
 Install frontend/monorepo dependencies from the lockfile:
 
 ```bash
@@ -129,8 +135,10 @@ pnpm run check:dependency-build-policy
 
 Dependency updates are discovered from the repository root, which owns the one
 workspace lockfile. React runtime and declaration updates are grouped across web
-and UI packages; both currently resolve React 19.2.8 with
-`@types/react` 19.2.18 and `@types/react-dom` 19.2.7. Keep the declared
+and UI packages. The manifests and root lockfile own the selected versions;
+`architecture.dependency_update_policy.react_cohort` in
+`docs/ARCHITECTURE.yaml` records the expected runtime and declaration cohort,
+which the architecture tests check across both importers. Keep the declared
 TypeScript 5 and Node 24 families until their recorded compatibility triggers in
 `docs/ARCHITECTURE.yaml` are satisfied.
 
@@ -204,15 +212,50 @@ root with a fresh output directory and environment:
 ```bash
 python -m pip wheel --no-deps --wheel-dir /tmp/portfolio-api-wheels apps/api
 python -m venv /tmp/portfolio-api-wheel-env
+/tmp/portfolio-api-wheel-env/bin/python -m pip install --upgrade -r requirements-bootstrap.txt
 /tmp/portfolio-api-wheel-env/bin/python -m pip install /tmp/portfolio-api-wheels/portfolio_api-*.whl
 python scripts/check_installed_api.py --python /tmp/portfolio-api-wheel-env/bin/python
+python -m pip install -r requirements-security.txt
+python scripts/check_installed_api_dependencies.py --python /tmp/portfolio-api-wheel-env/bin/python --report-dir /tmp/portfolio-api-installed-audit
 ```
+
+Upgrade each selected Python environment with `python -m pip install --upgrade
+-r requirements-bootstrap.txt` before installing the API. The reviewed bootstrap
+contains exactly one unconditional pip pin, currently pip 26.2.1. Declare
+the complete reviewed Python 3.12 Linux auditor cohort, including transitive
+packages, in `requirements-security.txt`; additional
+bootstrap requirements are deliberately refused. A new venv's bundled installer
+is not acceptance evidence. The
+separate dependency gate checks normal isolated metadata, that exact installer,
+`pip check`, and every installed published package with strict PyPA pip-audit.
+It retains metadata, exact pins, attempted commands, raw output and actual exits
+in a fresh report directory. Timeouts retain partial captured streams; launch
+failures retain the attempted command without inventing an exit. Both still fail
+the gate. The complete audit is retained when the scanner writes it. The local `portfolio-api` distribution is outside PyPI audit
+coverage and still requires its built-wheel identity and public-fixture check.
+Auditor tools are installed in the invoking tooling environment, not in the API
+wheel environment. Run `python -m pytest
+tests/architecture/test_installed_dependency_gate.py` for metadata and coverage
+refusal controls. A no-known-vulnerability report is dated database evidence,
+not deployment or general security certification.
 
 The check uses an isolated interpreter and temporary working directory to import
 the application, export the typed fixture and verify that AI context omits contact
 fields. It does not contact providers or exercise a deployed database. Setuptools
 build output is excluded from Mypy's discovery of source files; existing type-check
 coverage and legacy per-module exclusions are unchanged.
+
+On a child failure or a 30-second timeout, the gate retains the real exit or
+error identity and the final 4096 captured bytes from each output stream. Its
+JSON includes the original byte counts and truncation flags; invalid UTF-8 bytes
+use replacement characters so an encoding error does not hide the primary
+failure. Zero-exit output remains strict UTF-8 on both streams; invalid bytes
+fail with `UnicodeDecodeError` and bounded stream diagnostics before printing
+success. The printed diagnostics are bounded, while the subprocess library still
+buffers child output. The gate runs only its fixed public-fixture check and does
+not print environment or private fixture metadata. Run `python -m pytest
+tests/architecture/test_installed_api_gate.py` for the real child-process
+regressions; the timeout control executes the actual deadline.
 
 ## Deployment notes
 
@@ -263,3 +306,42 @@ The destination directory must already exist. The CLI works outside the checkout
 ## Repository architecture checks
 
 Install the declared governance dependencies with `python -m pip install -r requirements-architecture.txt pytest`, then run `python -m pytest tests/architecture` and `python scripts/check_portfolio_architecture.py`. These checks enforce complete API manifest parity and security minimums using packaging; newer selected pins still need their own compatibility review. No application runtime dependency is added by this tooling profile.
+
+## Paired TypeScript ESLint updates
+
+The shared config declares and resolves plugin/parser 8.71.0 together, following
+[the upstream same-version release contract](https://typescript-eslint.io/users/versioning/).
+The existing Dependabot group and seven-day cooldown remain enabled. A grouped
+PR can contain only a parser update when the plugin candidate fails resolution;
+treat that as an incomplete pair, even if its current checks pass.
+
+Select both with the exact atomic command in `dependency_update_policy.typescript_eslint_cohort`
+in `docs/ARCHITECTURE.yaml`, then run the frozen install, dependency policy,
+architecture tests, lint, typecheck and build. The policy checks the shared
+importer's installed public package manifests as well as declarations; the
+architecture suite checks the actual lock and parser peer identity. A future
+cohort needs reviewed metadata and the same gates. Preserve strict peer checks,
+security updates and semver-major holds. Local selection and passing gates do
+not prove a successful hosted updater rerun.
+
+A reused installation can retain pending root (`.`) entries after lock-only
+selection. The lifecycle policy rejects these too. If the pending list contains
+only the reviewed root `prepare` hook (`husky`), run `pnpm rebuild --pending` and
+recheck the list after each completed command. A dependency entry requires its
+own lifecycle review; do not clear metadata or relax the denial policy.
+
+## Formatter content contract
+
+Both root and shared config declare Prettier 3.9.8 exactly. Version 3.9.9 changes
+inline mathematical superscripts while returning success; see
+[the upstream report](https://github.com/prettier/prettier/issues/20199) and
+[owner #216](https://github.com/googa27/main_website/issues/216). The version pin
+keeps a future lock refresh from silently selecting that candidate. Security
+updates stay enabled.
+
+Run `pnpm run check:formatter-contract` after a frozen install. The check resolves
+both actual installed importers and compares public formatter output with
+independent Markdown math, code-dollar and currency oracles. It also runs inside
+`pnpm run check:dependency-build-policy`, including in the existing CI gate.
+Admit a later release only after these controls and the complete workspace gates
+pass; selected fixtures do not certify every Markdown or TeX input.

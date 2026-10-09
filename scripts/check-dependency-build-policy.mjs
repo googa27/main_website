@@ -5,6 +5,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { createRequire } from "node:module";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const readText = (relativePath) =>
@@ -26,6 +27,40 @@ const policy = architecture.architecture.dependency_lifecycle_policy;
 const runtimePolicy = architecture.architecture.node_runtime_policy;
 const lock = readText("pnpm-lock.yaml");
 const workspace = readText("pnpm-workspace.yaml");
+
+// The upstream release contract coordinates these packages by one version.
+// Dependabot grouping can still yield a partial candidate: verify what is used.
+const updatePolicy = architecture.architecture.dependency_update_policy;
+const cohort = updatePolicy.typescript_eslint_cohort;
+try {
+  const importerManifest = readJson(`${cohort.importer}/package.json`);
+  // Resolve public manifests from this workspace importer, not the root.
+  const importerRequire = createRequire(
+    resolve(root, cohort.importer, "package.json"),
+  );
+  for (const name of updatePolicy.coupled_typescript_eslint_group) {
+    if (importerManifest.devDependencies[name] !== cohort.manifest_range) {
+      fail(
+        `${name} declaration must match reviewed cohort ${cohort.manifest_range}`,
+      );
+    }
+    const installed = JSON.parse(
+      readFileSync(importerRequire.resolve(`${name}/package.json`), "utf8"),
+    );
+    if (installed.name !== name || installed.version !== cohort.version) {
+      fail(
+        `${name} installed identity must match reviewed cohort ${cohort.version}`,
+      );
+    }
+  }
+} catch (error) {
+  const installGuidance = ["MODULE_NOT_FOUND", "ENOENT"].includes(error.code)
+    ? "; run pnpm install --frozen-lockfile, then pnpm run check:dependency-build-policy"
+    : "";
+  fail(
+    `TypeScript ESLint cohort cannot be verified: ${error.message}${installGuidance}`,
+  );
+}
 
 const versionsInLock = (name) => {
   const pattern = new RegExp(

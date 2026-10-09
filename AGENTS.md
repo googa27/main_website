@@ -89,7 +89,7 @@ React-folio consolidation evidence lives in `docs/REACT_FOLIO_CONSOLIDATION.md`.
 
 ### Exact commands
 
-- Setup: `corepack enable && pnpm install --frozen-lockfile && pnpm run check:dependency-build-policy && (cd apps/api && python -m pip install -e '.[dev,pdf]')`
+- Setup: `python -m pip install --upgrade -r requirements-bootstrap.txt && corepack enable && pnpm install --frozen-lockfile && pnpm run check:dependency-build-policy && (cd apps/api && python -m pip install -e '.[dev,pdf]')`
 - Tests: `pnpm test`
 - Lint/format: `pnpm run lint`
 - Build: `pnpm run build`
@@ -112,3 +112,19 @@ From the repository root, verify `python -m pytest tests/architecture`; from `ap
 ## Optional pre-commit workflow
 
 The hooks use `repo: local` and the same installed API and pnpm workspace tools as CI. Activate the chosen Python environment containing `apps/api[dev,pdf]`, then run `corepack pnpm install --frozen-lockfile` and `corepack pnpm run check:dependency-build-policy`. Run `uvx --from pre-commit==4.6.2 pre-commit run --all-files` for an explicit check. Hook installation is optional and is not performed by this command. The activated environment supplies the pinned Ruff/Mypy binaries; isolated mirror environments cannot resolve this workspace's shared ESLint config.
+
+## Paired TypeScript ESLint updates
+
+Follow the [paired update procedure](README.md#paired-typescript-eslint-updates)
+and the canonical `dependency_update_policy.typescript_eslint_cohort` contract
+in `docs/ARCHITECTURE.yaml`. Verify the actual declarations, lock peer and
+installed manifests; passing local checks do not prove hosted updater recovery.
+
+## Formatter upgrades
+
+Follow `dependency_update_policy.prettier` in `docs/ARCHITECTURE.yaml`. Both
+formatter declarations are exact pins. Run `pnpm run check:formatter-contract`
+after a frozen install; the existing dependency build gate includes it. A
+successful CLI or hosted check does not establish mathematical-content
+preservation. Update the policy and both declarations together only after the
+actual candidate passes the content controls and complete workspace gates.

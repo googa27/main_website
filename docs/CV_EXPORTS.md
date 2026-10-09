@@ -91,6 +91,20 @@ PDP acquisition, FPF mathematical formulation and ui_and_artifacts governed repo
 
 Fitness tests pin the offline schema/license and package resources, forbid acquisition/database imports in projection modules, preserve optional PDF ownership and require the static preview to reuse current content. API tests cover actual PDF bytes and escaped markup, concurrency, HTTP attachments, optional absence, atomic failure preservation, date/evidence semantics and database read-only fallback. `scripts/check_installed_api.py` exercises the runtime wheel and CLI from an isolated interpreter outside the source tree. Visual inspection additionally checks the generated public PDF's page breaks and glyphs. These are synthetic/local artifact checks, not live provider or deployed-browser acceptance.
 
+If the installed gate fails, its JSON reports the real child exit code or error
+type. Nonzero exit and timeout reports include `stdout` and `stderr` objects with
+`text`, `captured_bytes` and `truncated`: each text retains the final 4096 captured
+bytes, decoded as UTF-8 with replacement for invalid bytes. A timeout remains a
+failure after the 30-second deadline; a missing interpreter reports its OS errno.
+These bounds apply to printed diagnostics, while the subprocess library still
+buffers child output. Use this fixed public-fixture gate for public diagnostics;
+it does not print environment or private fixture metadata. The successful result
+and the selected virtual environment remain unchanged. Zero-exit output is
+decoded strictly on both streams; invalid UTF-8 reports `UnicodeDecodeError` and
+fails the gate with the same bounded stream diagnostics before printing success. Diagnose a dependency
+proposal from its actual error, then run the appropriate installed consumer
+checks before accepting that proposal.
+
 The isolated build also exposed [#117](https://github.com/googa27/main_website/issues/117), the deprecated API license-table syntax. The existing MIT expression now uses modern SPDX metadata with Setuptools >=77.0.3, following the [PyPA packaging guide](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license). This is a syntax migration, not a new root license claim. Wheel metadata and a warning-free build verify the actual result.
 
 The PDF extra explicitly pins Pillow 12.3.0, the version already used by the verified renderer environment. ReportLab's broader `Pillow>=9` requirement alone permits vulnerable historical versions: the actual PR OSV run identified 9.5.0 and prompted [#120](https://github.com/googa27/main_website/issues/120). The [upstream 12.3.0 security release](https://pillow.readthedocs.io/en/stable/releasenotes/12.3.0.html) addresses the reported parser, memory and font issues. Both distribution and requirements profiles enforce the same constraint, independently of the text-only renderer's asset refusal. An actual resolver must reject the old version; selecting a current version in one test environment alone does not enforce the supported dependency boundary.

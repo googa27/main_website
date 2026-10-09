@@ -807,6 +807,32 @@
           "apps/api/tests/test_dependency_consumers.py::test_mako_distribution_does_not_own_stray_tools_package",
           "tests/architecture/test_dependency_security_floors.py::test_selected_alembic_stack_matches_both_runtime_manifests"
         ]
+      },
+      {
+        "capability": "ASGI HTTP server and actual connection lifecycle",
+        "selected": [
+          "Uvicorn0.54.0 with its standard extra for the existing FastAPI runtime",
+          "h11 and httptools HTTP/1 implementations; auto/asyncio/uvloop event loops",
+          "WebSockets sans-IO server and maintained WebSockets sync client for real loopback tests"
+        ],
+        "alternatives": [
+          "In-process TestClient alone, which cannot verify server connections or lifecycle",
+          "Hypercorn, which would replace the existing server without a current product need",
+          "Experimental zttp HTTP/2 route, which is not selected by the standard extra"
+        ],
+        "evidence": "https://github.com/Kludex/uvicorn/blob/0.54.0/docs/release-notes.md",
+        "adapter_boundary": "apps/api owns its declared server runtime. Tests invoke public uvicorn.Config and uvicorn.Server APIs in owned POSIX loopback children; no private protocol classes or custom HTTP/WebSocket implementations.",
+        "custom_code_reason": "Only application-specific lifecycle, trust and literal wire-result assertions are custom; maintained Uvicorn, standard-library HTTP parsing and WebSockets implement the protocols.",
+        "maintenance_evidence": "https://pypi.org/project/uvicorn/0.54.0/",
+        "api_stability_evidence": "https://github.com/Kludex/uvicorn/blob/0.54.0/uvicorn/server.py",
+        "license_evidence": "https://raw.githubusercontent.com/Kludex/uvicorn/0.54.0/LICENSE.md",
+        "api_license_evidence": "https://raw.githubusercontent.com/Kludex/uvicorn/0.54.0/LICENSE.md",
+        "oracle_or_reference_tests": [
+          "apps/api/tests/test_uvicorn_server_contract.py",
+          "tests/architecture/test_uvicorn_server_gate.py",
+          "https://asgi.readthedocs.io/en/latest/specs/lifespan.html"
+        ],
+        "compatibility_note": "BSD-3-Clause. Published Python>=3.10 covers the repository's Python>=3.12 runtime. The0.53 changes included in0.54 correct case-insensitive comma-separated Connection-close handling, IPv6 loopback default trust and upgraded-WebSocket keep-alive. Real0.52.4 normal-wheel baseline reproduced two httptools close-token timeouts and the IPv6 default-trust difference; WebSocket, loop and actual-app controls already passed that baseline. HTTP/2 remains experimental and opt-in with a separate zttp dependency; no HTTP/2, external proxy/TLS, Windows, deployment or scientific acceptance follows from these controls."
       }
     ]
   },
@@ -930,7 +956,7 @@
       "scope": "Engine construction and installed driver loading without connections. No live PostgreSQL, online/offline migration, autogeneration, deployment, Windows or other-Python-minor acceptance."
     },
     "uvicorn_server_policy": {
-      "selected_version": "0.52.4",
+      "selected_version": "0.54.0",
       "source_test": "apps/api/tests/test_uvicorn_server_contract.py",
       "installed_command": [
         "$RUNNER_TEMP/api-wheel-env/bin/python",

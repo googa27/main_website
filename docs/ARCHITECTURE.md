@@ -470,9 +470,21 @@ arbitrary-task, concurrent-worktree, Windows or scientific acceptance is implied
 ### Real Uvicorn server release controls
 
 [Issue 233](https://github.com/googa27/main_website/issues/233) owns the real-server
-coverage gap. In-process TestClient tests do not start Uvicorn. The current
-`uvicorn[standard]` selection remains 0.52.4 while the test-first baseline is
-measured; the separate 0.54.0 proposal is not yet accepted.
+coverage gap. In-process TestClient tests do not start Uvicorn. The selected
+`uvicorn[standard]` candidate is 0.54.0, a BSD-3-Clause release supporting
+Python >=3.10 and therefore this application's Python >=3.12 requirement.
+[Tagged release notes](https://github.com/Kludex/uvicorn/blob/0.54.0/docs/release-notes.md)
+and [license](https://raw.githubusercontent.com/Kludex/uvicorn/0.54.0/LICENSE.md)
+own the upstream API and maintenance rationale.
+
+The genuine normal-wheel 0.52.4 baseline at
+[9f082ab](https://github.com/googa27/main_website/actions/runs/37968076254)
+ran all five server methods: two httptools mixed-case close-token cases timed out
+instead of observing connection closure, and the IPv6 default-trust assertion
+failed. The WebSocket, loop, actual-app and graceful-child controls passed that
+baseline; no WebSocket failure is attributed to it. Original proposal 182 is
+preserved through an ordinary two-parent integration. Candidate and actual
+resulting-default source, installed and frontend gates remain required.
 
 `apps/api/tests/test_uvicorn_server_contract.py` starts owned loopback children
 through public Uvicorn Config/Server APIs and uses standard-library HTTP parsing

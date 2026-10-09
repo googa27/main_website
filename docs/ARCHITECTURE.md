@@ -450,3 +450,19 @@ subscript, TeX macro, display-math, code-dollar and currency fixtures. Root
 gates cover formatter upgrades. Prettier 3.9.9 has a reproduced inline-math
 regression; 3.9.8 is the selected replacement. This bounded content contract does
 not assert arbitrary TeX correctness or scientific validation.
+
+### Staged workspace checks
+
+`dependency_update_policy.lint_staged` owns the optional root
+`pnpm run check:staged` procedure. Its filename-scoped ESLint task runs in the web
+workspace through pnpm, preserving that importer's executable and Next flat
+configuration. Bare root ESLint failed to spawn in both 17.5.1 and 17.6.0.
+
+The command uses the maintained `--hide-unstaged` option because 17.6 also stages
+tracked files modified by task side effects. Real native Git/CLI controls compare
+complete index and working bytes for partial staging, unrelated tracked and
+untracked drafts, and restoration after a real ESLint failure. A deliberate
+side-effect task demonstrates both the unsafe unprotected invocation and the
+protected command. `check:dependency-build-policy` runs these fixtures in CI.
+Hook activation and the separate optional pre-commit workflow are unchanged. No
+arbitrary-task, concurrent-worktree, Windows or scientific acceptance is implied.

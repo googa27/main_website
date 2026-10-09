@@ -356,3 +356,25 @@ independent Markdown math, code-dollar and currency oracles. It also runs inside
 `pnpm run check:dependency-build-policy`, including in the existing CI gate.
 Admit a later release only after these controls and the complete workspace gates
 pass; selected fixtures do not certify every Markdown or TeX input.
+
+## Optional staged web checks
+
+After the declared frozen workspace setup, run `pnpm run check:staged` from the
+root. ESLint resolves through `apps/web` and its Next flat configuration; the
+existing filename-scoped Prettier task uses the pinned root formatter. This
+explicit command does not install a Git hook. The separate optional pre-commit
+workflow remains unchanged.
+
+The command hides tracked unstaged edits while tasks run. In
+[lint-staged 17.6](https://github.com/lint-staged/lint-staged/releases/tag/v17.6.0),
+a task that modifies another tracked file also stages that file, so an
+unprotected invocation can stage its pre-existing draft edits. Keep the canonical
+`--hide-unstaged` option and review resulting staged changes before committing.
+Untracked files remain untracked; tasks must stay scoped to their supplied paths.
+
+The required dependency build gate runs real Git fixtures for filename scoping,
+partial staging, unrelated tracked/untracked drafts, actual ESLint failure
+restoration and the side-effect/hiding distinction. See
+`dependency_update_policy.lint_staged` in `docs/ARCHITECTURE.yaml` and owner
+[#230](https://github.com/googa27/main_website/issues/230). These bounded controls
+do not certify arbitrary custom tasks or concurrent runs in a real worktree.

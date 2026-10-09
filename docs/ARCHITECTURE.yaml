@@ -200,6 +200,17 @@
         ],
         "revisit_when": "The candidate preserves independent inline superscript, subscript, TeX macro, display-math, code-dollar and currency oracles in both actual installed consumers, and the frozen workspace/lifecycle/lint/typecheck/format/build/architecture gates pass.",
         "boundary": "Selected formatter content and installed importer identities; this does not prove arbitrary TeX correctness, all Markdown cases, browser delivery, deployment or scientific validity. The documented local pin/lock regeneration procedure does not establish hosted updater recovery."
+      },
+      "lint_staged": {
+        "version": "17.6.0",
+        "issue": "https://github.com/googa27/main_website/issues/230",
+        "upstream_release": "https://github.com/lint-staged/lint-staged/releases/tag/v17.6.0",
+        "command": "pnpm run check:staged",
+        "workspace_resolution": "The root filename-scoped task invokes pnpm --dir apps/web exec eslint so the web-owned executable and flat Next config resolve together. Prettier remains the pinned root formatter.",
+        "tracked_draft_policy": "The canonical command uses --hide-unstaged. Version17.6 stages tracked files modified by tasks even outside the original globs; hiding all tracked unstaged edits keeps existing drafts out of that index update.",
+        "hook_policy": "Optional explicit developer command; it does not install or activate a Git hook. The separate pre-commit workflow is unchanged.",
+        "fitness_test": "tests/node/lint-staged-contract.test.mjs",
+        "scope": "Real synthetic Git/index and installed CLI/ESLint/Prettier controls. Original staged, tracked draft and untracked bytes are asserted; a failing task must restore them. The unprotected native invocation is only a negative-control fixture. No arbitrary task, Windows, concurrent real-worktree, deployed or scientific acceptance."
       }
     },
     "extension_points": [
@@ -859,7 +870,8 @@
       "dependency_build_policy": "pnpm run check:dependency-build-policy",
       "architecture": "python scripts/check_portfolio_architecture.py",
       "architecture_setup": "python -m pip install -r requirements-architecture.txt pytest",
-      "architecture_test": "python -m pytest tests/architecture"
+      "architecture_test": "python -m pytest tests/architecture",
+      "staged": "pnpm run check:staged"
     },
     "database_driver_selection": {
       "issue": "https://github.com/googa27/main_website/issues/192",

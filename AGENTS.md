@@ -128,3 +128,12 @@ after a frozen install; the existing dependency build gate includes it. A
 successful CLI or hosted check does not establish mathematical-content
 preservation. Update the policy and both declarations together only after the
 actual candidate passes the content controls and complete workspace gates.
+
+## Optional staged web checks
+
+Use `pnpm run check:staged` from the root after the declared workspace setup.
+Follow `dependency_update_policy.lint_staged` in `docs/ARCHITECTURE.yaml`: keep
+web-owned ESLint/config resolution and the tracked-draft hiding option together.
+The required dependency build gate runs the real Git/index preservation controls.
+This explicit check does not activate a hook; do not broaden task globs or bypass
+hiding without equivalent dirty-file evidence.

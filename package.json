@@ -9,10 +9,11 @@
     "format": "turbo format",
     "typecheck": "turbo typecheck",
     "test": "turbo test",
-    "check:dependency-build-policy": "node scripts/check-dependency-build-policy.mjs && node --test tests/node/source-map-offsets.test.mjs && node --test tests/node/brace-expansion.test.mjs && node --test tests/node/sharp-svg-security.test.mjs && node --test tests/node/next-security.test.mjs tests/node/next-process-ownership.test.mjs && pnpm run check:formatter-contract",
+    "check:dependency-build-policy": "node scripts/check-dependency-build-policy.mjs && node --test tests/node/source-map-offsets.test.mjs && node --test tests/node/brace-expansion.test.mjs && node --test tests/node/sharp-svg-security.test.mjs && node --test tests/node/next-security.test.mjs tests/node/next-process-ownership.test.mjs && pnpm run check:formatter-contract && node --test tests/node/lint-staged-contract.test.mjs",
     "check:formatter-contract": "node --test tests/node/prettier-math.test.mjs",
     "clean": "rm -rf .turbo apps/*/.turbo packages/*/.turbo apps/web/out apps/web/.next",
-    "prepare": "husky"
+    "prepare": "husky",
+    "check:staged": "lint-staged --hide-unstaged"
   },
   "devDependencies": {
     "@repo/config": "workspace:*",
@@ -23,7 +24,7 @@
   },
   "lint-staged": {
     "apps/web/**/*.{js,jsx,ts,tsx}": [
-      "eslint --max-warnings=0",
+      "pnpm --dir apps/web exec eslint --max-warnings=0",
       "prettier --write"
     ]
   },

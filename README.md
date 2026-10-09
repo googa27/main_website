@@ -304,3 +304,26 @@ The destination directory must already exist. The CLI works outside the checkout
 ## Repository architecture checks
 
 Install the declared governance dependencies with `python -m pip install -r requirements-architecture.txt pytest`, then run `python -m pytest tests/architecture` and `python scripts/check_portfolio_architecture.py`. These checks enforce complete API manifest parity and security minimums using packaging; newer selected pins still need their own compatibility review. No application runtime dependency is added by this tooling profile.
+
+## Paired TypeScript ESLint updates
+
+The shared config declares and resolves plugin/parser 8.71.0 together, following
+[the upstream same-version release contract](https://typescript-eslint.io/users/versioning/).
+The existing Dependabot group and seven-day cooldown remain enabled. A grouped
+PR can contain only a parser update when the plugin candidate fails resolution;
+treat that as an incomplete pair, even if its current checks pass.
+
+Select both with the exact atomic command in `dependency_update_policy.typescript_eslint_cohort`
+in `docs/ARCHITECTURE.yaml`, then run the frozen install, dependency policy,
+architecture tests, lint, typecheck and build. The policy checks the shared
+importer's installed public package manifests as well as declarations; the
+architecture suite checks the actual lock and parser peer identity. A future
+cohort needs reviewed metadata and the same gates. Preserve strict peer checks,
+security updates and semver-major holds. Local selection and passing gates do
+not prove a successful hosted updater rerun.
+
+A reused installation can retain pending root (`.`) entries after lock-only
+selection. The lifecycle policy rejects these too. If the pending list contains
+only the reviewed root `prepare` hook (`husky`), run `pnpm rebuild --pending` and
+recheck the list after each completed command. A dependency entry requires its
+own lifecycle review; do not clear metadata or relax the denial policy.

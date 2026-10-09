@@ -112,3 +112,10 @@ From the repository root, verify `python -m pytest tests/architecture`; from `ap
 ## Optional pre-commit workflow
 
 The hooks use `repo: local` and the same installed API and pnpm workspace tools as CI. Activate the chosen Python environment containing `apps/api[dev,pdf]`, then run `corepack pnpm install --frozen-lockfile` and `corepack pnpm run check:dependency-build-policy`. Run `uvx --from pre-commit==4.6.2 pre-commit run --all-files` for an explicit check. Hook installation is optional and is not performed by this command. The activated environment supplies the pinned Ruff/Mypy binaries; isolated mirror environments cannot resolve this workspace's shared ESLint config.
+
+## Paired TypeScript ESLint updates
+
+Follow the [paired update procedure](README.md#paired-typescript-eslint-updates)
+and the canonical `dependency_update_policy.typescript_eslint_cohort` contract
+in `docs/ARCHITECTURE.yaml`. Verify the actual declarations, lock peer and
+installed manifests; passing local checks do not prove hosted updater recovery.

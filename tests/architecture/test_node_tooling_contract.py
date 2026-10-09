@@ -155,6 +155,13 @@ def test_dependency_policy_checker_validates_reviewed_bytes_and_pnpm_state() -> 
         ("oxide_entry", "@tailwindcss/oxide index.js SHA-256"),
         ("oxide_hook", "unreviewed postinstall lifecycle script"),
         ("oxide_binding_lock", "@tailwindcss/oxide-linux-x64-gnu lock versions"),
+        ("cohort_declaration", "@typescript-eslint/parser declaration must match"),
+        ("cohort_version", "@typescript-eslint/parser installed identity must match"),
+        (
+            "cohort_name",
+            "@typescript-eslint/eslint-plugin installed identity must match",
+        ),
+        ("cohort_missing", "run pnpm install --frozen-lockfile"),
     ],
 )
 def test_dependency_checker_refuses_changed_install_paths(
@@ -236,6 +243,24 @@ def test_dependency_checker_refuses_changed_install_paths(
             "required_native_binding": "@tailwindcss/oxide-linux-x64-gnu",
         }
     }
+    update_policy = architecture["architecture"]["dependency_update_policy"]
+    cohort = update_policy["typescript_eslint_cohort"]
+    importer = put(
+        f"{cohort['importer']}/package.json",
+        json.dumps(_json(f"{cohort['importer']}/package.json")),
+    )
+    installed_cohort = {}
+    for name in update_policy["coupled_typescript_eslint_group"]:
+        installed_cohort[name] = put(
+            f"{cohort['importer']}/node_modules/{name}/package.json",
+            json.dumps(
+                {
+                    "name": name,
+                    "version": cohort["version"],
+                    "exports": {"./package.json": "./package.json"},
+                }
+            ),
+        )
     put("docs/ARCHITECTURE.yaml", json.dumps(architecture))
     put("pnpm-workspace.yaml", "packages: []\n")
     lock = put(
@@ -280,7 +305,26 @@ def test_dependency_checker_refuses_changed_install_paths(
     baseline = run()
     assert baseline.returncode == 0, baseline.stderr
     assert "dependency build policy OK" in baseline.stdout
-    if mutation == "lock":
+    if mutation == "cohort_declaration":
+        manifest = json.loads(importer.read_text())
+        manifest["devDependencies"]["@typescript-eslint/parser"] = "^8.70.0"
+        importer.write_text(json.dumps(manifest))
+    elif mutation in {"cohort_version", "cohort_name", "cohort_missing"}:
+        name = (
+            "@typescript-eslint/eslint-plugin"
+            if mutation == "cohort_name"
+            else "@typescript-eslint/parser"
+        )
+        target = installed_cohort[name]
+        if mutation == "cohort_missing":
+            target.unlink()
+        else:
+            manifest = json.loads(target.read_text())
+            manifest["name" if mutation == "cohort_name" else "version"] = (
+                "unexpected-package" if mutation == "cohort_name" else "8.70.0"
+            )
+            target.write_text(json.dumps(manifest))
+    elif mutation == "lock":
         lock.write_text(lock.read_text().replace("1.12.2", "1.12.3"))
     elif mutation == "oxide_binding_lock":
         lock.write_text(

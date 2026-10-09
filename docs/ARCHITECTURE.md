@@ -255,6 +255,14 @@ It refuses an ambient interpreter, editable/outside-prefix installs, normalized
 duplicates, unsafe or unpublished version forms, installer drift and unexpected
 first-party versions. PyPA packaging owns requirement/name/version parsing.
 
+CI prepares the auditor in its own normal virtual environment and passes its
+interpreter through the existing `--audit-python` option. The editable API
+interpreter passes `pip check` before and after auditing; complete
+`pip freeze --all` snapshots must remain identical. The isolated auditor also
+passes `pip check`. These controls prevent an auditor pin from silently replacing
+a runtime pin even when pip exits successfully. The wheel target remains a third,
+source-free environment with its own consistency and complete graph audit.
+
 The separate tooling profile pins [pip-audit 2.10.1](https://pypi.org/project/pip-audit/2.10.1/)
 and packaging 26.3 plus the complete reviewed Python 3.12 Linux installed
 auditor cohort with exact transitive pins; it never enters the API wheel's

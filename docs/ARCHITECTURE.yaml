@@ -265,13 +265,18 @@
       "installed_dependency_gate": {
         "issue": "https://github.com/googa27/main_website/issues/208",
         "bootstrap_owner": "requirements-bootstrap.txt; pip26.2.1; selected environment python -m pip install --upgrade -r requirements-bootstrap.txt before API installs",
-        "tooling_owner": "requirements-security.txt locks the complete reviewed Python3.12 Linux auditor cohort with exact transitive pins and canonical requirements-bootstrap.txt; tooling stays outside the API wheel environment; other platforms and artifact hashes are not inferred.",
-        "command": "python scripts/check_installed_api_dependencies.py --python /absolute/path/to/wheel-venv/bin/python --report-dir /fresh/audit-directory",
+        "tooling_owner": "requirements-security.txt locks the complete reviewed Python3.12 Linux auditor cohort with exact transitive pins and canonical requirements-bootstrap.txt; tooling uses its own isolated venv, outside both the API wheel and editable development environments; other platforms and artifact hashes are not inferred.",
+        "command": "python scripts/check_installed_api_dependencies.py --python /absolute/path/to/wheel-venv/bin/python --audit-python /absolute/path/to/audit-venv/bin/python --report-dir /fresh/audit-directory",
         "collection": "Real isolated importlib.metadata child outside the source tree; normal inside-prefix noneditable distributions, unique normalized names, stable exact published pins, exact reviewed installer and expected firstparty version",
         "audit": "Target pip check then every published installed pin including pip through PyPA pip-audit --strict --no-deps --disable-pip; complete JSON set equality, no skipped rows, ignored vulnerabilities or missing packages",
         "firstparty_boundary": "Only expected portfolio-api is excluded from PyPI; built-wheel source/RECORD identity and check_installed_api.py remain required separately",
         "evidence": "Fresh report directory retains actual metadata, pins, pip check/audit argv/cwd/exits/full output. Dated no-known-findings is not a general security, deployment, Windows or scientific claim.",
         "fitness_test": "tests/architecture/test_installed_dependency_gate.py",
+        "auditor_isolation": {
+          "issue": "https://github.com/googa27/main_website/issues/225",
+          "contract": "A separate normal auditor venv installs the unchanged requirements-security.txt cohort; the existing --audit-python boundary selects it. API development pip check passes before and after; complete pip freeze --all snapshots compare equal. Auditor pip check and isolated target full-graph auditing remain required.",
+          "fitness_test": "tests/architecture/test_ci_auditor_isolation.py; shared installer, aliased target, missing consistency, missing snapshots/comparison and missing venv controls"
+        },
         "references": [
           "https://pip.pypa.io/en/stable/installation/",
           "https://pypi.org/project/pip/26.2.1/",

@@ -413,7 +413,7 @@ def test_dependabot_owns_the_root_workspace_and_groups_react_updates() -> None:
     # Semver-type holds do not filter security-only updates in Dependabot.
     # Explicit version ranges do, so reject those and broad/name-only ignores.
     held = policy["version_update_major_holds"]
-    assert held == ["eslint", "typescript"]
+    assert held == ["eslint", "typescript", "@types/node"]
     assert npm["ignore"] == [
         {"dependency-name": name, "update-types": ["version-update:semver-major"]}
         for name in held

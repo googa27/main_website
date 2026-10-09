@@ -135,11 +135,14 @@ group label or YAML formatting.
 
 The updater also groups the TypeScript-ESLint parser and plugin, because the
 plugin's same-family parser peer must advance together. Only semver-major
-version updates for `eslint` and `typescript` are held while current web plugin
-peers and compiler API consumers reject those proposals. Existing accepted
-major versions remain unchanged, including UI ESLint 10. Remove each hold when
-its documented compatibility gate passes. There are no name-only or explicit
-version-range exclusions. Dependabot ignores these update-type filters for
+version updates for `eslint`, `typescript`, and `@types/node` are held. Current
+web plugin peers and compiler API consumers block the first two proposals;
+Node declarations stay on major 24 while the managed runtime remains Node 24.
+Existing accepted major versions remain unchanged, including UI ESLint 10.
+Remove each hold when its documented compatibility gate passes; the Node types
+hold follows the Tailwind warning-removal trigger and managed Node 26 checks.
+There are no name-only or explicit version-range exclusions. Dependabot ignores
+these update-type filters for
 security-only jobs; the parsed regression rejects broader filters and preserves
 the root workspace, React group, weekly schedule and seven-day cooldown.
 This config change is not proof that the full scheduled updater recovered;

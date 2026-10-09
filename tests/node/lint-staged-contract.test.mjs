@@ -31,6 +31,22 @@ const contents = (selected, draft, formatted = true) =>
 const notes = (heading, footer = "base footer") =>
   `${heading}\n${separators}${footer}\n`;
 
+test("declared, locked and installed staging identities match the reviewed policy", () => {
+  const policy = JSON.parse(
+    readFileSync(join(root, "docs/ARCHITECTURE.yaml"), "utf8"),
+  ).architecture.dependency_update_policy.lint_staged;
+  const manifest = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
+  const installed = require("lint-staged/package.json");
+  const lock = readFileSync(join(root, "pnpm-lock.yaml"), "utf8");
+  const versions = new Set(
+    [...lock.matchAll(/^  lint-staged@([^:]+):$/gm)].map((match) => match[1]),
+  );
+  assert.equal(manifest.devDependencies["lint-staged"], `^${policy.version}`);
+  assert.equal(installed.name, "lint-staged");
+  assert.equal(installed.version, policy.version);
+  assert.deepEqual([...versions], [policy.version]);
+});
+
 function fixture(run) {
   const cwd = mkdtempSync(join(tmpdir(), "portfolio-staged-"));
   const env = {

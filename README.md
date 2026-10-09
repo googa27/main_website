@@ -207,7 +207,7 @@ python -m compileall -q app tests scripts
 
 The API's wheel includes the reviewed public CV fixture. To verify an installed
 artifact independently of the checkout, run these commands from the repository
-root with a fresh output directory and environment:
+root with fresh output directories and separate wheel and auditor environments:
 
 ```bash
 python -m pip wheel --no-deps --wheel-dir /tmp/portfolio-api-wheels apps/api
@@ -215,8 +215,16 @@ python -m venv /tmp/portfolio-api-wheel-env
 /tmp/portfolio-api-wheel-env/bin/python -m pip install --upgrade -r requirements-bootstrap.txt
 /tmp/portfolio-api-wheel-env/bin/python -m pip install /tmp/portfolio-api-wheels/portfolio_api-*.whl
 python scripts/check_installed_api.py --python /tmp/portfolio-api-wheel-env/bin/python
-python -m pip install -r requirements-security.txt
-python scripts/check_installed_api_dependencies.py --python /tmp/portfolio-api-wheel-env/bin/python --report-dir /tmp/portfolio-api-installed-audit
+python -m pip check
+python -m pip freeze --all > /tmp/portfolio-api-dev-before-audit.txt
+python -m venv /tmp/portfolio-api-audit-env
+/tmp/portfolio-api-audit-env/bin/python -m pip install --upgrade -r requirements-bootstrap.txt
+/tmp/portfolio-api-audit-env/bin/python -m pip install -r requirements-security.txt
+/tmp/portfolio-api-audit-env/bin/python -m pip check
+python scripts/check_installed_api_dependencies.py --python /tmp/portfolio-api-wheel-env/bin/python --audit-python /tmp/portfolio-api-audit-env/bin/python --report-dir /tmp/portfolio-api-installed-audit
+python -m pip check
+python -m pip freeze --all > /tmp/portfolio-api-dev-after-audit.txt
+cmp /tmp/portfolio-api-dev-before-audit.txt /tmp/portfolio-api-dev-after-audit.txt
 ```
 
 Upgrade each selected Python environment with `python -m pip install --upgrade
@@ -233,8 +241,11 @@ in a fresh report directory. Timeouts retain partial captured streams; launch
 failures retain the attempted command without inventing an exit. Both still fail
 the gate. The complete audit is retained when the scanner writes it. The local `portfolio-api` distribution is outside PyPI audit
 coverage and still requires its built-wheel identity and public-fixture check.
-Auditor tools are installed in the invoking tooling environment, not in the API
-wheel environment. Run `python -m pytest
+Auditor tools are installed in the separate bootstrapped auditor environment,
+selected explicitly by `--audit-python`. The invoking development interpreter
+and normal API-wheel target keep their own dependency graphs; the development
+consistency checks and complete pre/post freeze comparison verify that auditing
+does not change its selected packages. Run `python -m pytest
 tests/architecture/test_installed_dependency_gate.py` for metadata and coverage
 refusal controls. A no-known-vulnerability report is dated database evidence,
 not deployment or general security certification.

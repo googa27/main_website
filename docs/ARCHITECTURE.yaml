@@ -928,6 +928,25 @@
       "migration_review": "https://docs.sqlalchemy.org/en/21/changelog/migration_21.html and https://docs.sqlalchemy.org/en/21/changelog/changelog_21.html; the SQLAlchemy2.1 default PostgreSQL driver changes to psycopg3, greenlet becomes optional, and ORM autoflush is unconditional. Application sessions explicitly disable autoflush and use synchronous legacy declarative/Query APIs; no asyncio extra or dataclass/composite migration is required by these consumers.",
       "selected_release_review": "The canonical selected_versions map owns the exact SQLAlchemy release. The maintained2.1.3/2.1.4 fixes include ORM parameter/column-order corrections and Result/Connection resource lifecycle fixes. Official PyPI release and wheel metadata identify Python>=3.11 and MIT, compatible with the application Python>=3.12 floor. Release review is not performance or scientific evidence.",
       "scope": "Engine construction and installed driver loading without connections. No live PostgreSQL, online/offline migration, autogeneration, deployment, Windows or other-Python-minor acceptance."
+    },
+    "uvicorn_server_policy": {
+      "selected_version": "0.52.4",
+      "source_test": "apps/api/tests/test_uvicorn_server_contract.py",
+      "installed_command": [
+        "$RUNNER_TEMP/api-wheel-env/bin/python",
+        "-I",
+        "apps/api/tests/test_uvicorn_server_contract.py",
+        "--require-installed"
+      ],
+      "scope": "POSIX loopback HTTP/1 h11/httptools, auto/asyncio/uvloop, WebSocket upgrade, forwarding trust, normal installed API root; no Windows, external TLS/proxy, experimental HTTP2, deployment or scientific acceptance",
+      "owner": "https://github.com/googa27/main_website/issues/233",
+      "required_outcomes": [
+        "Connection close tokens independent of case or comma-separated position",
+        "WebSocket upgrade survives previous HTTP keep-alive timeout",
+        "IPv4/IPv6 default loopback forwarding trust and explicit deny",
+        "actual graceful startup and shutdown with terminal owned-child return",
+        "normal installed app location under target interpreter prefix"
+      ]
     }
   },
   "data": {

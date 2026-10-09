@@ -466,3 +466,28 @@ side-effect task demonstrates both the unsafe unprotected invocation and the
 protected command. `check:dependency-build-policy` runs these fixtures in CI.
 Hook activation and the separate optional pre-commit workflow are unchanged. No
 arbitrary-task, concurrent-worktree, Windows or scientific acceptance is implied.
+
+### Real Uvicorn server release controls
+
+[Issue 233](https://github.com/googa27/main_website/issues/233) owns the real-server
+coverage gap. In-process TestClient tests do not start Uvicorn. The current
+`uvicorn[standard]` selection remains 0.52.4 while the test-first baseline is
+measured; the separate 0.54.0 proposal is not yet accepted.
+
+`apps/api/tests/test_uvicorn_server_contract.py` starts owned loopback children
+through public Uvicorn Config/Server APIs and uses standard-library HTTP parsing
+and the declared WebSockets client. It specifies case-insensitive comma-separated
+Connection-close tokens, HTTP-to-WebSocket keep-alive transition, IPv4/IPv6
+default trust and explicit forwarding denial, native/default/asyncio loops, and
+the actual portfolio root. Every child must report startup and shutdown and
+terminate gracefully; killing an overdue owned child fails the control.
+
+The backend suite runs the development profile. CI also invokes the unchanged
+test file with the normal wheel interpreter, `-I`, and `--require-installed`;
+that profile refuses a source-visible portfolio application. The canonical
+`tests.uvicorn_server_policy` records the selected pin, command and limits, and
+architecture controls reject omitted, duplicated or weakened invocations.
+
+These are POSIX loopback HTTP/1 and WebSocket checks. They do not prove Windows,
+external proxy/TLS, experimental HTTP/2, deployment, live-provider or scientific
+behavior. The standard extra does not select the experimental zttp HTTP/2 route.

@@ -433,7 +433,7 @@
       "version": "0.35.5",
       "minimum_rsvg": "2.63.2",
       "parents": [
-        "next@16.3.8(@babel/core@7.29.7)(@types/node@24.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)"
+        "next@16.3.8(@babel/core@7.29.7)(@types/node@24.19.1)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)"
       ],
       "optional_dependencies": {
         "@img/sharp-darwin-arm64": "0.35.5",
@@ -878,6 +878,20 @@
       "scope": "Local SQLite and in-process HTTP route compatibility only; no live PostgreSQL, provider, deployment or production-availability claim."
     },
     "ci_workflow": ".github/workflows/ci.yml",
+    "frontend_workspace_ci": {
+      "owner": "https://github.com/googa27/main_website/issues/227",
+      "workflow": ".github/workflows/ci.yml quality-checks",
+      "commands": [
+        "pnpm run lint --force",
+        "pnpm run typecheck --force",
+        "pnpm run build --force"
+      ],
+      "execution": "Root package scripts own the complete Turbo task graph. Install apps/api[dev,pdf] first because API also declares lint/typecheck tasks. --force reruns declared tasks without accepting cached outputs; lint and typecheck include web, UI and API. Build executes packages that declare a build script; UI and API have none.",
+      "fitness_test": "tests/architecture/test_ci_frontend_workspace.py checks parsed workflow and root scripts, with coherent positive and narrowed, cached, conditional, allowed-failure, duplicated and child-directory negative controls.",
+      "preserved_gates": "Frozen pnpm install, managed Node, dependency lifecycle/formatter controls, backend checks, isolated dependency auditor and normal installed API acceptance remain required.",
+      "reference": "https://turborepo.dev/docs/reference/run#--force",
+      "scope": "Current Linux CI source/task and installed-artifact evidence; no Windows, browser, deployment, live-operation or scientific acceptance."
+    },
     "mirror_source": "where pertinent",
     "python_dependency_policy": {
       "minimum_owner": "_SECURITY_MINIMUMS in tests/architecture/test_dependency_security_floors.py is the sole minimum-version policy mapping.",

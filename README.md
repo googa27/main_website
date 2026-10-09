@@ -49,7 +49,7 @@ Important caveats:
 
 ### Web (`apps/web`)
 
-- Next.js 16.3.4 App Router.
+- Next.js App Router.
 - React 19 and TypeScript.
 - Tailwind CSS 4 via PostCSS.
 - Pages:
@@ -135,8 +135,10 @@ pnpm run check:dependency-build-policy
 
 Dependency updates are discovered from the repository root, which owns the one
 workspace lockfile. React runtime and declaration updates are grouped across web
-and UI packages; both currently resolve React 19.2.8 with
-`@types/react` 19.2.18 and `@types/react-dom` 19.2.7. Keep the declared
+and UI packages. The manifests and root lockfile own the selected versions;
+`architecture.dependency_update_policy.react_cohort` in
+`docs/ARCHITECTURE.yaml` records the expected runtime and declaration cohort,
+which the architecture tests check across both importers. Keep the declared
 TypeScript 5 and Node 24 families until their recorded compatibility triggers in
 `docs/ARCHITECTURE.yaml` are satisfied.
 

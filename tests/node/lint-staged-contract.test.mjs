@@ -15,7 +15,6 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("../../", import.meta.url));
-const manifest = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
 const require = createRequire(join(root, "package.json"));
 const cli = join(
   dirname(require.resolve("lint-staged/package.json")),
@@ -76,6 +75,10 @@ function fixture(run) {
     write(".gitignore", "node_modules\n");
     write(file, contents(1, 1));
     write("notes.txt", notes("base heading"));
+    write(
+      "apps/web/src/unrelated draft.ts",
+      "export const unrelatedValue=1;\n",
+    );
     git("init", "-q");
     git("config", "user.name", "Synthetic Staged Control");
     git("config", "user.email", "synthetic@example.invalid");
@@ -88,12 +91,21 @@ function fixture(run) {
       "apps/web/eslint.config.mjs",
       file,
       "notes.txt",
+      "apps/web/src/unrelated draft.ts",
     );
     git("-c", "commit.gpgsign=false", "commit", "-qm", "synthetic baseline");
     write(file, contents(2, 1, false));
     git("add", file);
     write("notes.txt", notes("private tracked draft"));
     write("untracked.txt", "private untracked draft\n");
+    write(
+      "apps/web/src/unrelated draft.ts",
+      "export const unrelatedValue=9;\n",
+    );
+    write(
+      "apps/web/src/untracked draft.ts",
+      "export const untrackedValue=9;\n",
+    );
     const staged = () => git("show", `:${file}`);
     const check = (args = [], expected = 0) =>
       invoke(
@@ -107,7 +119,24 @@ function fixture(run) {
   }
 }
 
+function assertOtherDrafts({ read, git }) {
+  assert.equal(
+    read("apps/web/src/unrelated draft.ts"),
+    "export const unrelatedValue=9;\n",
+  );
+  assert.equal(
+    git("show", ":apps/web/src/unrelated draft.ts"),
+    "export const unrelatedValue=1;\n",
+  );
+  assert.equal(
+    read("apps/web/src/untracked draft.ts"),
+    "export const untrackedValue=9;\n",
+  );
+  assert.equal(git("ls-files", "--", "apps/web/src/untracked draft.ts"), "");
+}
+
 function assertPrivateFiles({ read, git }) {
+  assertOtherDrafts({ read, git });
   assert.equal(read("notes.txt"), notes("private tracked draft"));
   assert.equal(git("show", ":notes.txt"), notes("base heading"));
   assert.equal(read("untracked.txt"), "private untracked draft\n");
@@ -174,6 +203,7 @@ test("the canonical command keeps a side-effect task from staging an existing pr
     );
     assert.equal(f.read("untracked.txt"), "private untracked draft\n");
     assert.equal(f.git("stash", "list"), "");
+    assertOtherDrafts(f);
   }));
 
 test("the unprotected native 17.6 command exposes the documented side-effect staging change", () =>
@@ -189,4 +219,5 @@ test("the unprotected native 17.6 command exposes the documented side-effect sta
       notes("private tracked draft", "task footer"),
     );
     assert.equal(f.git("stash", "list"), "");
+    assertOtherDrafts(f);
   }));

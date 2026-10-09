@@ -160,9 +160,7 @@ def server(
                 f"graceful shutdown failed; killed owned child: {errors[-4096:]!r}"
             ) from exc
         events = [
-            json.loads(line)["event"]
-            for line in (first + output).splitlines()
-            if line
+            json.loads(line)["event"] for line in (first + output).splitlines() if line
         ]
         if child.returncode != 0 or events != [
             "lifespan.startup.complete",
@@ -179,11 +177,9 @@ def request(
 ) -> dict[str, Any]:
     """Use the standard HTTP response parser and literal independent outcomes."""
     connection.sendall(
-        (
-            "GET / HTTP/1.1\r\n"
-            f"Host: localhost:{peer[1]}\r\n"
-            f"{headers}\r\n"
-        ).encode("ascii")
+        (f"GET / HTTP/1.1\r\nHost: localhost:{peer[1]}\r\n{headers}\r\n").encode(
+            "ascii"
+        )
     )
     response = http.client.HTTPResponse(connection)
     response.begin()

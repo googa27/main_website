@@ -9,6 +9,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 TASKS = ("lint", "typecheck", "build")
+BACKEND_SETUP = 'python -m pip install -e ".[dev,pdf]"'
 
 
 def _current() -> tuple[dict, dict]:
@@ -27,6 +28,14 @@ def _assert_workspace_gates(workflow: dict, package: dict) -> None:
             owner.get("defaults", {}).get("run", {}).get("working-directory", ".")
             == "."
         ), "Workspace default must run at root"
+    installers = [s for s in job["steps"] if s.get("run") == BACKEND_SETUP]
+    assert len(installers) == 1, "Workspace Python tooling setup absent or duplicated"
+    installer = installers[0]
+    assert installer.get("working-directory") == "apps/api", "Wrong backend setup root"
+    assert "if" not in installer, "Backend setup must not be conditional"
+    assert installer.get("continue-on-error", False) is False, (
+        "Backend setup failure hidden"
+    )
     for task in TASKS:
         assert package["scripts"][task] == f"turbo {task}", "Canonical graph bypassed"
         command = f"pnpm run {task} --force"
@@ -37,6 +46,9 @@ def _assert_workspace_gates(workflow: dict, package: dict) -> None:
         ]
         assert len(matches) == 1, f"Workspace {task} gate absent or duplicated"
         step = matches[0]
+        assert job["steps"].index(installer) < job["steps"].index(step), (
+            "Install Python workspace tooling before root tasks"
+        )
         assert "if" not in step, "Workspace step must not be conditional"
         assert step.get("continue-on-error", False) is False, "Task failure hidden"
         assert step.get("working-directory", ".") == ".", "Task must run at root"
@@ -48,6 +60,13 @@ def _coherent_fixture() -> tuple[dict, dict]:
         for task in TASKS:
             if step.get("run") == f"pnpm --filter web {task}":
                 step["run"] = f"pnpm run {task} --force"
+    steps = workflow["jobs"]["quality-checks"]["steps"]
+    installer = next(s for s in steps if s.get("run") == BACKEND_SETUP)
+    steps.remove(installer)
+    first_task = next(
+        i for i, s in enumerate(steps) if s.get("run") == "pnpm run lint --force"
+    )
+    steps.insert(first_task, installer)
     return workflow, package
 
 
@@ -77,6 +96,11 @@ def test_coherent_root_task_fixture_is_accepted() -> None:
         "bypassed-lint-script",
         "bypassed-typecheck-script",
         "bypassed-build-script",
+        "missing-backend-setup",
+        "late-backend-setup",
+        "wrong-backend-setup-root",
+        "conditional-backend-setup",
+        "allowed-backend-setup-failure",
     ],
 )
 def test_narrowed_or_nonexecuting_workspace_gates_are_refused(mutation: str) -> None:
@@ -84,6 +108,7 @@ def test_narrowed_or_nonexecuting_workspace_gates_are_refused(mutation: str) -> 
     _assert_workspace_gates(workflow, package)
     job = workflow["jobs"]["quality-checks"]
     lint = next(s for s in job["steps"] if s.get("run") == "pnpm run lint --force")
+    installer = next(s for s in job["steps"] if s.get("run") == BACKEND_SETUP)
     if mutation.startswith("web-only-"):
         task = mutation.removeprefix("web-only-")
         step = next(
@@ -110,6 +135,17 @@ def test_narrowed_or_nonexecuting_workspace_gates_are_refused(mutation: str) -> 
     elif mutation.startswith("bypassed-"):
         task = mutation.removeprefix("bypassed-").removesuffix("-script")
         package["scripts"][task] = "echo passed"
+    elif mutation == "missing-backend-setup":
+        job["steps"].remove(installer)
+    elif mutation == "late-backend-setup":
+        job["steps"].remove(installer)
+        job["steps"].append(installer)
+    elif mutation == "wrong-backend-setup-root":
+        installer["working-directory"] = "."
+    elif mutation == "conditional-backend-setup":
+        installer["if"] = "false"
+    elif mutation == "allowed-backend-setup-failure":
+        installer["continue-on-error"] = True
     else:
         raise AssertionError(f"Unimplemented mutation: {mutation}")
     with pytest.raises(AssertionError):

@@ -43,6 +43,10 @@ jobs:
       - name: Verify dependency build policy
         run: pnpm run check:dependency-build-policy
 
+      - name: Install backend dependencies
+        working-directory: apps/api
+        run: python -m pip install -e ".[dev,pdf]"
+
       - name: Lint frontend workspace
         run: pnpm run lint --force
 
@@ -51,10 +55,6 @@ jobs:
 
       - name: Check frontend formatting
         run: pnpm exec prettier --check apps/web packages/ui
-
-      - name: Install backend dependencies
-        working-directory: apps/api
-        run: python -m pip install -e ".[dev,pdf]"
 
       - name: Lint backend
         working-directory: apps/api

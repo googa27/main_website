@@ -886,7 +886,7 @@
         "pnpm run typecheck --force",
         "pnpm run build --force"
       ],
-      "execution": "Root package scripts own the complete Turbo task graph. --force reruns declared tasks without accepting cached outputs; lint and typecheck include web and UI. Build executes packages that declare a build script; UI has none.",
+      "execution": "Root package scripts own the complete Turbo task graph. Install apps/api[dev,pdf] first because API also declares lint/typecheck tasks. --force reruns declared tasks without accepting cached outputs; lint and typecheck include web, UI and API. Build executes packages that declare a build script; UI and API have none.",
       "fitness_test": "tests/architecture/test_ci_frontend_workspace.py checks parsed workflow and root scripts, with coherent positive and narrowed, cached, conditional, allowed-failure, duplicated and child-directory negative controls.",
       "preserved_gates": "Frozen pnpm install, managed Node, dependency lifecycle/formatter controls, backend checks, isolated dependency auditor and normal installed API acceptance remain required.",
       "reference": "https://turborepo.dev/docs/reference/run#--force",

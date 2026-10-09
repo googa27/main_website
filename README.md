@@ -327,3 +327,19 @@ selection. The lifecycle policy rejects these too. If the pending list contains
 only the reviewed root `prepare` hook (`husky`), run `pnpm rebuild --pending` and
 recheck the list after each completed command. A dependency entry requires its
 own lifecycle review; do not clear metadata or relax the denial policy.
+
+## Formatter content contract
+
+Both root and shared config declare Prettier 3.9.8 exactly. Version 3.9.9 changes
+inline mathematical superscripts while returning success; see
+[the upstream report](https://github.com/prettier/prettier/issues/20199) and
+[owner #216](https://github.com/googa27/main_website/issues/216). The version pin
+keeps a future lock refresh from silently selecting that candidate. Security
+updates stay enabled.
+
+Run `pnpm run check:formatter-contract` after a frozen install. The check resolves
+both actual installed importers and compares public formatter output with
+independent Markdown math, code-dollar and currency oracles. It also runs inside
+`pnpm run check:dependency-build-policy`, including in the existing CI gate.
+Admit a later release only after these controls and the complete workspace gates
+pass; selected fixtures do not certify every Markdown or TeX input.

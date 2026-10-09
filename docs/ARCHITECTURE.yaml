@@ -178,6 +178,27 @@
         ],
         "update_command": "pnpm --filter @repo/config update @typescript-eslint/eslint-plugin@8.71.0 @typescript-eslint/parser@8.71.0 --lockfile-only --config.minimum-release-age=10080 --config.strict-peer-dependencies=true",
         "boundary": "Local atomic selection and source/installed fitness checks. Existing hosted individual candidate resolution failed; no hosted updater recovery is inferred."
+      },
+      "prettier": {
+        "version": "3.9.8",
+        "registry_manifests": [
+          "https://registry.npmjs.org/prettier/3.9.8"
+        ],
+        "update_precondition": "Set the reviewed candidate version in this policy and both exact formatter declarations before regenerating the lock; this command consumes those pins and does not select a new version.",
+        "update_command": "pnpm install --lockfile-only --config.minimum-release-age=10080 --config.strict-peer-dependencies=true",
+        "importers": [
+          ".",
+          "packages/config"
+        ],
+        "issue": "https://github.com/googa27/main_website/issues/216",
+        "upstream_regression": "https://github.com/prettier/prettier/issues/20199",
+        "decision": "Pin both formatter declarations exactly to the math-preserving release; do not ignore version ranges or disable security updates.",
+        "verification_command": "pnpm run check:formatter-contract",
+        "fitness_tests": [
+          "tests/node/prettier-math.test.mjs"
+        ],
+        "revisit_when": "The candidate preserves independent inline superscript, subscript, TeX macro, display-math, code-dollar and currency oracles in both actual installed consumers, and the frozen workspace/lifecycle/lint/typecheck/format/build/architecture gates pass.",
+        "boundary": "Selected formatter content and installed importer identities; this does not prove arbitrary TeX correctness, all Markdown cases, browser delivery, deployment or scientific validity. The documented local pin/lock regeneration procedure does not establish hosted updater recovery."
       }
     },
     "extension_points": [

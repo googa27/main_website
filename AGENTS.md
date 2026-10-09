@@ -119,3 +119,12 @@ Follow the [paired update procedure](README.md#paired-typescript-eslint-updates)
 and the canonical `dependency_update_policy.typescript_eslint_cohort` contract
 in `docs/ARCHITECTURE.yaml`. Verify the actual declarations, lock peer and
 installed manifests; passing local checks do not prove hosted updater recovery.
+
+## Formatter upgrades
+
+Follow `dependency_update_policy.prettier` in `docs/ARCHITECTURE.yaml`. Both
+formatter declarations are exact pins. Run `pnpm run check:formatter-contract`
+after a frozen install; the existing dependency build gate includes it. A
+successful CLI or hosted check does not establish mathematical-content
+preservation. Update the policy and both declarations together only after the
+actual candidate passes the content controls and complete workspace gates.

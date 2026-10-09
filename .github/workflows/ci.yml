@@ -43,11 +43,11 @@ jobs:
       - name: Verify dependency build policy
         run: pnpm run check:dependency-build-policy
 
-      - name: Lint frontend
-        run: pnpm --filter web lint
+      - name: Lint frontend workspace
+        run: pnpm run lint --force
 
-      - name: Type check frontend
-        run: pnpm --filter web typecheck
+      - name: Type check frontend workspace
+        run: pnpm run typecheck --force
 
       - name: Check frontend formatting
         run: pnpm exec prettier --check apps/web packages/ui
@@ -66,8 +66,8 @@ jobs:
         working-directory: apps/api
         run: ruff format --check .
 
-      - name: Build frontend
-        run: pnpm --filter web build
+      - name: Build frontend workspace
+        run: pnpm run build --force
 
       - name: Verify installed API artifact
         run: |

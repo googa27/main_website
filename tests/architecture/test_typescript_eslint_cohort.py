@@ -23,6 +23,7 @@ def test_shared_typescript_eslint_lock_binds_the_same_parser_peer() -> None:
     dependencies = lock["importers"]["packages/config"]["devDependencies"]
     plugin = dependencies[PLUGIN]["version"]
     parser = dependencies[PARSER]["version"]
+    # pnpm appends resolved peer identities in parenthesized version suffixes.
     version = parser.split("(", 1)[0]
     assert plugin.split("(", 1)[0] == version
     assert f"({PARSER}@{parser})" in plugin

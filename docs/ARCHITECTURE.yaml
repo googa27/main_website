@@ -268,7 +268,8 @@
         "https://github.com/googa27/main_website/pull/89#issuecomment-5638237070",
         "https://github.com/googa27/main_website/pull/91#issuecomment-5638238178",
         "https://registry.npmjs.org/@typescript-eslint/eslint-plugin/8.71.0",
-        "https://registry.npmjs.org/@typescript-eslint/parser/8.71.0"
+        "https://registry.npmjs.org/@typescript-eslint/parser/8.71.0",
+        "https://registry.npmjs.org/ignore/7.0.11"
       ],
       "fitness": "Frozen pnpm install rejects unsupported peer combinations; workspace-specific lint and typecheck verify their public CLI behavior. The direct shared-config plugin and parser declarations, lock peer identity and installed manifests must match the reviewed same-version cohort."
     },

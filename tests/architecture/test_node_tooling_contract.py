@@ -161,7 +161,7 @@ def test_dependency_policy_checker_validates_reviewed_bytes_and_pnpm_state() -> 
             "cohort_name",
             "@typescript-eslint/eslint-plugin installed identity must match",
         ),
-        ("cohort_missing", "TypeScript ESLint cohort cannot be verified"),
+        ("cohort_missing", "run pnpm install --frozen-lockfile"),
     ],
 )
 def test_dependency_checker_refuses_changed_install_paths(

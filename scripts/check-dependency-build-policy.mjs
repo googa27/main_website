@@ -34,6 +34,7 @@ const updatePolicy = architecture.architecture.dependency_update_policy;
 const cohort = updatePolicy.typescript_eslint_cohort;
 try {
   const importerManifest = readJson(`${cohort.importer}/package.json`);
+  // Resolve public manifests from this workspace importer, not the root.
   const importerRequire = createRequire(
     resolve(root, cohort.importer, "package.json"),
   );
@@ -53,7 +54,12 @@ try {
     }
   }
 } catch (error) {
-  fail(`TypeScript ESLint cohort cannot be verified: ${error.message}`);
+  const installGuidance = ["MODULE_NOT_FOUND", "ENOENT"].includes(error.code)
+    ? "; run pnpm install --frozen-lockfile, then pnpm run check:dependency-build-policy"
+    : "";
+  fail(
+    `TypeScript ESLint cohort cannot be verified: ${error.message}${installGuidance}`,
+  );
 }
 
 const versionsInLock = (name) => {

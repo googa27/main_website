@@ -728,7 +728,7 @@
         "selected": [
           "HTTPX 0.28.1 for the runtime GitHub adapter",
           "HTTPX2 2.12.0 for the development-only Starlette TestClient backend",
-          "IDNA 3.19 shared security-compatible domain processing",
+          "IDNA 3.20 application domain processing; the isolated auditor retains its independent IDNA 3.19 pin",
           "AnyIO 4.15.1 explicit security constraint for the existing transitive async backend"
         ],
         "alternatives": [

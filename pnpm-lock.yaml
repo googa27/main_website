@@ -20,6 +20,11 @@ overrides:
   source-map-js@<1.2.2: 1.2.2
   sharp@<0.35.5: 0.35.5
 
+patchedDependencies:
+  source-map-js@1.2.2:
+    hash: 72931d02abd89d2344f21028988def8403d64eb8c0c4005c626c4c97904362ff
+    path: patches/source-map-js@1.2.2.patch
+
 importers:
 
   .:
@@ -2842,7 +2847,7 @@ snapshots:
       jiti: 2.7.0
       lightningcss: 1.32.0
       magic-string: 0.30.21
-      source-map-js: 1.2.2
+      source-map-js: 1.2.2(patch_hash=72931d02abd89d2344f21028988def8403d64eb8c0c4005c626c4c97904362ff)
       tailwindcss: 4.3.3
 
   '@tailwindcss/oxide-android-arm64@4.3.3':
@@ -4414,7 +4419,7 @@ snapshots:
     dependencies:
       nanoid: 3.3.18
       picocolors: 1.1.1
-      source-map-js: 1.2.2
+      source-map-js: 1.2.2(patch_hash=72931d02abd89d2344f21028988def8403d64eb8c0c4005c626c4c97904362ff)
 
   prelude-ls@1.2.1: {}
 
@@ -4597,7 +4602,7 @@ snapshots:
       side-channel-map: 1.0.1
       side-channel-weakmap: 1.0.2
 
-  source-map-js@1.2.2: {}
+  source-map-js@1.2.2(patch_hash=72931d02abd89d2344f21028988def8403d64eb8c0c4005c626c4c97904362ff): {}
 
   stable-hash@0.0.5: {}
 

@@ -503,3 +503,54 @@ architecture controls reject omitted, duplicated or weakened invocations.
 These are POSIX loopback HTTP/1 and WebSocket checks. They do not prove Windows,
 external proxy/TLS, experimental HTTP/2, deployment, live-provider or scientific
 behavior. The standard extra does not select the experimental zttp HTTP/2 route.
+
+## Indexed source-map correctness
+
+The source-map security floor remains 1.2.2. The root pnpm manifest additionally
+binds that exact version to `patches/source-map-js@1.2.2.patch`; the lock records
+its SHA-256 and both PostCSS/Tailwind parent routes. This version-specific patch
+adjusts section-boundary comparison and applies a column offset only to the first
+line relative to that section. Reverse lookup shares the maintained Basic binary search and source resolution
+through an internal matched-coordinate helper implemented by both consumer kinds.
+It preserves null results and chooses the closest original across every section
+according to GLB/LUB, including nested children. Equal original positions retain
+the existing first-section tie convention. Candidates carry their original
+coordinates, so shared generated positions cannot confuse a forward round trip.
+No serialized flattening or new parser is introduced. The patch retains the parser and every offset, resource-exhaustion,
+lifecycle and scanner control.
+
+The current maintained release still has these correctness defects. A direct move
+to `@jridgewell/source-map` would remove `applySourceMap`, which actual PostCSS
+previous-map composition requires, and `SourceNode` from the tested public API.
+The compatibility exception remains owned by [issue 204](https://github.com/googa27/main_website/issues/204),
+with null-result and nested reverse lookup tracked in [236](https://github.com/googa27/main_website/issues/236)
+and [237](https://github.com/googa27/main_website/issues/237), with cross-section
+closest selection tracked in [239](https://github.com/googa27/main_website/issues/239).
+
+Run the unchanged required dependency build gate after a frozen install. Its
+source-map controls cover exact section starts, nonzero columns, forward and
+reverse lookup, unmatched originals, valid later sections, sourceRoot aliases,
+first-line-only offsets, nested/adjacent sections, SourceNode round trips, actual
+PostCSS previous-map composition and installed patch bytes. Literal outputs and
+already-locked trace-mapping 0.3.31 provide independent controls, following
+[ECMA-426 index-map semantics](https://tc39.es/ecma426/#sec-index-source-map).
+
+The independent indexed `AnyMap` route has reproduced limitations: reverse lookup
+can miss a later section with the same source name, and nested flattening can add
+an ancestor column after advancing to a later ancestor-relative line. Our oracle
+contract is tracked by [issue 238](https://github.com/googa27/main_website/issues/238);
+the maintained upstream [source-deduplication issue](https://github.com/jridgewell/sourcemaps/issues/53)
+remains separate. These cases use hand-derived flat generated coordinates and
+the real unindexed `TraceMap` as an independent check. They do not reproduce the
+section algorithm or assert that an incorrect `AnyMap` result is acceptable.
+Existing indexed reference controls are retained only within their literal-tested
+scope. A sourceRoot compatibility control also checks the actual Basic consumer.
+On a requested original line with no mapping, unindexed TraceMap returns null
+while Basic source-map-js searches neighboring original lines according to bias.
+Those tests assert the literal TraceMap null separately and preserve the Basic
+neighboring-line contract; agreement is not claimed across that API boundary.
+
+Retire the patch only when a maintained compatible release passes all these
+controls and the complete repository gates. The targeted controls do not establish
+full ECMA-426 conformance, live input/exploitation, Windows, deployment or scientific
+acceptance. The separate existing braces finding remains owned by issue 195.

@@ -1,6 +1,59 @@
 diff --git a/lib/source-map-consumer.js b/lib/source-map-consumer.js
 --- a/lib/source-map-consumer.js
 +++ b/lib/source-map-consumer.js
+@@ -828,14 +828,22 @@
+  */
+ BasicSourceMapConsumer.prototype.generatedPositionFor =
+   function SourceMapConsumer_generatedPositionFor(aArgs) {
++    var mapping = this._findOriginalMapping(aArgs);
++    return {
++      line: mapping ? util.getArg(mapping, 'generatedLine', null) : null,
++      column: mapping ? util.getArg(mapping, 'generatedColumn', null) : null,
++      lastColumn: mapping ? util.getArg(mapping, 'lastGeneratedColumn', null) : null
++    };
++  };
++
++// Keep the original coordinates alongside the generated result so an indexed
++// parent can compare child matches without an ambiguous forward round trip.
++BasicSourceMapConsumer.prototype._findOriginalMapping =
++  function BasicSourceMapConsumer_findOriginalMapping(aArgs) {
+     var source = util.getArg(aArgs, 'source');
+     source = this._findSourceIndex(source);
+     if (source < 0) {
+-      return {
+-        line: null,
+-        column: null,
+-        lastColumn: null
+-      };
++      return null;
+     }
+ 
+     var needle = {
+@@ -857,19 +865,11 @@
+       var mapping = this._originalMappings[index];
+ 
+       if (mapping.source === needle.source) {
+-        return {
+-          line: util.getArg(mapping, 'generatedLine', null),
+-          column: util.getArg(mapping, 'generatedColumn', null),
+-          lastColumn: util.getArg(mapping, 'lastGeneratedColumn', null)
+-        };
+-      }
+-    }
+-
+-    return {
+-      line: null,
+-      column: null,
+-      lastColumn: null
+-    };
++        return mapping;
++      }
++    }
++
++    return null;
+   };
+ 
+ exports.BasicSourceMapConsumer = BasicSourceMapConsumer;
 @@ -1070,7 +1070,7 @@
          }
  
@@ -10,28 +63,76 @@ diff --git a/lib/source-map-consumer.js b/lib/source-map-consumer.js
        });
      var section = this._sections[sectionIndex];
  
-@@ -1151,18 +1151,13 @@
+@@ -1148,32 +1148,46 @@
+  */
+ IndexedSourceMapConsumer.prototype.generatedPositionFor =
+   function IndexedSourceMapConsumer_generatedPositionFor(aArgs) {
++    var mapping = this._findOriginalMapping(aArgs);
++    return {
++      line: mapping ? mapping.generatedLine : null,
++      column: mapping ? mapping.generatedColumn : null
++    };
++  };
++
++IndexedSourceMapConsumer.prototype._findOriginalMapping =
++  function IndexedSourceMapConsumer_findOriginalMapping(aArgs) {
++    var best = null;
++    var bias = util.getArg(aArgs, 'bias', SourceMapConsumer.GREATEST_LOWER_BOUND);
      for (var i = 0; i < this._sections.length; i++) {
        var section = this._sections[i];
- 
+-
 -      // Only consider this section if the requested source is in the list of
 -      // sources of the consumer.
 -      if (section.consumer._findSourceIndex(util.getArg(aArgs, 'source')) === -1) {
--        continue;
--      }
-       var generatedPosition = section.consumer.generatedPositionFor(aArgs);
++      var mapping = section.consumer._findOriginalMapping(aArgs);
++      if (!mapping) {
+         continue;
+       }
+-      var generatedPosition = section.consumer.generatedPositionFor(aArgs);
 -      if (generatedPosition) {
-+      if (generatedPosition.line != null && generatedPosition.column != null) {
-         var ret = {
-           line: generatedPosition.line +
-             (section.generatedOffset.generatedLine - 1),
-           column: generatedPosition.column +
+-        var ret = {
+-          line: generatedPosition.line +
+-            (section.generatedOffset.generatedLine - 1),
+-          column: generatedPosition.column +
 -            (section.generatedOffset.generatedLine === generatedPosition.line
-+            (generatedPosition.line === 1
-              ? section.generatedOffset.generatedColumn - 1
-              : 0)
-         };
-@@ -1214,7 +1209,7 @@
+-             ? section.generatedOffset.generatedColumn - 1
+-             : 0)
+-        };
+-        return ret;
+-      }
+-    }
+-
+-    return {
+-      line: null,
+-      column: null
+-    };
++
++      // Each child uses the existing Basic binary search and source resolution.
++      // Compare original positions across every section, preserving the first
++      // section on ties. Never infer originals by mapping generated coordinates
++      // back: multiple originals can share one generated position.
++      if (best) {
++        var cmp = util.compareByOriginalPositionsNoSource(mapping, best, true);
++        if (bias == SourceMapConsumer.LEAST_UPPER_BOUND ? cmp >= 0 : cmp <= 0) {
++          continue;
++        }
++      }
++      best = {
++        originalLine: mapping.originalLine,
++        originalColumn: mapping.originalColumn,
++        generatedLine: mapping.generatedLine +
++          (section.generatedOffset.generatedLine - 1),
++        generatedColumn: mapping.generatedColumn +
++          (mapping.generatedLine === 1
++           ? section.generatedOffset.generatedColumn - 1
++           : 0)
++      };
++    }
++    return best;
+   };
+ 
+ /**
+@@ -1214,7 +1228,7 @@
            generatedLine: mapping.generatedLine +
              (section.generatedOffset.generatedLine - 1),
            generatedColumn: mapping.generatedColumn +

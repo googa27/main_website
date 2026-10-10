@@ -529,3 +529,324 @@ test("PostCSS composes a real previous indexed map at its exact section start", 
     { source: "input.scss", line: 7, column: 3, name: null },
   );
 });
+
+// Cross-section reverse lookup keeps the closest original, including nested
+// children and shared generated coordinates. TraceMap is a same-line oracle:
+// its null result on original-line gaps is asserted separately from the
+// source-map-js neighboring-line contract. No map is flattened by the test.
+{
+  const trace = reference;
+
+  for (const [parent, path] of [
+    [
+      "postcss",
+      root +
+        "/node_modules/.pnpm/postcss@8.5.23/node_modules/postcss/package.json",
+    ],
+    [
+      "@tailwindcss/node",
+      root +
+        "/node_modules/.pnpm/@tailwindcss+node@4.3.3/node_modules/@tailwindcss/node/package.json",
+    ],
+  ]) {
+    const { SourceMapConsumer: C, SourceMapGenerator: G } =
+      createRequire(path)("source-map-js");
+    const basic = (ol, oc = 0) => {
+      const g = new G();
+      g.addMapping({
+        source: "same.js",
+        generated: { line: 1, column: 0 },
+        original: { line: ol, column: oc },
+      });
+      return g.toJSON();
+    };
+    const sec = (line, column, map) => ({ offset: { line, column }, map });
+    const ix = (...sections) => ({ version: 3, sections });
+    const flat = (entries) => {
+      const g = new G();
+      for (const [gl, gc, ol, oc] of entries)
+        g.addMapping({
+          source: "same.js",
+          generated: { line: gl, column: gc },
+          original: { line: ol, column: oc },
+        });
+      return g.toJSON();
+    };
+    const check = (
+      name,
+      map,
+      args,
+      expected,
+      entries,
+      traceExpected = expected,
+    ) =>
+      test(parent + " " + name, () => {
+        const oracle = flat(entries);
+        const a = new C(oracle).generatedPositionFor(args);
+        assert.deepEqual(
+          { line: a.line, column: a.column },
+          expected,
+          "flat Basic vs literal",
+        );
+        const ta = { ...args };
+        if (args.bias === C.LEAST_UPPER_BOUND)
+          ta.bias = trace.LEAST_UPPER_BOUND;
+        assert.deepEqual(
+          trace.generatedPositionFor(new trace.TraceMap(oracle), ta),
+          traceExpected,
+          "independent flat TraceMap vs literal",
+        );
+        const actual = new C(map).generatedPositionFor(args);
+        assert.deepEqual(
+          { line: actual.line, column: actual.column },
+          expected,
+          "real indexed query vs literal",
+        );
+      });
+
+    const collision = () => {
+      const g = new G();
+      for (const ol of [1, 3])
+        g.addMapping({
+          source: "same.js",
+          generated: { line: 1, column: 0 },
+          original: { line: ol, column: 0 },
+        });
+      return g.toJSON();
+    };
+    check(
+      "later shared-generated original still beats early lower match",
+      ix(sec(2, 7, basic(2)), sec(4, 9, collision())),
+      { source: "same.js", line: 3, column: 0 },
+      { line: 5, column: 9 },
+      [
+        [3, 7, 2, 0],
+        [5, 9, 1, 0],
+        [5, 9, 3, 0],
+      ],
+    );
+    check(
+      "early exact mapping is not inferred by ambiguous forward lookup",
+      ix(sec(2, 7, collision()), sec(4, 9, basic(2))),
+      { source: "same.js", line: 3, column: 0 },
+      { line: 3, column: 7 },
+      [
+        [3, 7, 1, 0],
+        [3, 7, 3, 0],
+        [5, 9, 2, 0],
+      ],
+    );
+    check(
+      "later closer lower original line wins",
+      ix(sec(2, 7, basic(1)), sec(4, 9, basic(3))),
+      { source: "same.js", line: 4, column: 0 },
+      { line: 5, column: 9 },
+      [
+        [3, 7, 1, 0],
+        [5, 9, 3, 0],
+      ],
+      { line: null, column: null },
+    );
+    check(
+      "later closer upper original line wins",
+      ix(sec(2, 7, basic(5)), sec(4, 9, basic(3))),
+      { source: "same.js", line: 2, column: 0, bias: C.LEAST_UPPER_BOUND },
+      { line: 5, column: 9 },
+      [
+        [3, 7, 5, 0],
+        [5, 9, 3, 0],
+      ],
+      { line: null, column: null },
+    );
+    test(
+      parent +
+        " repeated relative sourceRoot alias preserves closest selection",
+      () => {
+        const a = { ...basic(1), sourceRoot: "/src" },
+          b = { ...basic(2), sourceRoot: "/src" };
+        const args = { source: "same.js", line: 2, column: 0 },
+          expected = { line: 5, column: 9 };
+        const f = {
+          ...flat([
+            [3, 7, 1, 0],
+            [5, 9, 2, 0],
+          ]),
+          sourceRoot: "/src",
+        };
+        const o = new C(f).generatedPositionFor(args);
+        assert.deepEqual({ line: o.line, column: o.column }, expected);
+        assert.deepEqual(
+          trace.generatedPositionFor(new trace.TraceMap(f), {
+            ...args,
+            source: "/src/same.js",
+          }),
+          expected,
+        );
+        const actual = new C(
+          ix(sec(2, 7, a), sec(4, 9, b)),
+        ).generatedPositionFor(args);
+        assert.deepEqual(actual, expected);
+      },
+    );
+    check(
+      "nested later-line offsets retain closer candidate columns",
+      ix(sec(2, 7, basic(1)), sec(4, 9, ix(sec(2, 11, basic(2))))),
+      { source: "same.js", line: 2, column: 0 },
+      { line: 7, column: 11 },
+      [
+        [3, 7, 1, 0],
+        [7, 11, 2, 0],
+      ],
+    );
+    check(
+      "all sections without a lower original stay null",
+      ix(sec(2, 7, basic(3)), sec(4, 9, basic(4))),
+      { source: "same.js", line: 1, column: 0 },
+      { line: null, column: null },
+      [
+        [3, 7, 3, 0],
+        [5, 9, 4, 0],
+      ],
+    );
+    check(
+      "all sections without an upper original stay null",
+      ix(sec(2, 7, basic(1)), sec(4, 9, basic(2))),
+      { source: "same.js", line: 4, column: 0, bias: C.LEAST_UPPER_BOUND },
+      { line: null, column: null },
+      [
+        [3, 7, 1, 0],
+        [5, 9, 2, 0],
+      ],
+    );
+
+    test(parent + " Basic reverse lookup retains computed lastColumn", () => {
+      const g = new G();
+      g.addMapping({
+        source: "same.js",
+        generated: { line: 1, column: 0 },
+        original: { line: 1, column: 0 },
+      });
+      g.addMapping({
+        source: "same.js",
+        generated: { line: 1, column: 7 },
+        original: { line: 2, column: 0 },
+      });
+      const c = new C(g.toJSON());
+      c.computeColumnSpans();
+      assert.deepEqual(
+        c.generatedPositionFor({ source: "same.js", line: 1, column: 0 }),
+        { line: 1, column: 0, lastColumn: 6 },
+      );
+      assert.deepEqual(
+        c.generatedPositionFor({ source: "absent.js", line: 1, column: 0 }),
+        { line: null, column: null, lastColumn: null },
+      );
+    });
+    test(parent + " coercible LUB retains maintained Basic behavior", () => {
+      const args = { source: "same.js", line: 2, column: 5, bias: "2" },
+        expected = { line: 5, column: 9 };
+      const f = flat([
+          [3, 7, 2, 20],
+          [5, 9, 2, 8],
+        ]),
+        o = new C(f).generatedPositionFor(args);
+      assert.deepEqual(
+        { line: o.line, column: o.column },
+        expected,
+        "maintained Basic coerces the bias",
+      );
+      assert.deepEqual(
+        trace.generatedPositionFor(new trace.TraceMap(f), {
+          ...args,
+          bias: trace.LEAST_UPPER_BOUND,
+        }),
+        expected,
+        "independent numeric LUB",
+      );
+      const actual = new C(
+        ix(sec(2, 7, basic(2, 20)), sec(4, 9, basic(2, 8))),
+      ).generatedPositionFor(args);
+      assert.deepEqual(actual, expected);
+    });
+    check(
+      "later exact original line beats early valid GLB",
+      ix(sec(2, 7, basic(1)), sec(4, 9, basic(2))),
+      { source: "same.js", line: 2, column: 0 },
+      { line: 5, column: 9 },
+      [
+        [3, 7, 1, 0],
+        [5, 9, 2, 0],
+      ],
+    );
+    check(
+      "later exact original column beats early valid GLB",
+      ix(sec(2, 7, basic(2, 0)), sec(4, 9, basic(2, 8))),
+      { source: "same.js", line: 2, column: 8 },
+      { line: 5, column: 9 },
+      [
+        [3, 7, 2, 0],
+        [5, 9, 2, 8],
+      ],
+    );
+    check(
+      "later closer GLB column wins",
+      ix(sec(2, 7, basic(2, 0)), sec(4, 9, basic(2, 8))),
+      { source: "same.js", line: 2, column: 10 },
+      { line: 5, column: 9 },
+      [
+        [3, 7, 2, 0],
+        [5, 9, 2, 8],
+      ],
+    );
+    check(
+      "later closer LUB column wins",
+      ix(sec(2, 7, basic(2, 20)), sec(4, 9, basic(2, 8))),
+      { source: "same.js", line: 2, column: 5, bias: C.LEAST_UPPER_BOUND },
+      { line: 5, column: 9 },
+      [
+        [3, 7, 2, 20],
+        [5, 9, 2, 8],
+      ],
+    );
+    check(
+      "later exact LUB column wins",
+      ix(sec(2, 7, basic(2, 20)), sec(4, 9, basic(2, 8))),
+      { source: "same.js", line: 2, column: 8, bias: C.LEAST_UPPER_BOUND },
+      { line: 5, column: 9 },
+      [
+        [3, 7, 2, 20],
+        [5, 9, 2, 8],
+      ],
+    );
+    check(
+      "nested early valid mapping yields to later exact",
+      ix(sec(2, 7, ix(sec(0, 0, basic(1)))), sec(10, 9, basic(2))),
+      { source: "same.js", line: 2, column: 0 },
+      { line: 11, column: 9 },
+      [
+        [3, 7, 1, 0],
+        [11, 9, 2, 0],
+      ],
+    );
+    check(
+      "early exact positive remains early",
+      ix(sec(2, 7, basic(2)), sec(4, 9, basic(1))),
+      { source: "same.js", line: 2, column: 0 },
+      { line: 3, column: 7 },
+      [
+        [3, 7, 2, 0],
+        [5, 9, 1, 0],
+      ],
+    );
+    check(
+      "identical originals choose earliest generated position",
+      ix(sec(2, 7, basic(2)), sec(4, 9, basic(2))),
+      { source: "same.js", line: 2, column: 0 },
+      { line: 3, column: 7 },
+      [
+        [3, 7, 2, 0],
+        [5, 9, 2, 0],
+      ],
+    );
+  }
+}

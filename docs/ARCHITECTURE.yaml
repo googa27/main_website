@@ -435,21 +435,22 @@
       "upstream_advisory": "https://github.com/7rulnik/source-map-js/issues/76",
       "maintained_patch": "https://github.com/7rulnik/source-map-js/commit/cf7658058ceeaa8619d5ae0ec90be6905209d016",
       "maintained_release": "https://github.com/7rulnik/source-map-js/commit/0a1d334fd1e55a47df97fcd60a7915d46df3b08a",
-      "behavioral_oracles": "Real resolved dependencies of both locked parents: literal generator/consumer/SourceNode round trips and indexed generated-line offsets. Admitted large section lines preserve generated code with padding bounded by actual content. The maintained release refuses invalid, unsafe or excessive offsets and accumulated nested line offsets. A test-only public add-method circuit breaker bounds the vulnerable-version reproduction, without production monkeypatching or timing claims. A version-specific correctness patch preserves zero-based section boundaries and applies column offsets only to the section-relative first line. Exact starts, reverse lookup, iteration, nested and adjacent sections, SourceNode round trips and actual PostCSS previous-map composition have literal and independent consumer controls. This is not exhaustive ECMA-426 conformance. Reverse lookup delegates to the child's public method, preserves null coordinates and continues to a valid later section. Explicit flat-map literals and unindexed TraceMap independently cover unmatched originals, repeated sources, sourceRoot aliases and nested first/later-line offsets; known AnyMap limitations are not accepted as expected product outputs.",
+      "behavioral_oracles": "Real resolved dependencies of both locked parents: literal generator/consumer/SourceNode round trips and indexed generated-line offsets. Admitted large section lines preserve generated code with padding bounded by actual content. The maintained release refuses invalid, unsafe or excessive offsets and accumulated nested line offsets. A test-only public add-method circuit breaker bounds the vulnerable-version reproduction, without production monkeypatching or timing claims. A version-specific correctness patch preserves zero-based section boundaries and applies column offsets only to the section-relative first line. Exact starts, reverse lookup, iteration, nested and adjacent sections, SourceNode round trips and actual PostCSS previous-map composition have literal and independent consumer controls. This is not exhaustive ECMA-426 conformance. Reverse lookup reuses the maintained Basic binary search and source resolution through a shared internal matched-coordinate helper implemented by both Basic and Indexed consumers. It preserves null results and chooses the globally closest original position according to GLB/LUB across all sections, including nested children. Equal original positions preserve the existing first-section tie convention. Original coordinates travel with candidates; no ambiguous generated-to-original round trip or serialized flattening is used. Explicit flat-map literals and unindexed TraceMap independently cover unmatched originals, repeated sources, sourceRoot aliases and nested first/later-line offsets; known AnyMap limitations are not accepted as expected product outputs.",
       "scope": "Local installed PostCSS/Tailwind toolchain only. Package presence and synthetic controls do not prove untrusted live input, exploitation, deployment or a scientific result.",
       "correctness_patch": {
         "owner": "https://github.com/googa27/main_website/issues/204",
         "path": "patches/source-map-js@1.2.2.patch",
-        "sha256": "e2ab3cb7a4fe0436ef9b6a89d98a3d77abe51308bda6c84ca36c9450bad67af0",
+        "sha256": "72931d02abd89d2344f21028988def8403d64eb8c0c4005c626c4c97904362ff",
         "upstream_consumer_sha256": "9ad10db386da13c1f95e6a680d6298dbb306c77f57a9a3539e4595b723a7654b",
-        "patched_consumer_sha256": "9d6e66fd6a03c5e2badcfd70119e4a66f5263ae5a676a160daea0975c1915239",
+        "patched_consumer_sha256": "1debdf13212d91d0033f23f35eb975c1c831e33db25345ebc4be7c850b91db2d",
         "upstream_commit": "0a1d334fd1e55a47df97fcd60a7915d46df3b08a",
-        "retirement_trigger": "Replace this version-specific patch only after a maintained compatible release passes all indexed-map, null-result, nested reverse-lookup, security and actual PostCSS consumer controls.",
+        "retirement_trigger": "Replace this version-specific patch only after a maintained compatible release passes all indexed-map, null-result, nested reverse-lookup, closest GLB/LUB selection, security and actual PostCSS consumer controls.",
         "justification": "Maintained 1.2.2 is the current release and lacks this correctness repair. @jridgewell/source-map lacks applySourceMap and SourceNode, required by PostCSS composition and the existing public contract; no package substitution or custom parser is introduced.",
         "oracle": "ECMA-426 DecodeIndexSourceMap, literal public-output assertions and already-locked @jridgewell/trace-mapping 0.3.31. Repeated-source and nested-column reverse cases use explicit flat generated coordinates with unindexed TraceMap; AnyMap is qualified by oracle_limits.",
         "reverse_lookup_owners": [
           "https://github.com/googa27/main_website/issues/236",
-          "https://github.com/googa27/main_website/issues/237"
+          "https://github.com/googa27/main_website/issues/237",
+          "https://github.com/googa27/main_website/issues/239"
         ]
       },
       "correctness_owner": "https://github.com/googa27/main_website/issues/204",
@@ -463,7 +464,8 @@
           "Nested flattening can apply an ancestor column offset after advancing to a later ancestor-relative line."
         ],
         "qualified_reverse_oracle": "Hand-derived literal generated coordinates encoded as an unindexed map and checked with the real public TraceMap. No section-flattening algorithm is reproduced in the test.",
-        "scope": "Existing indexed AnyMap controls remain only for cases agreeing with independent literals. No exhaustive ECMA-426 conformance or universal independent-oracle guarantee."
+        "scope": "Existing indexed AnyMap controls remain only for cases agreeing with independent literals. No exhaustive ECMA-426 conformance or universal independent-oracle guarantee.",
+        "cross_line_reverse_semantics": "Unindexed TraceMap 0.3.31 returns null when the requested original line has no mapping. Basic source-map-js searches adjacent original lines according to bias. Tests assert the literal TraceMap null separately and preserve the Basic neighboring-line contract; agreement is not claimed on this boundary."
       }
     },
     "sharp_policy": {

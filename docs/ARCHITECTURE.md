@@ -504,28 +504,45 @@ These are POSIX loopback HTTP/1 and WebSocket checks. They do not prove Windows,
 external proxy/TLS, experimental HTTP/2, deployment, live-provider or scientific
 behavior. The standard extra does not select the experimental zttp HTTP/2 route.
 
-## Indexed source-map offset correctness
+## Indexed source-map correctness
 
 The source-map security floor remains 1.2.2. The root pnpm manifest additionally
 binds that exact version to `patches/source-map-js@1.2.2.patch`; the lock records
-its SHA-256 and both PostCSS/Tailwind parent routes. This three-line patch adjusts
-section-boundary comparison and applies a column offset only to the first line
-relative to that section. It does not replace the parser or relax any offset,
-resource-exhaustion, lifecycle, or scanner control.
+its SHA-256 and both PostCSS/Tailwind parent routes. This version-specific patch
+adjusts section-boundary comparison and applies a column offset only to the first
+line relative to that section. Reverse lookup delegates to each child's public
+method, preserves unmatched null coordinates and continues to a valid later
+section. This also permits nested indexed children without calling a Basic-only
+private method. The patch retains the parser and every offset, resource-exhaustion,
+lifecycle and scanner control.
 
-The current maintained release still has the boundary defect. A direct move to
-`@jridgewell/source-map` would remove `applySourceMap`, which actual PostCSS
+The current maintained release still has these correctness defects. A direct move
+to `@jridgewell/source-map` would remove `applySourceMap`, which actual PostCSS
 previous-map composition requires, and `SourceNode` from the tested public API.
-The version-specific patch is therefore a documented compatibility exception,
-owned by [issue 204](https://github.com/googa27/main_website/issues/204).
+The compatibility exception remains owned by [issue 204](https://github.com/googa27/main_website/issues/204),
+with null-result and nested reverse lookup tracked in [236](https://github.com/googa27/main_website/issues/236)
+and [237](https://github.com/googa27/main_website/issues/237).
 
 Run the unchanged required dependency build gate after a frozen install. Its
 source-map controls cover exact section starts, nonzero columns, forward and
-reverse lookup, first-line-only offsets, nested/adjacent sections, SourceNode
-round trips, actual PostCSS previous-map composition, and installed patch bytes.
-Literal outputs and already-locked trace-mapping 0.3.31 provide independent
-oracles, following [ECMA-426 index-map semantics](https://tc39.es/ecma426/#sec-index-source-map).
-Retire the patch only when a maintained compatible release passes these controls
-and the complete repository gates. The targeted controls do not establish full
-ECMA-426 conformance, live input/exploitation, Windows, deployment, or scientific
+reverse lookup, unmatched originals, valid later sections, sourceRoot aliases,
+first-line-only offsets, nested/adjacent sections, SourceNode round trips, actual
+PostCSS previous-map composition and installed patch bytes. Literal outputs and
+already-locked trace-mapping 0.3.31 provide independent controls, following
+[ECMA-426 index-map semantics](https://tc39.es/ecma426/#sec-index-source-map).
+
+The independent indexed `AnyMap` route has reproduced limitations: reverse lookup
+can miss a later section with the same source name, and nested flattening can add
+an ancestor column after advancing to a later ancestor-relative line. Our oracle
+contract is tracked by [issue 238](https://github.com/googa27/main_website/issues/238);
+the maintained upstream [source-deduplication issue](https://github.com/jridgewell/sourcemaps/issues/53)
+remains separate. These cases use hand-derived flat generated coordinates and
+the real unindexed `TraceMap` as an independent check. They do not reproduce the
+section algorithm or assert that an incorrect `AnyMap` result is acceptable.
+Existing indexed reference controls are retained only within their literal-tested
+scope. A sourceRoot compatibility control also checks the actual Basic consumer.
+
+Retire the patch only when a maintained compatible release passes all these
+controls and the complete repository gates. The targeted controls do not establish
+full ECMA-426 conformance, live input/exploitation, Windows, deployment or scientific
 acceptance. The separate existing braces finding remains owned by issue 195.

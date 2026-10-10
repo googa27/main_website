@@ -10,7 +10,19 @@ diff --git a/lib/source-map-consumer.js b/lib/source-map-consumer.js
        });
      var section = this._sections[sectionIndex];
  
-@@ -1162,7 +1162,7 @@
+@@ -1151,18 +1151,13 @@
+     for (var i = 0; i < this._sections.length; i++) {
+       var section = this._sections[i];
+ 
+-      // Only consider this section if the requested source is in the list of
+-      // sources of the consumer.
+-      if (section.consumer._findSourceIndex(util.getArg(aArgs, 'source')) === -1) {
+-        continue;
+-      }
+       var generatedPosition = section.consumer.generatedPositionFor(aArgs);
+-      if (generatedPosition) {
++      if (generatedPosition.line != null && generatedPosition.column != null) {
+         var ret = {
            line: generatedPosition.line +
              (section.generatedOffset.generatedLine - 1),
            column: generatedPosition.column +
@@ -19,7 +31,7 @@ diff --git a/lib/source-map-consumer.js b/lib/source-map-consumer.js
               ? section.generatedOffset.generatedColumn - 1
               : 0)
          };
-@@ -1214,7 +1214,7 @@
+@@ -1214,7 +1209,7 @@
            generatedLine: mapping.generatedLine +
              (section.generatedOffset.generatedLine - 1),
            generatedColumn: mapping.generatedColumn +

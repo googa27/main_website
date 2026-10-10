@@ -212,6 +212,206 @@ for (const [parent, directory] of [
     },
   );
 
+  // Flat oracle coordinates below are literal fixtures, not a reimplementation
+  // of section flattening. AnyMap has documented duplicate/nested limitations.
+  {
+    const section = (line, column, map) => ({ offset: { line, column }, map });
+    const indexed = (...sections) => ({ version: 3, sections });
+    const basic = (
+      line = 3,
+      column = 4,
+      source = "late.js",
+      sourceRoot = undefined,
+    ) => {
+      const g = new SourceMapGenerator({ file: "generated.js", sourceRoot });
+      g.addMapping({
+        generated: { line: 1, column: 0 },
+        original: { line, column },
+        source,
+      });
+      return g.toJSON();
+    };
+    const flat = (entries, sourceRoot) => {
+      const g = new SourceMapGenerator({ file: "flat.js", sourceRoot });
+      for (const [gl, gc, ol, oc] of entries)
+        g.addMapping({
+          generated: { line: gl, column: gc },
+          original: { line: ol, column: oc },
+          source: "late.js",
+        });
+      return g.toJSON();
+    };
+    const expect = (
+      map,
+      args,
+      expected,
+      entries,
+      sourceRoot,
+      oracleArgs = args,
+    ) => {
+      const oracle = reference.generatedPositionFor(
+        new reference.TraceMap(flat(entries, sourceRoot)),
+        oracleArgs,
+      );
+      assert.deepEqual(
+        oracle,
+        expected,
+        "independent unindexed TraceMap vs literal",
+      );
+      const actual = new SourceMapConsumer(map).generatedPositionFor(args);
+      assert.deepEqual(
+        { line: actual.line, column: actual.column },
+        expected,
+        "real indexed public consumer vs literal",
+      );
+    };
+    const q = { source: "late.js", line: 1, column: 0 };
+    test(parent + " present source before first original line stays null", () =>
+      expect(indexed(section(2, 7, basic())), q, { line: null, column: null }, [
+        [3, 7, 3, 4],
+      ]),
+    );
+    test(
+      parent + " present source before first original column stays null",
+      () =>
+        expect(
+          indexed(section(2, 7, basic())),
+          { source: "late.js", line: 3, column: 3 },
+          { line: null, column: null },
+          [[3, 7, 3, 4]],
+        ),
+    );
+    test(parent + " absent source stays null", () =>
+      expect(
+        indexed(section(2, 7, basic())),
+        { source: "absent.js", line: 1, column: 0 },
+        { line: null, column: null },
+        [[3, 7, 3, 4]],
+      ),
+    );
+    test(parent + " declared source with empty mappings stays null", () =>
+      expect(
+        indexed(
+          section(2, 7, {
+            version: 3,
+            sources: ["late.js"],
+            names: [],
+            mappings: "",
+          }),
+        ),
+        q,
+        { line: null, column: null },
+        [],
+      ),
+    );
+    test(parent + " later section survives an earlier no-match", () =>
+      expect(
+        indexed(section(2, 7, basic()), section(4, 9, basic(1, 0))),
+        q,
+        { line: 5, column: 9 },
+        [
+          [3, 7, 3, 4],
+          [5, 9, 1, 0],
+        ],
+      ),
+    );
+    test(parent + " all sections without a matching original stay null", () =>
+      expect(
+        indexed(section(2, 7, basic()), section(4, 9, basic(4, 4))),
+        q,
+        { line: null, column: null },
+        [
+          [3, 7, 3, 4],
+          [5, 9, 4, 4],
+        ],
+      ),
+    );
+    test(parent + " valid mapped result keeps section offsets", () =>
+      expect(
+        indexed(section(2, 7, basic())),
+        { source: "late.js", line: 3, column: 4 },
+        { line: 3, column: 7 },
+        [[3, 7, 3, 4]],
+      ),
+    );
+    test(parent + " public child preserves relative sourceRoot alias", () => {
+      const m = basic(3, 4, "late.js", "/src");
+      assert.deepEqual(
+        new SourceMapConsumer(m).generatedPositionFor({
+          source: "late.js",
+          line: 3,
+          column: 4,
+        }),
+        { line: 1, column: 0, lastColumn: null },
+      );
+      expect(
+        indexed(section(2, 7, m)),
+        { source: "late.js", line: 3, column: 4 },
+        { line: 3, column: 7 },
+        [[3, 7, 3, 4]],
+        "/src",
+        { source: "/src/late.js", line: 3, column: 4 },
+      );
+    });
+    test(
+      parent + " canonical sourceRoot path agrees with independent consumer",
+      () =>
+        expect(
+          indexed(section(2, 7, basic(3, 4, "late.js", "/src"))),
+          { source: "/src/late.js", line: 3, column: 4 },
+          { line: 3, column: 7 },
+          [[3, 7, 3, 4]],
+          "/src",
+        ),
+    );
+    test(parent + " nested later-line mapped result preserves offsets", () =>
+      expect(
+        indexed(section(4, 3, indexed(section(2, 7, basic())))),
+        { source: "late.js", line: 3, column: 4 },
+        { line: 7, column: 7 },
+        [[7, 7, 3, 4]],
+      ),
+    );
+    test(parent + " nested first-line columns compose", () =>
+      expect(
+        indexed(section(0, 3, indexed(section(0, 7, basic())))),
+        { source: "late.js", line: 3, column: 4 },
+        { line: 1, column: 10 },
+        [[1, 10, 3, 4]],
+      ),
+    );
+    test(parent + " nested absent source stays null", () =>
+      expect(
+        indexed(section(4, 3, indexed(section(2, 7, basic())))),
+        { source: "absent.js", line: 1, column: 0 },
+        { line: null, column: null },
+        [[7, 7, 3, 4]],
+      ),
+    );
+    test(parent + " nested present source without original stays null", () =>
+      expect(
+        indexed(section(4, 3, indexed(section(2, 7, basic())))),
+        q,
+        { line: null, column: null },
+        [[7, 7, 3, 4]],
+      ),
+    );
+    test(parent + " later mapped section survives nested no-match", () =>
+      expect(
+        indexed(
+          section(2, 7, indexed(section(0, 0, basic()))),
+          section(10, 9, basic(1, 0)),
+        ),
+        q,
+        { line: 11, column: 9 },
+        [
+          [3, 7, 3, 4],
+          [11, 9, 1, 0],
+        ],
+      ),
+    );
+  }
+
   test(`${parent} resolves the reviewed maintained release and exact patch`, () => {
     assert.equal(require("source-map-js/package.json").version, "1.2.2");
     assert.equal(

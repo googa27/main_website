@@ -435,9 +435,20 @@
       "upstream_advisory": "https://github.com/7rulnik/source-map-js/issues/76",
       "maintained_patch": "https://github.com/7rulnik/source-map-js/commit/cf7658058ceeaa8619d5ae0ec90be6905209d016",
       "maintained_release": "https://github.com/7rulnik/source-map-js/commit/0a1d334fd1e55a47df97fcd60a7915d46df3b08a",
-      "behavioral_oracles": "Real resolved dependencies of both locked parents: literal generator/consumer/SourceNode round trips and indexed generated-line offsets. Admitted large section lines preserve generated code with padding bounded by actual content. The maintained release refuses invalid, unsafe or excessive offsets and accumulated nested line offsets. A test-only public add-method circuit breaker bounds the vulnerable-version reproduction, without production monkeypatching or timing claims. Exact section-start lookup and nonzero section-column correctness have a distinct pre-existing owner; this security repair does not claim to fix them.",
+      "behavioral_oracles": "Real resolved dependencies of both locked parents: literal generator/consumer/SourceNode round trips and indexed generated-line offsets. Admitted large section lines preserve generated code with padding bounded by actual content. The maintained release refuses invalid, unsafe or excessive offsets and accumulated nested line offsets. A test-only public add-method circuit breaker bounds the vulnerable-version reproduction, without production monkeypatching or timing claims. A version-specific three-line correctness patch preserves zero-based section boundaries and applies column offsets only to the section-relative first line. Exact starts, reverse lookup, iteration, nested and adjacent sections, SourceNode round trips and actual PostCSS previous-map composition have literal and independent consumer controls. This is not exhaustive ECMA-426 conformance.",
       "scope": "Local installed PostCSS/Tailwind toolchain only. Package presence and synthetic controls do not prove untrusted live input, exploitation, deployment or a scientific result.",
-      "correctness_limit_owner": "https://github.com/googa27/main_website/issues/204"
+      "correctness_patch": {
+        "owner": "https://github.com/googa27/main_website/issues/204",
+        "path": "patches/source-map-js@1.2.2.patch",
+        "sha256": "0fd43d4cbf02dd7576a4c709d58f1b368d6a1cd2214b02955bcab8721c1b52df",
+        "upstream_consumer_sha256": "9ad10db386da13c1f95e6a680d6298dbb306c77f57a9a3539e4595b723a7654b",
+        "patched_consumer_sha256": "375db1f778b79975b2c9ddd1ec9c44b46dcfaec5769339727c8961a626231d72",
+        "upstream_commit": "0a1d334fd1e55a47df97fcd60a7915d46df3b08a",
+        "retirement_trigger": "Replace this version-specific three-line patch only after a maintained compatible release passes all indexed-map, security and actual PostCSS consumer controls.",
+        "justification": "Maintained 1.2.2 is the current release and lacks this correctness repair. @jridgewell/source-map lacks applySourceMap and SourceNode, required by PostCSS composition and the existing public contract; no package substitution or custom parser is introduced.",
+        "oracle": "ECMA-426 DecodeIndexSourceMap plus already-locked @jridgewell/trace-mapping 0.3.31 and literal public-output assertions."
+      },
+      "correctness_owner": "https://github.com/googa27/main_website/issues/204"
     },
     "sharp_policy": {
       "issue": "https://github.com/googa27/main_website/issues/197",

@@ -1,0 +1,30 @@
+diff --git a/lib/source-map-consumer.js b/lib/source-map-consumer.js
+--- a/lib/source-map-consumer.js
++++ b/lib/source-map-consumer.js
+@@ -1070,7 +1070,7 @@
+         }
+ 
+         return (needle.generatedColumn -
+-                section.generatedOffset.generatedColumn);
++                (section.generatedOffset.generatedColumn - 1));
+       });
+     var section = this._sections[sectionIndex];
+ 
+@@ -1162,7 +1162,7 @@
+           line: generatedPosition.line +
+             (section.generatedOffset.generatedLine - 1),
+           column: generatedPosition.column +
+-            (section.generatedOffset.generatedLine === generatedPosition.line
++            (generatedPosition.line === 1
+              ? section.generatedOffset.generatedColumn - 1
+              : 0)
+         };
+@@ -1214,7 +1214,7 @@
+           generatedLine: mapping.generatedLine +
+             (section.generatedOffset.generatedLine - 1),
+           generatedColumn: mapping.generatedColumn +
+-            (section.generatedOffset.generatedLine === mapping.generatedLine
++            (mapping.generatedLine === 1
+             ? section.generatedOffset.generatedColumn - 1
+             : 0),
+           originalLine: mapping.originalLine,

@@ -8,7 +8,7 @@ pydantic-settings==2.15.0
 email-validator==2.3.0
 python-multipart==0.0.32
 passlib[bcrypt]==1.7.4
-python-dotenv==1.2.3
+python-dotenv==1.2.4
 requests==2.34.2
 idna==3.20
 Mako==1.4.3

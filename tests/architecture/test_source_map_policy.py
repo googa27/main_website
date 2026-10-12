@@ -1,6 +1,7 @@
 """Refuse vulnerable or unreviewed source-map-js dependency routes."""
 
 import copy
+import hashlib
 import json
 from pathlib import Path
 
@@ -10,6 +11,8 @@ import yaml
 ROOT = Path(__file__).resolve().parents[2]
 SELECTOR = "source-map-js@<1.2.2"
 PATCHED = "1.2.2"
+PATCH_KEY = f"source-map-js@{PATCHED}"
+PATCH_PATH = "patches/source-map-js@1.2.2.patch"
 
 
 def _current() -> tuple[dict, dict, dict]:
@@ -27,16 +30,29 @@ def _assert_policy(package: dict, lock: dict, policy: dict) -> None:
     )
     assert lock["overrides"].get(SELECTOR) == PATCHED, "Manifest/lock override mismatch"
     assert policy["version"] == PATCHED, "Unpatched architecture selection"
+    patch = policy["correctness_patch"]
+    assert patch["path"] == PATCH_PATH, "Unreviewed source-map patch path"
+    assert package["pnpm"]["patchedDependencies"].get(PATCH_KEY) == PATCH_PATH, (
+        "Source-map correctness patch is absent"
+    )
+    assert lock["patchedDependencies"].get(PATCH_KEY) == {
+        "hash": patch["sha256"],
+        "path": PATCH_PATH,
+    }, "Source-map patch lock mismatch"
+    patched_version = f"{PATCHED}(patch_hash={patch['sha256']})"
     for section in ["packages", "snapshots"]:
         actual = {name for name in lock[section] if name.startswith("source-map-js@")}
-        assert actual == {f"source-map-js@{PATCHED}"}, "Unreviewed source-map lock"
+        expected = PATCHED if section == "packages" else patched_version
+        assert actual == {f"source-map-js@{expected}"}, "Unreviewed source-map lock"
     parents = {
         name: entry["dependencies"]["source-map-js"]
         for name, entry in lock["snapshots"].items()
         if "source-map-js" in entry.get("dependencies", {})
     }
     assert set(parents) == set(policy["parents"]), "Untested source-map parent"
-    assert all(version == PATCHED for version in parents.values())
+    assert all(version == patched_version for version in parents.values()), (
+        "Unpatched source-map parent"
+    )
     commands = {
         command.strip()
         for command in package["scripts"]["check:dependency-build-policy"].split("&&")
@@ -107,4 +123,41 @@ def test_a_similar_filename_or_echo_cannot_replace_the_consumer_gate(
         "check:dependency-build-policy"
     ].replace("node --test tests/node/source-map-offsets.test.mjs", replacement)
     with pytest.raises(AssertionError, match="Public consumer gate is absent"):
+        _assert_policy(package, lock, policy)
+
+
+def test_source_map_patch_bytes_bind_the_reviewed_selection() -> None:
+    _, _, policy = _current()
+    patch = policy["correctness_patch"]
+    actual = (ROOT / PATCH_PATH).read_bytes().replace(b"\r\n", b"\n")
+    assert hashlib.sha256(actual).hexdigest() == patch["sha256"]
+
+
+def test_the_correctness_patch_declaration_cannot_be_removed() -> None:
+    package, lock, policy = copy.deepcopy(_current())
+    del package["pnpm"]["patchedDependencies"][PATCH_KEY]
+    with pytest.raises(AssertionError, match="Source-map correctness patch is absent"):
+        _assert_policy(package, lock, policy)
+
+
+def test_patch_metadata_cannot_disagree_with_the_lock() -> None:
+    package, lock, policy = copy.deepcopy(_current())
+    lock["patchedDependencies"][PATCH_KEY]["hash"] = "0" * 64
+    with pytest.raises(AssertionError, match="Source-map patch lock mismatch"):
+        _assert_policy(package, lock, policy)
+
+
+def test_an_unpatched_snapshot_cannot_replace_the_patched_route() -> None:
+    package, lock, policy = copy.deepcopy(_current())
+    key = f"{PATCH_KEY}(patch_hash={policy['correctness_patch']['sha256']})"
+    lock["snapshots"][PATCH_KEY] = lock["snapshots"].pop(key)
+    with pytest.raises(AssertionError, match="Unreviewed source-map lock"):
+        _assert_policy(package, lock, policy)
+
+
+def test_a_parent_cannot_resolve_the_unpatched_copy() -> None:
+    package, lock, policy = copy.deepcopy(_current())
+    parent = policy["parents"][0]
+    lock["snapshots"][parent]["dependencies"]["source-map-js"] = PATCHED
+    with pytest.raises(AssertionError, match="Unpatched source-map parent"):
         _assert_policy(package, lock, policy)

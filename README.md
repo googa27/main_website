@@ -395,3 +395,8 @@ The API's dotenv consumer laws run with the normal installed artifact:
 Both commands use synthetic files. Empty/comment-only CONTACT_ADMIN_TOKEN values
 disable administrative contact routes; valid quoted tokens and process
 environment precedence remain supported. See docs/ARCHITECTURE.md and owner246.
+
+The API deprecation source policy runs with repository architecture tests. Install
+requirements-architecture.txt for its pinned LibCST name resolver; it is separate
+from the normal API wheel and API development profile. See
+[the binding policy and conservative limits](docs/ARCHITECTURE.md).

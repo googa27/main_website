@@ -193,6 +193,7 @@ jobs:
           python -m pip install -r requirements-security.txt
           pip-audit -r requirements-bootstrap.txt
           pip-audit -r requirements-security.txt
+          pip-audit -r requirements-architecture.txt
           pip-audit -r apps/api/requirements.txt
           pip-audit -r apps/api/requirements-dev.txt
           pip-audit -r apps/api/requirements-pdf.txt

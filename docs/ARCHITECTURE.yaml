@@ -923,6 +923,31 @@
           "tests/architecture/test_dotenv_policy.py"
         ],
         "compatibility_note": "Literal release laws cover empty values with inline comments, successful CLI get of empty values, and CLI interpolation under both override choices. Real Settings/contact routes require missing, empty, comment-only, short and whitespace configuration to fail closed before request database access; quoted hash-bearing valid tokens and process environment precedence are preserved. Normal source-free API-wheel controls use synthetic files and real in-memory SQLite for authorized missing-id semantics. These controls do not establish external database, live services, Windows, full security or scientific acceptance."
+      },
+      {
+        "capability": "Python source lexical binding for API deprecation governance",
+        "selected": [
+          "LibCST qualified-name and position metadata"
+        ],
+        "selected_versions": {
+          "libcst": "1.9.0"
+        },
+        "alternatives": [
+          "Handwritten AST/symtable scope resolver rejected after real class-comprehension counterexample",
+          "Qualified names alone rejected by deletion, wildcard, pattern-capture and comprehension-walrus countercontrols"
+        ],
+        "evidence": "https://pypi.org/pypi/libcst/1.9.0/json",
+        "adapter_boundary": "Architecture tests own source governance. API runtime and development dependencies remain independent.",
+        "custom_code_reason": "A small conservative policy denies exemptions for unproved mutation syntax; LibCST implements all lexical resolution. Literal counterexamples include actual Python class-comprehension execution.",
+        "maintenance_evidence": "https://pypi.org/project/libcst/1.9.0/",
+        "api_stability_evidence": "https://libcst.readthedocs.io/en/latest/metadata.html#qualified-name-metadata",
+        "license_evidence": "https://pypi.org/project/libcst/1.9.0/",
+        "api_license_evidence": "Published wheel license bundle: MIT contributions plus PSF-derived code and Apache-2.0 notices; preserve all notices.",
+        "oracle_or_reference_tests": [
+          "tests/architecture/test_python_api_deprecation_policy.py",
+          "https://docs.python.org/3.12/reference/executionmodel.html"
+        ],
+        "compatibility_note": "LibCST requires Python>=3.9. Configured Python3.12 uses existing PyYAML6.0.3. Upstream selects pyyaml-ft on Python3.13 and PyYAML>=6.0.3 on3.14; those unconfigured profiles are not certified here. This is conservative static source governance, not runtime types, installed API interoperability, Windows or scientific evidence."
       }
     ]
   },
@@ -1089,12 +1114,14 @@
     },
     "api_deprecation_policy": {
       "issue": "https://github.com/googa27/main_website/issues/248",
-      "source_test": "apps/api/tests/test_datetime_contracts.py",
-      "pure_AST_owner": "apps/api/tests/api_ast_contract.py",
+      "source_test": "tests/architecture/test_python_api_deprecation_policy.py",
+      "binding_owner": "tests/architecture/api_ast_contract.py",
       "fitness_test": "tests/architecture/test_python_api_deprecation_policy.py",
-      "contract": "Exact stdlib patch aliases are resolved in their actual lexical scope. Unrelated nested parameters/imports cannot invalidate their defining alias. Model/unknown/wrong-import/wildcard/same-scope-rebinding calls remain refused; global/nonlocal writes and comprehension assignment expressions invalidate their actual defining alias. Class methods skip class locals for closure lookup; defaults and first comprehension iterators use the surrounding scope. Ambiguous or unselected generic/lazy annotation scopes fail closed. Existing UTC/time-facade checks unchanged. This is conservative static syntax/binding analysis, not temporal execution, dynamic namespace or runtime type proof.",
-      "binding_provider": "Python standard-library symtable compiler symbols, with ast source/call and inlined-comprehension scopes",
-      "reference": "https://docs.python.org/3.12/library/symtable.html"
+      "contract": "LibCST QualifiedNameProvider owns lexical resolution, including class-comprehension bodies and first iterators. Only an exact unshadowed from-unittest.mock-import-patch alias is exempt. Model, unknown, wrong-import and rebound receivers are refused. Wildcard imports disable all exemptions in that file; deletion, named-expression and pattern-capture syntax disable affected names across that file conservatively. No execution-order, dynamic namespace or runtime-type proof is claimed. Existing UTC/time-facade source rules move intact to this architecture gate; runtime UTC tests remain in the API suite.",
+      "binding_provider": "LibCST1.9.0 QualifiedNameProvider and PositionProvider; stdlib ast collects unsupported mutation names only",
+      "reference": "https://libcst.readthedocs.io/en/latest/metadata.html",
+      "dependency_profile": "requirements-architecture.txt only; CI audits this complete requirements profile; no API runtime/dev dependency added",
+      "license_boundary": "LibCST contributions are MIT; published wheel also retains PSF-derived code and Apache-2.0 notices. Preserve publisher license bundle; not an MIT-only claim."
     }
   },
   "data": {

@@ -625,13 +625,21 @@ contexts. Model/unknown receivers, wrong/wildcard imports and rebinding retain
 refusal. This corrects owner248's actual false positive without changing UTC
 rules or claiming formal runtime namespace/type proof.
 
-Owner248 also binds aliases to their actual lexical scopes using Python's
-[compiler symbol tables](https://docs.python.org/3.12/library/symtable.html).
-Unrelated nested parameters or imports do not invalidate a valid outer alias.
-Closures, class-method lookup, lambda parameters, comprehension-local targets,
-outer defaults/first iterators and global/nonlocal writes have literal controls.
-Python3.12 inlines list/set/dict comprehensions, so their AST targets still define
-separate analysis scopes; comprehension assignment expressions invalidate the
-actual outer binding. Ambiguous or unselected generic/lazy annotation scopes
-fail closed. This is conservative static binding analysis, not temporal
-execution, dynamic namespace or runtime type proof. No new dependency is added.
+Owner248 uses [LibCST qualified-name metadata](https://libcst.readthedocs.io/en/latest/metadata.html)
+for lexical binding. Class-comprehension bodies skip class locals, while their
+first iterators use the class namespace; literal controls include actual Python
+execution. Architecture tests own the parser and the unchanged UTC/time-facade
+source rules. Runtime UTC behavior stays in the backend suite.
+
+LibCST alone does not prove deletion, wildcard, pattern-capture or comprehension
+assignment-expression effects. Wildcard imports disable exemptions for the file;
+the other constructs disable exemptions for affected names across the file,
+including unrelated scopes deliberately. Ordinary nested parameters/imports are
+resolved by LibCST without that restriction. This is a conservative static
+policy, not execution-order, dynamic namespace or runtime-type proof.
+
+LibCST1.9.0 is pinned only in requirements-architecture.txt and that profile is
+audited in CI. The configured Python3.12 profile uses PyYAML6.0.3; upstream uses
+different conditional YAML requirements on3.13/3.14, which are not certified here.
+The wheel retains MIT contributions, PSF-derived code and Apache-2.0 notices.
+No API runtime or development dependency is added.

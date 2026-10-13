@@ -35,8 +35,9 @@ def test_api_python_avoids_deprecated_datetime_and_pydantic_apis() -> None:
     violations: list[str] = []
     for root in (API_ROOT / "app", API_ROOT / "tests"):
         for path in sorted(root.rglob("*.py")):
-            tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
-            for lineno in deprecated_dict_calls(tree):
+            source = path.read_text(encoding="utf-8")
+            tree = ast.parse(source, filename=str(path))
+            for lineno in deprecated_dict_calls(source):
                 violations.append(
                     f"{path.relative_to(API_ROOT)}:{lineno}:deprecated .dict()"
                 )

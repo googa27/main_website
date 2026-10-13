@@ -624,3 +624,14 @@ The independent API deprecation syntax gate recognizes only lexically unshadowed
 contexts. Model/unknown receivers, wrong/wildcard imports and rebinding retain
 refusal. This corrects owner248's actual false positive without changing UTC
 rules or claiming formal runtime namespace/type proof.
+
+Owner248 also binds aliases to their actual lexical scopes using Python's
+[compiler symbol tables](https://docs.python.org/3.12/library/symtable.html).
+Unrelated nested parameters or imports do not invalidate a valid outer alias.
+Closures, class-method lookup, lambda parameters, comprehension-local targets,
+outer defaults/first iterators and global/nonlocal writes have literal controls.
+Python3.12 inlines list/set/dict comprehensions, so their AST targets still define
+separate analysis scopes; comprehension assignment expressions invalidate the
+actual outer binding. Ambiguous or unselected generic/lazy annotation scopes
+fail closed. This is conservative static binding analysis, not temporal
+execution, dynamic namespace or runtime type proof. No new dependency is added.

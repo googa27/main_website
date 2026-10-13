@@ -896,6 +896,58 @@
           "https://asgi.readthedocs.io/en/latest/specs/lifespan.html"
         ],
         "compatibility_note": "BSD-3-Clause. Published Python>=3.10 covers the repository's Python>=3.12 runtime. The0.53 changes included in0.54 correct case-insensitive comma-separated Connection-close handling, IPv6 loopback default trust and upgraded-WebSocket keep-alive. Real0.52.4 normal-wheel baseline reproduced two httptools close-token timeouts and the IPv6 default-trust difference; WebSocket, loop and actual-app controls already passed that baseline. HTTP/2 remains experimental and opt-in with a separate zttp dependency; no HTTP/2, external proxy/TLS, Windows, deployment or scientific acceptance follows from these controls."
+      },
+      {
+        "capability": "Environment-file parsing and settings precedence",
+        "selected": [
+          "python-dotenv parser and CLI consumed through pydantic-settings"
+        ],
+        "selected_versions": {
+          "python-dotenv": "1.2.4",
+          "pydantic-settings": "2.15.0"
+        },
+        "alternatives": [
+          "Handwritten dotenv parser or interpolation rules",
+          "Rejecting literal hash characters in otherwise valid secret tokens"
+        ],
+        "evidence": "https://github.com/theskumar/python-dotenv/releases/tag/v1.2.4",
+        "adapter_boundary": "SettingsConfigDict(env_file='.env') remains the application boundary; maintained python-dotenv owns parsing and CLI interpolation. Existing contact authorization still owns token length and constant-time comparison.",
+        "custom_code_reason": "Only synthetic executable consumer laws and normal-wheel release checks are custom. No parser, token-policy change or provider adapter is added.",
+        "maintenance_evidence": "https://github.com/theskumar/python-dotenv/releases/tag/v1.2.4",
+        "api_stability_evidence": "https://github.com/pydantic/pydantic-settings/blob/v2.15.0/pydantic_settings/sources/providers/dotenv.py",
+        "license_evidence": "https://github.com/theskumar/python-dotenv/blob/v1.2.4/LICENSE",
+        "api_license_evidence": "Published python-dotenv1.2.4 is BSD-3-Clause and pydantic-settings2.15.0 is MIT; both require Python>=3.10. The selected settings release requires python-dotenv>=0.21.0 and pydantic>=2.7.0, covered by the runtime selections. See https://pypi.org/pypi/python-dotenv/1.2.4/json and https://pypi.org/pypi/pydantic-settings/2.15.0/json. API package MIT metadata is separate from any repository-root license.",
+        "oracle_or_reference_tests": [
+          "apps/api/tests/test_dotenv_release_contract.py",
+          "apps/api/tests/test_dotenv_settings_contract.py",
+          "tests/architecture/test_dotenv_policy.py"
+        ],
+        "compatibility_note": "Literal release laws cover empty values with inline comments, successful CLI get of empty values, and CLI interpolation under both override choices. Real Settings/contact routes require missing, empty, comment-only, short and whitespace configuration to fail closed before request database access; quoted hash-bearing valid tokens and process environment precedence are preserved. Normal source-free API-wheel controls use synthetic files and real in-memory SQLite for authorized missing-id semantics. These controls do not establish external database, live services, Windows, full security or scientific acceptance."
+      },
+      {
+        "capability": "Python source lexical binding for API deprecation governance",
+        "selected": [
+          "LibCST qualified-name and position metadata"
+        ],
+        "selected_versions": {
+          "libcst": "1.9.0"
+        },
+        "alternatives": [
+          "Handwritten AST/symtable scope resolver rejected after real class-comprehension counterexample",
+          "Qualified names alone rejected by deletion, wildcard, pattern-capture and comprehension-walrus countercontrols"
+        ],
+        "evidence": "https://pypi.org/pypi/libcst/1.9.0/json",
+        "adapter_boundary": "Architecture tests own source governance. API runtime and development dependencies remain independent.",
+        "custom_code_reason": "A small conservative policy denies exemptions for unproved mutation syntax; LibCST implements all lexical resolution. Literal counterexamples include actual Python class-comprehension execution.",
+        "maintenance_evidence": "https://pypi.org/project/libcst/1.9.0/",
+        "api_stability_evidence": "https://libcst.readthedocs.io/en/latest/metadata.html#qualified-name-metadata",
+        "license_evidence": "https://pypi.org/project/libcst/1.9.0/",
+        "api_license_evidence": "Published wheel license bundle: MIT contributions plus PSF-derived code and Apache-2.0 notices; preserve all notices.",
+        "oracle_or_reference_tests": [
+          "tests/architecture/test_python_api_deprecation_policy.py",
+          "https://docs.python.org/3.12/reference/executionmodel.html"
+        ],
+        "compatibility_note": "LibCST requires Python>=3.9. Configured Python3.12 uses existing PyYAML6.0.3. Upstream selects pyyaml-ft on Python3.13 and PyYAML>=6.0.3 on3.14; those unconfigured profiles are not certified here. This is conservative static source governance, not runtime types, installed API interoperability, Windows or scientific evidence."
       }
     ]
   },
@@ -1036,6 +1088,40 @@
         "actual graceful startup and shutdown with terminal owned-child return",
         "normal installed app location under target interpreter prefix"
       ]
+    },
+    "dotenv_contract": {
+      "issue": "https://github.com/googa27/main_website/issues/246",
+      "source_tests": [
+        "apps/api/tests/test_dotenv_release_contract.py",
+        "apps/api/tests/test_dotenv_settings_contract.py"
+      ],
+      "installed_commands": [
+        [
+          "$RUNNER_TEMP/api-wheel-env/bin/python",
+          "-I",
+          "apps/api/tests/test_dotenv_release_contract.py"
+        ],
+        [
+          "$RUNNER_TEMP/api-wheel-env/bin/python",
+          "-I",
+          "apps/api/tests/test_dotenv_settings_contract.py",
+          "--require-installed"
+        ]
+      ],
+      "fitness_test": "tests/architecture/test_dotenv_policy.py",
+      "boundary": "Public maintained parser/CLI plus real Settings/contact authorization. Synthetic local files and memory SQLite only; no external credentials, DB, SMTP, DNS or provider operation. Normal API wheel runs outside the source cwd with isolated imports and inside-prefix origin checks; dev/source tests are separate.",
+      "network_refusal": "Normal entry point refuses socket connection and DNS operations before application-origin imports, through actual test execution; real isolated numeric-loopback import countercontrol proves the boundary."
+    },
+    "api_deprecation_policy": {
+      "issue": "https://github.com/googa27/main_website/issues/248",
+      "source_test": "tests/architecture/test_python_api_deprecation_policy.py",
+      "binding_owner": "tests/architecture/api_ast_contract.py",
+      "fitness_test": "tests/architecture/test_python_api_deprecation_policy.py",
+      "contract": "LibCST QualifiedNameProvider owns lexical resolution, including class-comprehension bodies and first iterators. Only an exact unshadowed from-unittest.mock-import-patch alias is exempt. Model, unknown, wrong-import and rebound receivers are refused. Wildcard imports disable all exemptions in that file; deletion, named-expression and pattern-capture syntax disable affected names across that file conservatively. No execution-order, dynamic namespace or runtime-type proof is claimed. Existing UTC/time-facade source rules move intact to this architecture gate; runtime UTC tests remain in the API suite.",
+      "binding_provider": "LibCST1.9.0 QualifiedNameProvider and PositionProvider; stdlib ast collects unsupported mutation names only",
+      "reference": "https://libcst.readthedocs.io/en/latest/metadata.html",
+      "dependency_profile": "requirements-architecture.txt only; CI audits this complete requirements profile; no API runtime/dev dependency added",
+      "license_boundary": "LibCST contributions are MIT; published wheel also retains PSF-derived code and Apache-2.0 notices. Preserve publisher license bundle; not an MIT-only claim."
     }
   },
   "data": {

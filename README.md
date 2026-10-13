@@ -378,3 +378,11 @@ restoration and the side-effect/hiding distinction. See
 `dependency_update_policy.lint_staged` in `docs/ARCHITECTURE.yaml` and owner
 [#230](https://github.com/googa27/main_website/issues/230). These bounded controls
 do not certify arbitrary custom tasks or concurrent runs in a real worktree.
+
+## Optional API telemetry
+
+The API explicitly disables FastAPI native telemetry, including automatic OTLP
+configuration. SDK/exporter packages are development-only acceptance tools;
+normal installation adds neither. See [the telemetry policy](docs/ARCHITECTURE.md#optional-api-telemetry)
+for source and installed-wheel controls, provider ownership, network boundaries
+and the separate requirements for a future governed opt-in.

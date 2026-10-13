@@ -595,6 +595,33 @@
         "executed_policy_bindings": "https://github.com/googa27/main_website/issues/211",
         "maintained_origin_controls": "https://github.com/googa27/main_website/issues/196"
       }
+    },
+    "api_telemetry_policy": {
+      "issue": "https://github.com/googa27/main_website/issues/244",
+      "owner": "apps/api/app/main.py",
+      "policy": "Explicitly disable FastAPI native tracing, metrics, logs, operation_spans and auto_configure. No governed opt-in or application-wide instrumentation disable is implied.",
+      "provider_ownership": "Existing process-global providers remain unchanged, receive no API-native calls, exports or new registrations, and are never shut down by this API.",
+      "test_dependencies": {
+        "owner": "apps/api/pyproject.toml dev and requirements-dev.txt",
+        "selected": {
+          "opentelemetry-sdk": "1.45.1",
+          "opentelemetry-exporter-otlp-proto-http": "1.45.1"
+        },
+        "license": "Apache-2.0",
+        "boundary": "Development acceptance only; normal wheel has no SDK or exporter.",
+        "reference": [
+          "https://pypi.org/pypi/opentelemetry-sdk/1.45.1/json",
+          "https://pypi.org/pypi/opentelemetry-exporter-otlp-proto-http/1.45.1/json"
+        ]
+      },
+      "fitness": "apps/api/tests/test_telemetry_policy.py and telemetry_scenario.py use actual SDK providers, in-memory exporters/metric reader and real OTLP protobuf loopback collection; positive enabled controls; success/validation/authorization/exception requests and repeated ASGI startup/shutdown.",
+      "installed_gate": "CI preserves the normal wheel profile and runs mode normal source-free, then creates a separate normally installed wheel[dev] profile and runs globals/environment with off and enabled controls.",
+      "scope": "Only public synthetic fixtures and an owned loopback collector; all other socket/DNS access is refused. No current production leak, public-network/provider, deployment, other instrumentor or scientific acceptance.",
+      "sources": [
+        "https://github.com/fastapi/fastapi/blob/0.142.2/fastapi/telemetry/_api.py",
+        "https://github.com/fastapi/fastapi/blob/0.142.2/fastapi/telemetry/_asgi.py",
+        "https://github.com/fastapi/fastapi/blob/0.142.2/fastapi/telemetry/_runtime.py"
+      ]
     }
   },
   "source_layout": {

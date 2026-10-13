@@ -13,6 +13,14 @@ app = FastAPI(
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
+    # Native telemetry stays off even with global providers or OTLP settings.
+    telemetry={
+        "tracing": False,
+        "metrics": False,
+        "logs": False,
+        "operation_spans": False,
+        "auto_configure": False,
+    },
 )
 
 # CORS middleware

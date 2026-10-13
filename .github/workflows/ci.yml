@@ -72,13 +72,34 @@ jobs:
       - name: Verify installed API artifact
         run: |
           python -m pip wheel --no-deps --wheel-dir "$RUNNER_TEMP/api-wheels" apps/api
+          api_wheels=("$RUNNER_TEMP"/api-wheels/portfolio_api-*.whl)
+          if [ "${#api_wheels[@]}" -ne 1 ] || [ ! -f "${api_wheels[0]}" ]; then
+            echo "Expected exactly one built portfolio API wheel" >&2
+            exit 1
+          fi
           python -m venv "$RUNNER_TEMP/api-wheel-env"
           "$RUNNER_TEMP/api-wheel-env/bin/python" -m pip install --upgrade -r requirements-bootstrap.txt
-          "$RUNNER_TEMP/api-wheel-env/bin/python" -m pip install "$RUNNER_TEMP"/api-wheels/portfolio_api-*.whl
+          "$RUNNER_TEMP/api-wheel-env/bin/python" -m pip install "${api_wheels[0]}"
           python scripts/check_installed_api.py --python "$RUNNER_TEMP/api-wheel-env/bin/python"
           "$RUNNER_TEMP/api-wheel-env/bin/python" -I apps/api/tests/test_database_driver_selection.py
           "$RUNNER_TEMP/api-wheel-env/bin/python" -I apps/api/tests/test_alembic_driver_selection.py
           "$RUNNER_TEMP/api-wheel-env/bin/python" -I apps/api/tests/test_uvicorn_server_contract.py --require-installed
+          "$RUNNER_TEMP/api-wheel-env/bin/python" -I -B apps/api/tests/telemetry_scenario.py --mode normal
+
+      - name: Verify optional installed API telemetry
+        run: |
+          python -m venv "$RUNNER_TEMP/api-telemetry-env"
+          "$RUNNER_TEMP/api-telemetry-env/bin/python" -m pip install --upgrade -r requirements-bootstrap.txt
+          api_wheels=("$RUNNER_TEMP"/api-wheels/portfolio_api-*.whl)
+          if [ "${#api_wheels[@]}" -ne 1 ] || [ ! -f "${api_wheels[0]}" ]; then
+            echo "Expected exactly one built portfolio API wheel" >&2
+            exit 1
+          fi
+          "$RUNNER_TEMP/api-telemetry-env/bin/python" -m pip install "${api_wheels[0]}[dev]"
+          for mode in globals environment; do
+            "$RUNNER_TEMP/api-telemetry-env/bin/python" -I -B apps/api/tests/telemetry_scenario.py --mode "$mode"
+            "$RUNNER_TEMP/api-telemetry-env/bin/python" -I -B apps/api/tests/telemetry_scenario.py --mode "$mode" --enabled-control
+          done
 
       - name: Audit installed API with isolated tools
         run: |

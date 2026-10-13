@@ -1,6 +1,7 @@
 """Owned API source cannot silently lose control-flow type comments."""
 
 import importlib.util
+import sys
 from pathlib import Path
 
 import pytest
@@ -54,3 +55,27 @@ def test_owned_api_sources_avoid_silently_ignored_control_flow_type_comments():
         for line in check(path.read_text(encoding="utf-8"))
     ]
     assert violations == []
+
+
+@pytest.mark.parametrize(
+    "relative",
+    ["app/module.py", "tests/module.py", "alembic/env.py", "bootstrap.py"],
+)
+def test_api_gate_refuses_comments_in_every_owned_root(tmp_path, monkeypatch, relative):
+    source = tmp_path / relative
+    source.parent.mkdir(parents=True, exist_ok=True)
+    source.write_text("for item in [1]:  # type: int\n    pass\n", encoding="utf-8")
+    monkeypatch.setattr(sys.modules[__name__], "API_ROOT", tmp_path)
+    with pytest.raises(AssertionError):
+        test_owned_api_sources_avoid_silently_ignored_control_flow_type_comments()
+
+
+@pytest.mark.parametrize("relative", ["build/generated.py", ".venv/lib/vendor.py"])
+def test_api_gate_preserves_unowned_build_and_environment_boundaries(
+    tmp_path, monkeypatch, relative
+):
+    source = tmp_path / relative
+    source.parent.mkdir(parents=True, exist_ok=True)
+    source.write_text("for item in [1]:  # type: int\n    pass\n", encoding="utf-8")
+    monkeypatch.setattr(sys.modules[__name__], "API_ROOT", tmp_path)
+    test_owned_api_sources_avoid_silently_ignored_control_flow_type_comments()

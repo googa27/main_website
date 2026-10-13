@@ -33,8 +33,7 @@ class NativeParserContract(unittest.TestCase):
 
     def test_for_comment_does_not_supply_the_native_variable_type(self) -> None:
         source = PRELUDE + (
-            'for item in ["text"]:  # type: int\n'
-            "    consume_str(item)\n"
+            'for item in ["text"]:  # type: int\n    consume_str(item)\n'
         )
         stdout, stderr, status = self.check_source(source)
         self.assertEqual((stderr, status), ("", 0), stdout)

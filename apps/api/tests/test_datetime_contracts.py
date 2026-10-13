@@ -1,9 +1,7 @@
 """UTC timestamp and deprecation contract regressions for the optional API."""
 
-import ast
 from collections.abc import Callable
 from datetime import datetime
-from pathlib import Path
 from typing import cast
 
 from sqlalchemy import text
@@ -11,7 +9,6 @@ from sqlalchemy import text
 from app.models.database import ChatMessage, ChatSession, Contact, CVDownload, Project
 from app.schemas.cv import CVProfile, Skills
 
-API_ROOT = Path(__file__).resolve().parents[1]
 TIMESTAMP_COLUMNS = (
     (Project, "created_at"),
     (Project, "updated_at"),
@@ -28,42 +25,6 @@ def _assert_aware_utc(value: datetime) -> None:
     offset = value.utcoffset()
     assert offset is not None
     assert offset.total_seconds() == 0
-
-
-def test_api_python_avoids_deprecated_datetime_and_pydantic_apis() -> None:
-    violations: list[str] = []
-    for root in (API_ROOT / "app", API_ROOT / "tests"):
-        for path in sorted(root.rglob("*.py")):
-            tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
-            for node in ast.walk(tree):
-                if isinstance(node, ast.Attribute) and node.attr in {
-                    "utcnow",
-                    "__fields__",
-                }:
-                    violations.append(
-                        f"{path.relative_to(API_ROOT)}:{node.lineno}:{node.attr}"
-                    )
-                if (
-                    isinstance(node, ast.Call)
-                    and isinstance(node.func, ast.Attribute)
-                    and isinstance(node.func.value, ast.Name)
-                    and node.func.value.id == "datetime"
-                    and node.func.attr == "now"
-                    and path != API_ROOT / "app/core/time.py"
-                ):
-                    violations.append(
-                        f"{path.relative_to(API_ROOT)}:{node.lineno}:direct datetime.now()"
-                    )
-                if (
-                    isinstance(node, ast.Call)
-                    and isinstance(node.func, ast.Attribute)
-                    and node.func.attr == "dict"
-                ):
-                    violations.append(
-                        f"{path.relative_to(API_ROOT)}:{node.lineno}:deprecated .dict()"
-                    )
-
-    assert violations == []
 
 
 def test_database_timestamp_columns_declare_timezone_support() -> None:

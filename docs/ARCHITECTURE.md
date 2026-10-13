@@ -591,3 +591,55 @@ application ownership. Only the unrelated LinkedIn credential logger is
 disabled during fixture import and restored before requests. All other stderr
 remains a failure. Both installed profiles require exactly one built API wheel;
 ambiguous or missing wheel outputs fail instead of selecting a candidate.
+
+### Environment-file consumers
+
+The structured library decision in ARCHITECTURE.yaml records python-dotenv and
+pydantic-settings selections; both runtime manifests must match it. The
+[dotenv release notes](https://github.com/theskumar/python-dotenv/releases/tag/v1.2.4)
+identify the empty-comment, empty-value CLI exit and no-override interpolation
+fixes. Maintained libraries implement these rules; the API keeps its existing
+SettingsConfigDict and contact authorization policy.
+
+The release tests exercise the actual parser and CLI with synthetic files.
+Settings/contact tests ensure empty, missing, comment-only, short and whitespace
+tokens disable both administrative routes before request database access. Valid
+quoted tokens may contain literal hash characters; process environment values
+take precedence over the file. Authorized missing-id controls use actual memory
+SQLite, preserving GET/PUT404 behavior without an external database.
+
+CI runs both files under the normal API-wheel interpreter with -I. The settings
+entry point switches to an unrelated temporary cwd, admits only synthetic
+configuration, and verifies app/dotenv/settings origins inside that environment.
+No source tree, pytest/dev extra, real secret, external network, SMTP or live
+provider is required. These checks do not establish Windows, deployment,
+general security or scientific acceptance. Owner246 retains the acceptance work;
+existing security minimums and braces owner195 remain separate.
+
+The normal settings gate refuses network operations before its origin imports,
+with a real isolated import-time countercontrol. Its normal fixture interpreter
+uses symlinks to the existing Python binary; it does not copy interpreter bytes.
+The independent API deprecation syntax gate recognizes only lexically unshadowed
+`from unittest.mock import patch` aliases for standard-library dictionary
+contexts. Model/unknown receivers, wrong/wildcard imports and rebinding retain
+refusal. This corrects owner248's actual false positive without changing UTC
+rules or claiming formal runtime namespace/type proof.
+
+Owner248 uses [LibCST qualified-name metadata](https://libcst.readthedocs.io/en/latest/metadata.html)
+for lexical binding. Class-comprehension bodies skip class locals, while their
+first iterators use the class namespace; literal controls include actual Python
+execution. Architecture tests own the parser and the unchanged UTC/time-facade
+source rules. Runtime UTC behavior stays in the backend suite.
+
+LibCST alone does not prove deletion, wildcard, pattern-capture or comprehension
+assignment-expression effects. Wildcard imports disable exemptions for the file;
+the other constructs disable exemptions for affected names across the file,
+including unrelated scopes deliberately. Ordinary nested parameters/imports are
+resolved by LibCST without that restriction. This is a conservative static
+policy, not execution-order, dynamic namespace or runtime-type proof.
+
+LibCST1.9.0 is pinned only in requirements-architecture.txt and that profile is
+audited in CI. The configured Python3.12 profile uses PyYAML6.0.3; upstream uses
+different conditional YAML requirements on3.13/3.14, which are not certified here.
+The wheel retains MIT contributions, PSF-derived code and Apache-2.0 notices.
+No API runtime or development dependency is added.

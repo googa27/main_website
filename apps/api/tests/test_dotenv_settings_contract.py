@@ -7,11 +7,25 @@ import os
 import sys
 import tempfile
 import unittest
+from contextlib import ExitStack
 from pathlib import Path
 from unittest.mock import patch
 
 TOKEN = "synthetic#literal-admin-token-more-than-thirty-two-characters"
 COMMENT = "# synthetic explanation longer than thirty two characters"
+
+
+def _refuse_network():
+    stack = ExitStack()
+    for target in (
+        "socket.create_connection",
+        "socket.getaddrinfo",
+        "socket.socket.connect",
+    ):
+        stack.enter_context(
+            patch(target, side_effect=AssertionError("External network refused"))
+        )
+    return stack
 
 
 class DotenvSettingsContract(unittest.TestCase):
@@ -22,16 +36,7 @@ class DotenvSettingsContract(unittest.TestCase):
         environment = patch.dict(os.environ, {}, clear=True)
         environment.start()
         self.addCleanup(environment.stop)
-        for target in (
-            "socket.create_connection",
-            "socket.getaddrinfo",
-            "socket.socket.connect",
-        ):
-            refusal = patch(
-                target, side_effect=AssertionError("External network refused")
-            )
-            refusal.start()
-            self.addCleanup(refusal.stop)
+        self.enterContext(_refuse_network())
 
     def settings(self, content, environment=None):
         from app.core.config import Settings
@@ -140,7 +145,7 @@ def main():
                 if key in os.environ
             }
             environment["DATABASE_URL"] = "sqlite://"
-            with patch.dict(os.environ, environment, clear=True):
+            with patch.dict(os.environ, environment, clear=True), _refuse_network():
                 if args.require_installed:
                     prefix = Path(sys.prefix).resolve()
                     origins = {}

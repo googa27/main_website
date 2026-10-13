@@ -6,6 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import cast
 
+from api_ast_contract import deprecated_dict_calls
 from sqlalchemy import text
 
 from app.models.database import ChatMessage, ChatSession, Contact, CVDownload, Project
@@ -35,6 +36,10 @@ def test_api_python_avoids_deprecated_datetime_and_pydantic_apis() -> None:
     for root in (API_ROOT / "app", API_ROOT / "tests"):
         for path in sorted(root.rglob("*.py")):
             tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+            for lineno in deprecated_dict_calls(tree):
+                violations.append(
+                    f"{path.relative_to(API_ROOT)}:{lineno}:deprecated .dict()"
+                )
             for node in ast.walk(tree):
                 if isinstance(node, ast.Attribute) and node.attr in {
                     "utcnow",
@@ -53,14 +58,6 @@ def test_api_python_avoids_deprecated_datetime_and_pydantic_apis() -> None:
                 ):
                     violations.append(
                         f"{path.relative_to(API_ROOT)}:{node.lineno}:direct datetime.now()"
-                    )
-                if (
-                    isinstance(node, ast.Call)
-                    and isinstance(node.func, ast.Attribute)
-                    and node.func.attr == "dict"
-                ):
-                    violations.append(
-                        f"{path.relative_to(API_ROOT)}:{node.lineno}:deprecated .dict()"
                     )
 
     assert violations == []

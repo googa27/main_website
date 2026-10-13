@@ -615,3 +615,12 @@ No source tree, pytest/dev extra, real secret, external network, SMTP or live
 provider is required. These checks do not establish Windows, deployment,
 general security or scientific acceptance. Owner246 retains the acceptance work;
 existing security minimums and braces owner195 remain separate.
+
+The normal settings gate refuses network operations before its origin imports,
+with a real isolated import-time countercontrol. Its normal fixture interpreter
+uses symlinks to the existing Python binary; it does not copy interpreter bytes.
+The independent API deprecation syntax gate recognizes only lexically unshadowed
+`from unittest.mock import patch` aliases for standard-library dictionary
+contexts. Model/unknown receivers, wrong/wildcard imports and rebinding retain
+refusal. This corrects owner248's actual false positive without changing UTC
+rules or claiming formal runtime namespace/type proof.

@@ -126,3 +126,50 @@ def test_selected_dotenv_version_drift_is_refused(name):
     decision, _ = selected_record()
     with pytest.raises(AssertionError):
         check_selected({**decision["selected_versions"], name: "999.0.0"})
+
+
+def test_installed_settings_probe_refuses_import_time_network(tmp_path):
+    import subprocess
+    import venv
+
+    environment = tmp_path / "normal-fixture"
+    venv.EnvBuilder(with_pip=False, symlinks=True).create(environment)
+    python = environment / "bin" / "python"
+    purelib = Path(
+        subprocess.check_output(
+            [
+                str(python),
+                "-I",
+                "-B",
+                "-c",
+                "import sysconfig;print(sysconfig.get_path('purelib'))",
+            ],
+            text=True,
+            timeout=10,
+        ).strip()
+    )
+    package = purelib / "app"
+    package.mkdir()
+    (package / "__init__.py").write_text("")
+    # Numeric loopback lookup is a harmless real call. The probe must refuse
+    # even this during import, before looking for any other fixture modules.
+    (package / "main.py").write_text(
+        "import socket\nsocket.getaddrinfo('127.0.0.1', 0)\n"
+    )
+    result = subprocess.run(
+        [
+            str(python),
+            "-I",
+            "-B",
+            str(ROOT / "apps/api/tests/test_dotenv_settings_contract.py"),
+            "--require-installed",
+        ],
+        cwd=tmp_path,
+        text=True,
+        capture_output=True,
+        timeout=20,
+        check=False,
+    )
+    assert result.returncode != 0
+    assert "External network refused" in result.stderr
+    assert "ModuleNotFoundError" not in result.stderr

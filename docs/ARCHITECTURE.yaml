@@ -1084,7 +1084,15 @@
         ]
       ],
       "fitness_test": "tests/architecture/test_dotenv_policy.py",
-      "boundary": "Public maintained parser/CLI plus real Settings/contact authorization. Synthetic local files and memory SQLite only; no external credentials, DB, SMTP, DNS or provider operation. Normal API wheel runs outside the source cwd with isolated imports and inside-prefix origin checks; dev/source tests are separate."
+      "boundary": "Public maintained parser/CLI plus real Settings/contact authorization. Synthetic local files and memory SQLite only; no external credentials, DB, SMTP, DNS or provider operation. Normal API wheel runs outside the source cwd with isolated imports and inside-prefix origin checks; dev/source tests are separate.",
+      "network_refusal": "Normal entry point refuses socket connection and DNS operations before application-origin imports, through actual test execution; real isolated numeric-loopback import countercontrol proves the boundary."
+    },
+    "api_deprecation_policy": {
+      "issue": "https://github.com/googa27/main_website/issues/248",
+      "source_test": "apps/api/tests/test_datetime_contracts.py",
+      "pure_AST_owner": "apps/api/tests/api_ast_contract.py",
+      "fitness_test": "tests/architecture/test_python_api_deprecation_policy.py",
+      "contract": "Only direct calls through exact lexically unshadowed from unittest.mock import patch aliases escape generic deprecated .dict refusal. Wildcard imports and parameter/assignment/deletion/function/pattern rebinding retain refusal. Existing UTC/time-facade checks unchanged. Syntax policy, not formal runtime namespace/type proof."
     }
   },
   "data": {

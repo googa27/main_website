@@ -211,6 +211,20 @@
         "hook_policy": "Optional explicit developer command; it does not install or activate a Git hook. The separate pre-commit workflow is unchanged.",
         "fitness_test": "tests/node/lint-staged-contract.test.mjs",
         "scope": "Real synthetic Git/index and installed CLI/ESLint/Prettier controls. Original staged, tracked draft and untracked bytes are asserted; a failing task must restore them. The unprotected native invocation is only a negative-control fixture. No arbitrary task, Windows, concurrent real-worktree, deployed or scientific acceptance."
+      },
+      "mypy": {
+        "selected": "2.4.0",
+        "scope": "Optional API development profile only; excluded from normal API runtime.",
+        "parser_choice": "native_parser = True in the existing mypy.ini; all prior module exclusions and strict consumer checks remain.",
+        "source_policy": "Reject type comments attached to synchronous/asynchronous for/with nodes in API app/tests/alembic and top-level modules. Use explicit variable annotations before the statement. Assignment/function type comments and type-ignore directives remain allowed.",
+        "boundary": "The asynchronous source refusal is conservative. Real checker consumer controls here characterize synchronous for/with behavior; this is not runtime type proof or exhaustive parser conformance.",
+        "validation": [
+          "(cd apps/api && mypy . && python -m pytest)",
+          "python -m pytest tests/architecture",
+          "Frozen frontend/native/lifecycle/staging, normal installed API and dependency audit gates remain required."
+        ],
+        "maintenance": "https://mypy-lang.blogspot.com/2026/10/mypy-24-released.html",
+        "acceptance": "Current reviewed head and independently actual base, complete configured Python3.12 source/dev/normal-wheel/frontend/audit/provider gates and actual resulting-default verification. Local minimal pure-wheel oracle alone is not acceptance."
       }
     },
     "extension_points": [
@@ -948,6 +962,29 @@
           "https://docs.python.org/3.12/reference/executionmodel.html"
         ],
         "compatibility_note": "LibCST requires Python>=3.9. Configured Python3.12 uses existing PyYAML6.0.3. Upstream selects pyyaml-ft on Python3.13 and PyYAML>=6.0.3 on3.14; those unconfigured profiles are not certified here. This is conservative static source governance, not runtime types, installed API interoperability, Windows or scientific evidence."
+      },
+      {
+        "capability": "development Python type checking",
+        "selected": [
+          "Mypy 2.4.0 (development-only)",
+          "Maintained native/Ruff parser",
+          "Python standard library ast type-comment metadata"
+        ],
+        "alternatives": [
+          "Legacy parser fallback",
+          "Handwritten type checker or type-comment parser"
+        ],
+        "evidence": "apps/api/pyproject.toml, apps/api/requirements-dev.txt, apps/api/mypy.ini and docs/ARCHITECTURE.md",
+        "adapter_boundary": "Existing repository-local development Mypy gate; no runtime dependency. The stdlib AST source policy covers API top-level modules, app, tests and Alembic migrations.",
+        "custom_code_reason": "Only repository-specific refusal of silently ignored control-flow annotations; maintained Mypy owns parsing/type checking, stdlib AST owns source syntax. No handwritten parser.",
+        "maintenance_evidence": "https://mypy-lang.blogspot.com/2026/10/mypy-24-released.html",
+        "api_stability_evidence": "https://github.com/python/mypy/blob/v2.4.0/mypy/api.py",
+        "license_evidence": "https://raw.githubusercontent.com/python/mypy/v2.4.0/LICENSE",
+        "api_license_evidence": "Mypy 2.4.0 metadata declares Python >=3.10 and MIT; retain tagged LICENSE including PSF notices and bundled typeshed license. Local pure-wheel normal6distribution oracle is distinct from compiled hosted development installation.",
+        "oracle_or_reference_tests": [
+          "apps/api/tests/test_mypy_native_parser_contract.py",
+          "tests/architecture/test_mypy_parser_policy.py"
+        ]
       }
     ]
   },

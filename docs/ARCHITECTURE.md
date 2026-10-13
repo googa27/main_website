@@ -643,3 +643,29 @@ audited in CI. The configured Python3.12 profile uses PyYAML6.0.3; upstream uses
 different conditional YAML requirements on3.13/3.14, which are not certified here.
 The wheel retains MIT contributions, PSF-derived code and Apache-2.0 notices.
 No API runtime or development dependency is added.
+
+## Mypy native parser contract
+
+The API development profile selects Mypy 2.4.0 and explicitly retains its native
+parser in apps/api/mypy.ini. The [release note](https://mypy-lang.blogspot.com/2026/10/mypy-24-released.html)
+documents that loop and context-manager variable type comments no longer constrain
+the inferred type. Put a variable annotation before the statement instead.
+Existing legacy module exclusions and the strict dependency-consumer boundary
+are unchanged; the new checker consumer module is also checked strictly.
+
+The maintained checker owns type analysis. The standard-library AST fitness
+function refuses control-flow type comments in API app, tests, Alembic
+migrations and top-level Python modules. It also conservatively refuses asynchronous
+forms. Assignment/function type comments and type-ignore directives remain allowed.
+Literal source controls cover these boundaries; real installed checker controls
+show synchronous comments being ignored while explicit annotations still enforce
+acceptance and rejection. This is not runtime type proof or exhaustive parser
+conformance. New owned API source roots must join this fitness function.
+
+Mypy requires Python >=3.10. Its metadata declares MIT; retain the
+[tagged license](https://raw.githubusercontent.com/python/mypy/v2.4.0/LICENSE),
+including PSF notices, and the bundled typeshed license. Mypy remains outside
+normal API runtime dependencies. A local noneditable pure-wheel oracle does not
+certify the compiled development profile, complete API installation, other minors
+or resulting default. The configured source, normal-wheel, frontend, audit and
+provider gates remain required before adoption.

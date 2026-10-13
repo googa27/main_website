@@ -70,3 +70,14 @@ def deprecated_dict_calls(source: str) -> list[int]:
     visitor = _DictionaryCalls(*_unproved_bindings(tree))
     cst.MetadataWrapper(cst.parse_module(source)).visit(visitor)
     return sorted(visitor.lines)
+
+
+def ignored_control_flow_type_comments(source: str) -> list[int]:
+    """Refuse control-flow comments that cannot be relied on by the native parser."""
+    tree = ast.parse(source, type_comments=True)
+    return sorted(
+        node.lineno
+        for node in ast.walk(tree)
+        if isinstance(node, (ast.For, ast.AsyncFor, ast.With, ast.AsyncWith))
+        and node.type_comment is not None
+    )

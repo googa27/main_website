@@ -554,3 +554,40 @@ Retire the patch only when a maintained compatible release passes all these
 controls and the complete repository gates. The targeted controls do not establish
 full ECMA-426 conformance, live input/exploitation, Windows, deployment or scientific
 acceptance. The separate existing braces finding remains owned by issue 195.
+
+## Optional API telemetry
+
+The optional API explicitly disables FastAPI native tracing, metrics, logs,
+operation spans and environment auto-configuration. Existing process-global
+providers and OTLP environment settings must not make portfolio requests emit
+telemetry, register exporters or take ownership of provider shutdown. This
+policy does not disable application logging or instrumentation installed by
+another component. A future opt-in needs a separate classified-data, redaction,
+destination and lifecycle contract.
+
+The development profile pins OpenTelemetry SDK and HTTP/protobuf exporters
+1.45.1 only for acceptance controls; normal API installation does not add them.
+The four source controls use real SDK providers, in-memory exports, actual ASGI
+lifespan messages and a local protobuf collector. Deliberately enabled FastAPI
+controls prove that the harness detects spans, logs, metrics and exporter
+registration. Socket/DNS access is refused except for that owned loopback
+collector. Public synthetic fixtures cover success, invalid contact input,
+unauthorized contact reads, exceptions and two startup/shutdown cycles.
+
+Run `python -m pytest tests/test_telemetry_policy.py` from `apps/api` with
+`.[dev,pdf]` installed. CI also runs
+`python -I -B apps/api/tests/telemetry_scenario.py --mode normal` with the
+normal wheel interpreter and runs both SDK modes against a separate normal
+installed wheel plus its development extra. The controls do not demonstrate
+production telemetry, public-network delivery, deployment or scientific results.
+
+The fixture observes real SDK exports and provider calls instead of private
+FastAPI state. The environment positive control has one test-only private
+adapter: FastAPI 0.142.2 exposes no public close method for the components it
+adds to existing providers, so the fixture calls its pinned `_runtime._shutdown`
+before closing the collector. An exact version assertion makes dependency
+upgrades fail pending review of this cleanup adapter; it never changes runtime
+application ownership. Only the unrelated LinkedIn credential logger is
+disabled during fixture import and restored before requests. All other stderr
+remains a failure. Both installed profiles require exactly one built API wheel;
+ambiguous or missing wheel outputs fail instead of selecting a candidate.

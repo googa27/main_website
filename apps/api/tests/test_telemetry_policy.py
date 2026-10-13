@@ -38,6 +38,10 @@ def test_native_telemetry_policy_with_real_sdk(
         HTTPS_PROXY="",
         ALL_PROXY="",
         NO_PROXY="127.0.0.1",
+        no_proxy="127.0.0.1",
+        http_proxy="",
+        https_proxy="",
+        all_proxy="",
     )
     completed = subprocess.run(
         command,
@@ -49,10 +53,7 @@ def test_native_telemetry_policy_with_real_sdk(
         check=False,
     )
     assert completed.returncode == 0, completed.stdout + completed.stderr
-    assert completed.stderr in {
-        "",
-        "LinkedIn credentials not configured. Auto-sync will be disabled.\n",
-    }
+    assert completed.stderr == ""
     result: dict[str, Any] = json.loads(completed.stdout)
     assert result["global_identity_preserved"]
     assert result["lifespan_events"] == ["startup", "shutdown", "startup", "shutdown"]
@@ -91,4 +92,3 @@ def test_native_telemetry_policy_with_real_sdk(
         )
         assert all(value == 0 for value in result["calls"].values())
         assert result["exports"] == []
-        assert not any(result["native_flags"].values())

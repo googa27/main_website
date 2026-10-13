@@ -3,13 +3,14 @@
 import argparse
 import asyncio
 import json
+import logging
 import os
 import socket
 import sys
 import threading
 from contextlib import asynccontextmanager
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from importlib.metadata import distributions
+from importlib.metadata import distributions, version
 from pathlib import Path
 from typing import Any
 
@@ -34,6 +35,10 @@ os.environ.update(
     HTTPS_PROXY="",
     ALL_PROXY="",
     NO_PROXY="127.0.0.1",
+    no_proxy="127.0.0.1",
+    http_proxy="",
+    https_proxy="",
+    all_proxy="",
 )
 
 calls: dict[str, int] = {}
@@ -196,7 +201,15 @@ try:
     import httpx
     from fastapi import FastAPI
 
-    import app.main as owned
+    # Ignore only this unrelated credential diagnostic during fixture import.
+    # Restore the logger before exercising requests and telemetry.
+    linkedin_logger = logging.getLogger("app.services.linkedin")
+    linkedin_disabled = linkedin_logger.disabled
+    linkedin_logger.disabled = True
+    try:
+        import app.main as owned
+    finally:
+        linkedin_logger.disabled = linkedin_disabled
 
     application = owned.app
     if not args.source:
@@ -311,16 +324,6 @@ try:
         "global_identity_preserved": global_identity_preserved,
         "lifespan_events": events,
         "statuses": statuses,
-        "native_flags": {
-            key: dict(application._telemetry)[key]
-            for key in [
-                "tracing",
-                "metrics",
-                "logs",
-                "operation_spans",
-                "auto_configure",
-            ]
-        },
     }
     print(json.dumps(result, sort_keys=True))
     assert global_identity_preserved
@@ -344,12 +347,15 @@ try:
     else:
         assert spans == 0 and logs == 0 and points == 0
         assert not any(calls.values()) and exports == []
-        assert not any(result["native_flags"].values())
 finally:
     if providers:
         from fastapi.telemetry import _runtime
 
-        _runtime._shutdown()  # Close only this subprocess's upstream-owned pipelines.
+        # FastAPI 0.142.2 has no public close API for environment-owned components.
+        # This pinned test-only adapter closes them before the loopback collector;
+        # the real SDK observations above remain the independent policy oracle.
+        assert version("fastapi") == "0.142.2"
+        _runtime._shutdown()
         for provider in providers:
             provider.shutdown()
     if collector is not None:

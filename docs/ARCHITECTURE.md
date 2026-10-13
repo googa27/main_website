@@ -580,3 +580,14 @@ Run `python -m pytest tests/test_telemetry_policy.py` from `apps/api` with
 normal wheel interpreter and runs both SDK modes against a separate normal
 installed wheel plus its development extra. The controls do not demonstrate
 production telemetry, public-network delivery, deployment or scientific results.
+
+The fixture observes real SDK exports and provider calls instead of private
+FastAPI state. The environment positive control has one test-only private
+adapter: FastAPI 0.142.2 exposes no public close method for the components it
+adds to existing providers, so the fixture calls its pinned `_runtime._shutdown`
+before closing the collector. An exact version assertion makes dependency
+upgrades fail pending review of this cleanup adapter; it never changes runtime
+application ownership. Only the unrelated LinkedIn credential logger is
+disabled during fixture import and restored before requests. All other stderr
+remains a failure. Both installed profiles require exactly one built API wheel;
+ambiguous or missing wheel outputs fail instead of selecting a candidate.

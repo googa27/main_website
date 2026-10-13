@@ -621,7 +621,14 @@
         "https://github.com/fastapi/fastapi/blob/0.142.2/fastapi/telemetry/_api.py",
         "https://github.com/fastapi/fastapi/blob/0.142.2/fastapi/telemetry/_asgi.py",
         "https://github.com/fastapi/fastapi/blob/0.142.2/fastapi/telemetry/_runtime.py"
-      ]
+      ],
+      "test_adapter": {
+        "fastapi": "0.142.2",
+        "private_cleanup": "fastapi.telemetry._runtime._shutdown",
+        "reason": "No public close API for environment-owned components; close before owned collector shutdown. Exact-version assertion requires adapter review on upgrade. Real public SDK exports/provider calls are the policy oracle; no private application state is read.",
+        "fixture_isolation": "Clear uppercase/lowercase proxy settings; disable only LinkedIn credential logger during import and restore before requests; fail other stderr.",
+        "wheel_identity": "Both normal and SDK profiles require exactly one existing built API wheel; fail zero or ambiguous outputs."
+      }
     }
   },
   "source_layout": {

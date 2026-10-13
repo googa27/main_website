@@ -386,3 +386,12 @@ configuration. SDK/exporter packages are development-only acceptance tools;
 normal installation adds neither. See [the telemetry policy](docs/ARCHITECTURE.md#optional-api-telemetry)
 for source and installed-wheel controls, provider ownership, network boundaries
 and the separate requirements for a future governed opt-in.
+
+The API's dotenv consumer laws run with the normal installed artifact:
+```bash
+"$RUNNER_TEMP/api-wheel-env/bin/python" -I apps/api/tests/test_dotenv_release_contract.py
+"$RUNNER_TEMP/api-wheel-env/bin/python" -I apps/api/tests/test_dotenv_settings_contract.py --require-installed
+```
+Both commands use synthetic files. Empty/comment-only CONTACT_ADMIN_TOKEN values
+disable administrative contact routes; valid quoted tokens and process
+environment precedence remain supported. See docs/ARCHITECTURE.md and owner246.

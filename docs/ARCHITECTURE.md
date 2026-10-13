@@ -591,3 +591,27 @@ application ownership. Only the unrelated LinkedIn credential logger is
 disabled during fixture import and restored before requests. All other stderr
 remains a failure. Both installed profiles require exactly one built API wheel;
 ambiguous or missing wheel outputs fail instead of selecting a candidate.
+
+### Environment-file consumers
+
+The structured library decision in ARCHITECTURE.yaml records python-dotenv and
+pydantic-settings selections; both runtime manifests must match it. The
+[dotenv release notes](https://github.com/theskumar/python-dotenv/releases/tag/v1.2.4)
+identify the empty-comment, empty-value CLI exit and no-override interpolation
+fixes. Maintained libraries implement these rules; the API keeps its existing
+SettingsConfigDict and contact authorization policy.
+
+The release tests exercise the actual parser and CLI with synthetic files.
+Settings/contact tests ensure empty, missing, comment-only, short and whitespace
+tokens disable both administrative routes before request database access. Valid
+quoted tokens may contain literal hash characters; process environment values
+take precedence over the file. Authorized missing-id controls use actual memory
+SQLite, preserving GET/PUT404 behavior without an external database.
+
+CI runs both files under the normal API-wheel interpreter with -I. The settings
+entry point switches to an unrelated temporary cwd, admits only synthetic
+configuration, and verifies app/dotenv/settings origins inside that environment.
+No source tree, pytest/dev extra, real secret, external network, SMTP or live
+provider is required. These checks do not establish Windows, deployment,
+general security or scientific acceptance. Owner246 retains the acceptance work;
+existing security minimums and braces owner195 remain separate.

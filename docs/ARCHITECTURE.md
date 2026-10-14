@@ -655,7 +655,7 @@ are unchanged; the new checker consumer module is also checked strictly.
 
 The maintained checker owns type analysis. The standard-library AST fitness
 function refuses control-flow type comments in API app, tests, Alembic
-migrations and top-level Python modules. It also conservatively refuses asynchronous
+migrations, executable scripts and top-level Python modules. It also conservatively refuses asynchronous
 forms. Assignment/function type comments and type-ignore directives remain allowed.
 Literal source controls cover these boundaries; real installed checker controls
 show synchronous comments being ignored while explicit annotations still enforce

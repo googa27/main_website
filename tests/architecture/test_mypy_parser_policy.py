@@ -47,7 +47,12 @@ def test_owned_api_sources_avoid_silently_ignored_control_flow_type_comments():
     check = getattr(MODULE, "ignored_control_flow_type_comments", None)
     assert callable(check), "The control-flow type-comment source policy is missing"
     sources = list(API_ROOT.glob("*.py"))
-    for root in (API_ROOT / "app", API_ROOT / "tests", API_ROOT / "alembic"):
+    for root in (
+        API_ROOT / "app",
+        API_ROOT / "tests",
+        API_ROOT / "alembic",
+        API_ROOT / "scripts",
+    ):
         sources.extend(root.rglob("*.py"))
     violations = [
         f"{path.relative_to(API_ROOT)}:{line}:ignored control-flow type comment"
@@ -59,7 +64,13 @@ def test_owned_api_sources_avoid_silently_ignored_control_flow_type_comments():
 
 @pytest.mark.parametrize(
     "relative",
-    ["app/module.py", "tests/module.py", "alembic/env.py", "bootstrap.py"],
+    [
+        "app/module.py",
+        "tests/module.py",
+        "alembic/env.py",
+        "scripts/module.py",
+        "bootstrap.py",
+    ],
 )
 def test_api_gate_refuses_comments_in_every_owned_root(tmp_path, monkeypatch, relative):
     source = tmp_path / relative

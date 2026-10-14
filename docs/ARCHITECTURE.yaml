@@ -216,7 +216,7 @@
         "selected": "2.4.0",
         "scope": "Optional API development profile only; excluded from normal API runtime.",
         "parser_choice": "native_parser = True in the existing mypy.ini; all prior module exclusions and strict consumer checks remain.",
-        "source_policy": "Reject type comments attached to synchronous/asynchronous for/with nodes in API app/tests/alembic and top-level modules. Use explicit variable annotations before the statement. Assignment/function type comments and type-ignore directives remain allowed.",
+        "source_policy": "Reject type comments attached to synchronous/asynchronous for/with nodes in API app/tests/alembic/scripts and top-level modules. Use explicit variable annotations before the statement. Assignment/function type comments and type-ignore directives remain allowed.",
         "boundary": "The asynchronous source refusal is conservative. Real checker consumer controls here characterize synchronous for/with behavior; this is not runtime type proof or exhaustive parser conformance.",
         "validation": [
           "(cd apps/api && mypy . && python -m pytest)",

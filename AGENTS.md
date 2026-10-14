@@ -137,3 +137,7 @@ web-owned ESLint/config resolution and the tracked-draft hiding option together.
 The required dependency build gate runs the real Git/index preservation controls.
 This explicit check does not activate a hook; do not broaden task globs or bypass
 hiding without equivalent dirty-file evidence.
+
+## Turbo upgrades
+
+Run `node --test tests/node/turbo-contract.test.mjs` through the managed Node/pnpm workspace. Follow `dependency_update_policy.turbo`: installed native resolution precedes wrapper invocation; cache-only OIDC normalization does not authorize arbitrary token-dependent build caching. SDKROOT passthrough is configuration-specific. Full source/frontend/normal-installed/default gates remain required.

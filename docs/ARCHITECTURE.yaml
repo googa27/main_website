@@ -225,6 +225,26 @@
         ],
         "maintenance": "https://mypy-lang.blogspot.com/2026/10/mypy-24-released.html",
         "acceptance": "Current reviewed head and independently actual base, complete configured Python3.12 source/dev/normal-wheel/frontend/audit/provider gates and actual resulting-default verification. Local minimal pure-wheel oracle alone is not acceptance."
+      },
+      "turbo": {
+        "version": "2.11.7",
+        "manifest_range": "^2.11.7",
+        "wrapper_integrity": "sha512-RhXHbqfvY6o3xt/zSHCwSNwLrZlXiqHzewi4eAj9PtZ1T1CqgMJ2yIDb7SKPTG9IikTm925mfzL6hldQVdyNWw==",
+        "wrapper_sha256": "dd000efaa64f567f0986a84d363bbe7cf95a831010f6f6dbfd21770c89a8523d",
+        "native_linux_x64_sha256": "04245f51c406f7e6ac1b5037dd77cb272ad9faafbb95380eff8020b8475fb59d",
+        "gate": "node --test tests/node/turbo-contract.test.mjs",
+        "fitness_test": "tests/node/turbo-contract.test.mjs",
+        "owner": "https://github.com/googa27/main_website/issues/251",
+        "normalization_byte_limit": 1048576,
+        "sdkroot": "Upstream14353 changes only Turborepo repository configuration; no automatic published-CLI/main_website forwarding. Explicit synthetic passthrough only.",
+        "native_resolution": "Required gate resolves exact installed optional native package before invoking wrapper; missing package/version drift or TURBO_BINARY_PATH override refuses. Upstream direct-wrapper npm repair remains outside acceptance.",
+        "cache_semantics": "Only unambiguous literal VERCEL_OIDC_TOKEN rotation in exactly .env.local is normalized; other content/filenames or ambiguous/binary/multiline/oversized input retains conservative invalidation. Raw Git/worktree bytes unchanged.",
+        "references": [
+          "https://github.com/vercel/turborepo/releases/tag/v2.11.7",
+          "https://github.com/vercel/turborepo/pull/14353",
+          "https://github.com/vercel/turborepo/pull/14356"
+        ],
+        "scope": "Linux x64 real native execution; other locked platform cohorts are metadata only. No private-token/live/browser/science or full-profile/default acceptance from focused controls."
       }
     },
     "extension_points": [
@@ -985,6 +1005,23 @@
           "apps/api/tests/test_mypy_native_parser_contract.py",
           "tests/architecture/test_mypy_parser_policy.py"
         ]
+      },
+      {
+        "capability": "monorepo cache input hashing and native task execution",
+        "selected": [
+          "turbo 2.11.7"
+        ],
+        "alternatives": [
+          "custom dotenv/hash implementation"
+        ],
+        "evidence": [
+          "https://github.com/vercel/turborepo/releases/tag/v2.11.7",
+          "https://github.com/vercel/turborepo/pull/14353",
+          "https://github.com/vercel/turborepo/pull/14356"
+        ],
+        "license": "MIT; official turbo and @turbo/linux-64 package metadata",
+        "adapter_boundary": "Managed Node/pnpm public wrapper with installed same-version optional native package; synthetic task/Git byte oracles",
+        "custom_code_reason": "Repository controls test maintained upstream hashing; no custom parser or hash implementation."
       }
     ]
   },
@@ -993,7 +1030,7 @@
       "primary_agent": "Hermes Agent",
       "context_file": "AGENTS.md",
       "interaction": "AGENTS + deterministic frontend/backend commands and capability notes; no MCP/plugin by default.",
-      "capability_discovery": "Existing deterministic entrypoints: build, clean, dev, format, lint, test, typecheck. Public site content is discoverable through apps/web/src/lib/content.ts; backend is optional unless a dynamic feature is justified.",
+      "capability_discovery": "Existing deterministic entrypoints: build, clean, dev, format, lint, test, typecheck. Public site content is discoverable through apps/web/src/lib/content.ts; backend is optional unless a dynamic feature is justified. Turbo native cache acceptance: node --test tests/node/turbo-contract.test.mjs; see dependency_update_policy.turbo for cache normalization and SDKROOT limits.",
       "skills": "Use/update a repo or class-level Hermes skill for recurring non-trivial workflows",
       "plugin_mcp_policy": "deferred unless stable interfaces and measured multi-client/tool interoperability justify it",
       "declared_entrypoints": [
@@ -1049,7 +1086,8 @@
       "architecture": "python scripts/check_portfolio_architecture.py",
       "architecture_setup": "python -m pip install -r requirements-architecture.txt pytest",
       "architecture_test": "python -m pytest tests/architecture",
-      "staged": "pnpm run check:staged"
+      "staged": "pnpm run check:staged",
+      "turbo_native_contract": "node --test tests/node/turbo-contract.test.mjs"
     },
     "database_driver_selection": {
       "issue": "https://github.com/googa27/main_website/issues/192",

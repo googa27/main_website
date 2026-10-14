@@ -94,6 +94,7 @@ def test_node_and_pnpm_runtimes_are_exact_and_managed() -> None:
         " && node --test tests/node/next-security.test.mjs tests/node/next-process-ownership.test.mjs"
         " && pnpm run check:formatter-contract"
         " && node --test tests/node/lint-staged-contract.test.mjs"
+        " && node --test tests/node/turbo-contract.test.mjs"
     )
     assert package["scripts"]["check:formatter-contract"] == (
         "node --test tests/node/prettier-math.test.mjs"

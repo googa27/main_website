@@ -388,10 +388,12 @@ for source and installed-wheel controls, provider ownership, network boundaries
 and the separate requirements for a future governed opt-in.
 
 The API's dotenv consumer laws run with the normal installed artifact:
+
 ```bash
 "$RUNNER_TEMP/api-wheel-env/bin/python" -I apps/api/tests/test_dotenv_release_contract.py
 "$RUNNER_TEMP/api-wheel-env/bin/python" -I apps/api/tests/test_dotenv_settings_contract.py --require-installed
 ```
+
 Both commands use synthetic files. Empty/comment-only CONTACT_ADMIN_TOKEN values
 disable administrative contact routes; valid quoted tokens and process
 environment precedence remain supported. See docs/ARCHITECTURE.md and owner246.
@@ -400,3 +402,13 @@ The API deprecation source policy runs with repository architecture tests. Insta
 requirements-architecture.txt for its pinned LibCST name resolver; it is separate
 from the normal API wheel and API development profile. See
 [the binding policy and conservative limits](docs/ARCHITECTURE.md).
+
+## Turbo native cache contract
+
+Turbo 2.11.7 is pinned by the workspace lock with its same-version optional platform packages. The required dependency build gate runs `node --test tests/node/turbo-contract.test.mjs` using managed Node 24.19.0. It resolves and verifies the installed native package before invoking the upstream JavaScript wrapper. A missing native package or a `TURBO_BINARY_PATH` override is refused by this gate; do not use the wrapper's upstream npm repair path as acceptance evidence.
+
+The maintained implementation normalizes one unambiguous literal `VERCEL_OIDC_TOKEN` value only in a file named exactly `.env.local`, up to 1 MiB. Token rotation alone may reuse a cache key. Other values, comments, token removal, ordinary dotenv filenames and unsupported, duplicate, multiline, binary or oversized inputs retain conservative invalidation. This is cache-only hashing: working bytes and raw Git blob identity are preserved. The synthetic controls exercise clean/dirty tracked, untracked and ignored explicit global inputs; they do not prove private-token safety for an arbitrary task that consumes the token as build data.
+
+[Upstream14356](https://github.com/vercel/turborepo/pull/14356) owns this normalization; the repository does not implement a dotenv parser. [Upstream14353](https://github.com/vercel/turborepo/pull/14353) adds SDKROOT passthrough only to Turborepo's own `turbo.json`. It does not make SDKROOT automatic in the published CLI or this repository. The native controls verify strict omission by default and explicit passthrough in a synthetic fixture; production environment policy stays unchanged. [Release2.11.7](https://github.com/vercel/turborepo/releases/tag/v2.11.7) is the selected release.
+
+The current acceptance scope is Linux x64. Other locked platform packages are identity metadata, not executed cross-platform evidence. The local two-package native oracle is separate from the full frontend/API installation and resulting-default gates.

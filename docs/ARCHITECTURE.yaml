@@ -975,7 +975,7 @@
           "Handwritten type checker or type-comment parser"
         ],
         "evidence": "apps/api/pyproject.toml, apps/api/requirements-dev.txt, apps/api/mypy.ini and docs/ARCHITECTURE.md",
-        "adapter_boundary": "Existing repository-local development Mypy gate; no runtime dependency. The stdlib AST source policy covers API top-level modules, app, tests and Alembic migrations.",
+        "adapter_boundary": "Existing repository-local development Mypy gate; no runtime dependency. The stdlib AST source policy covers API top-level modules, app, tests, Alembic migrations and executable scripts.",
         "custom_code_reason": "Only repository-specific refusal of silently ignored control-flow annotations; maintained Mypy owns parsing/type checking, stdlib AST owns source syntax. No handwritten parser.",
         "maintenance_evidence": "https://mypy-lang.blogspot.com/2026/10/mypy-24-released.html",
         "api_stability_evidence": "https://github.com/python/mypy/blob/v2.4.0/mypy/api.py",

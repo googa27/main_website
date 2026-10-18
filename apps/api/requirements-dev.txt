@@ -6,6 +6,6 @@ black==26.5.1
 ruff==0.16.10
 mypy==2.4.0
 Pygments==2.21.0
-pypdf==6.19.0
+pypdf==6.20.0
 opentelemetry-sdk==1.45.1
 opentelemetry-exporter-otlp-proto-http==1.45.1

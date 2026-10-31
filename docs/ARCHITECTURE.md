@@ -705,3 +705,30 @@ retroactively change failed jobs or dispose of PR #258 or original PR heads.
 Primary contracts: [public exports](https://typescript-eslint.io/packages/typescript-eslint/),
 [version policy](https://typescript-eslint.io/users/versioning/), and
 [8.72.0 manifest](https://registry.npmjs.org/typescript-eslint/8.72.0).
+
+## aiohttp patch from existing PR #257
+
+Both API runtime manifests select aiohttp 3.14.5, preserving the useful dependency
+change from [PR #257](https://github.com/googa27/main_website/pull/257). The normal,
+development and PDF profiles inherit this runtime pin. The existing packaging
+policy owns the independent security minimum and rejects 3.14.3; literal upstream
+boundary controls accept 3.14.4 and 3.14.5. The policy now checks PDF manifest parity
+and its single runtime include too, preventing a profile-specific override.
+
+The eight advisories recorded in the machine contract all identify 3.14.4 as the
+first patched release. The maintained [3.14.5 package metadata](https://pypi.org/pypi/aiohttp/3.14.5/json)
+reports Python >=3.10 and Apache-2.0 AND MIT licensing. The
+[changelog](https://docs.aiohttp.org/en/stable/changes.html) describes the fixes;
+the newer yarl minimum and widened multidict range require fresh resolver checks.
+This source uses aiohttp only for outgoing Ollama JSON requests, while the API
+server uses FastAPI, Starlette and Uvicorn. No application transport, DTO or
+fallback semantics change. Actual ClientSession requests against the maintained
+loopback TestServer verify both POST and GET success/error behavior without a
+live provider. Server-side aiohttp exploitability is not inferred.
+
+The original published TypeScript candidate and original PR #257 commit remain
+ancestors of the combined successor. Fresh normal-wheel artifact checks and its
+strict unsuppressed installed-graph audit remain separate from development/PDF
+requirements audits. Historical native quality failure is retained; passing local
+checks does not establish fresh hosted CI, updater recovery, deployment security
+or closure of the unrelated frontend advisory owner #263.

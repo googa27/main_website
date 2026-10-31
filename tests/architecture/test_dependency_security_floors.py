@@ -22,6 +22,7 @@ _SECURITY_MINIMUMS = {
         "mako": "1.4.2",
         "httpx": "0.28.1",
         "anyio": "4.14.2",
+        "aiohttp": "3.14.4",
     },
     "dev": {"pygments": "2.20.0", "httpx2": "2.12.0"},
 }
@@ -40,7 +41,7 @@ def _requirements_lines(text: str, *, include_runtime: bool = False) -> list[str
         assert not line.startswith("-"), f"Unsupported requirement directive: {line}"
         declarations.append(line)
     assert includes == int(include_runtime), (
-        "Development must include runtime exactly once"
+        "Optional profile must include runtime exactly once"
     )
     return declarations
 
@@ -94,19 +95,27 @@ def test_python_security_floors_are_synchronized_across_manifests() -> None:
     development = _requirements_lines(
         (API / "requirements-dev.txt").read_text(encoding="utf-8"), include_runtime=True
     )
+    pdf = _requirements_lines(
+        (API / "requirements-pdf.txt").read_text(encoding="utf-8"), include_runtime=True
+    )
     project = tomllib.loads((API / "pyproject.toml").read_text(encoding="utf-8"))[
         "project"
     ]
     for owner, requirements, declarations in (
         ("runtime", runtime, project["dependencies"]),
         ("dev", development, project["optional-dependencies"]["dev"]),
+        ("pdf", pdf, project["optional-dependencies"]["pdf"]),
     ):
         manifest = _declarations_by_name(requirements)
         metadata = _declarations_by_name(declarations)
-        assert _SECURITY_MINIMUMS[owner].keys() <= manifest.keys(), (
+        if owner != "runtime":
+            assert "aiohttp" not in manifest and "aiohttp" not in metadata, (
+                "aiohttp must be owned by runtime, not an optional profile"
+            )
+        assert _SECURITY_MINIMUMS.get(owner, {}).keys() <= manifest.keys(), (
             f"Missing protected {owner} pin"
         )
-        assert _SECURITY_MINIMUMS[owner].keys() <= metadata.keys(), (
+        assert _SECURITY_MINIMUMS.get(owner, {}).keys() <= metadata.keys(), (
             f"Missing protected {owner} metadata"
         )
         assert manifest == metadata, f"Full {owner} manifest parity differs"
@@ -223,7 +232,12 @@ def test_postcss_security_floor_is_owned_by_override_and_lock() -> None:
 @pytest.fixture
 def manifests(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """Exercise the real repository checker against owned manifest copies."""
-    for name in ("requirements.txt", "requirements-dev.txt", "pyproject.toml"):
+    for name in (
+        "requirements.txt",
+        "requirements-dev.txt",
+        "requirements-pdf.txt",
+        "pyproject.toml",
+    ):
         (tmp_path / name).write_bytes((API / name).read_bytes())
     # Policy controls own exact minimum fixtures independently of selected pins.
     project = tomllib.loads((tmp_path / "pyproject.toml").read_text())["project"]
@@ -263,6 +277,7 @@ def _replace_declaration(
         ("idna==3.18", "idna==3.19"),
         ("Mako==1.4.2", "Mako==1.4.3"),
         ("anyio==4.14.2", "anyio==4.15.1"),
+        ("aiohttp==3.14.4", "aiohttp==3.14.5"),
     ],
 )
 def test_synchronized_newer_pins_are_not_rejected_as_old_exact_pins(
@@ -287,6 +302,17 @@ def test_mako_advisory_last_affected_release_is_refused() -> None:
         _declarations_by_name(["Mako==1.4.1"])
 
 
+@pytest.mark.parametrize("version", ["3.14.4", "3.14.5"])
+def test_aiohttp_advisory_patched_releases_meet_security_policy(version: str) -> None:
+    # Literal upstream advisory boundaries are independent of the policy map.
+    _declarations_by_name([f"aiohttp=={version}"])
+
+
+def test_aiohttp_advisory_last_affected_release_is_refused() -> None:
+    with pytest.raises(AssertionError, match="Below security minimum: aiohttp"):
+        _declarations_by_name(["aiohttp==3.14.3"])
+
+
 @pytest.mark.parametrize(
     "owner,old,below",
     [
@@ -294,6 +320,7 @@ def test_mako_advisory_last_affected_release_is_refused() -> None:
         ("runtime", "Mako==1.4.2", "Mako==1.4.1"),
         ("runtime", "httpx==0.28.1", "httpx==0.28.0"),
         ("runtime", "anyio==4.14.2", "anyio==4.14.1"),
+        ("runtime", "aiohttp==3.14.4", "aiohttp==3.14.3"),
         ("dev", "Pygments==2.20.0", "Pygments==2.19.2"),
         ("dev", "httpx2==2.12.0", "httpx2==2.11.0"),
     ],
@@ -426,12 +453,37 @@ def test_comments_blank_lines_and_canonical_names_preserve_parity(
         "--requirement requirements.txt",
     ],
 )
-def test_development_include_must_be_the_single_owned_runtime_file(
-    manifests: Path, include: str
+@pytest.mark.parametrize("filename", ["requirements-dev.txt", "requirements-pdf.txt"])
+def test_optional_profiles_include_the_single_owned_runtime_file(
+    manifests: Path, include: str, filename: str
 ) -> None:
-    path = manifests / "requirements-dev.txt"
+    path = manifests / filename
     path.write_text(path.read_text().replace("-r requirements.txt", include))
     with pytest.raises(AssertionError):
+        test_python_security_floors_are_synchronized_across_manifests()
+
+
+def test_pdf_profile_cannot_override_the_runtime_aiohttp_pin(manifests: Path) -> None:
+    path = manifests / "requirements-pdf.txt"
+    path.write_text(path.read_text() + "aiohttp==3.14.3\n")
+    with pytest.raises(AssertionError):
+        test_python_security_floors_are_synchronized_across_manifests()
+
+
+@pytest.mark.parametrize("owner", ["dev", "pdf"])
+@pytest.mark.parametrize("version", ["3.14.4", "3.14.5"])
+def test_optional_profiles_cannot_redeclare_aiohttp_in_both_manifests(
+    manifests: Path, owner: str, version: str
+) -> None:
+    _replace_declaration(manifests, "aiohttp==3.14.4", "aiohttp==3.14.5")
+    pin = f"AiOhTtP=={version}"
+    requirements = manifests / f"requirements-{owner}.txt"
+    requirements.write_text(requirements.read_text() + pin + "\n")
+    project = manifests / "pyproject.toml"
+    project.write_text(
+        project.read_text().replace(f"{owner} = [", f"{owner} = [{json.dumps(pin)},", 1)
+    )
+    with pytest.raises(AssertionError, match="aiohttp must be owned by runtime"):
         test_python_security_floors_are_synchronized_across_manifests()
 
 

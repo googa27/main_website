@@ -23,6 +23,7 @@ _SECURITY_MINIMUMS = {
         "httpx": "0.28.1",
         "anyio": "4.14.2",
         "aiohttp": "3.14.4",
+        "certifi": "2026.10.18",
     },
     "dev": {
         "pygments": "2.20.0",
@@ -57,11 +58,12 @@ def _requirements_lines(
 
 
 def _declarations_by_name(declarations: Iterable[str]) -> dict[str, Requirement]:
-    minimums = {
-        name: minimum
-        for group in _SECURITY_MINIMUMS.values()
-        for name, minimum in group.items()
-    }
+    minimums = {}
+    for group in _SECURITY_MINIMUMS.values():
+        for name, minimum in group.items():
+            assert minimums.setdefault(name, minimum) == minimum, (
+                f"Conflicting security minimum: {name}"
+            )
     parsed: dict[str, Requirement] = {}
     for declaration in declarations:
         assert isinstance(declaration, str), "Requirement declarations must be strings"

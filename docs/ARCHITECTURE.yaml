@@ -1259,8 +1259,8 @@
         "filelock": "4.2.1"
       },
       "compatibility": "Python3.12 is supported by every selected release. ReportLab5.0.1 declares Pillow>=9.0.0 with no upper bound; Pillow13 requires Python>=3.11. Actual normal resolution/pip check and PDF generation/parsing remain required; metadata compatibility alone is insufficient.",
-      "ownership": "Black/pypdf remain development-only; ReportLab/Pillow remain optional PDF dependencies. certifi/filelock remain in the independent security-tool cohort, which must not mutate the API interpreter. aiohttp3.14.5 remains owned once by runtime.",
-      "reachability": "Black is unused by active Ruff gates and its optional Alembic hook is commented. pypdf reads generated résumé bytes in tests. PDF output uses escaped public text and packaged fonts with no caller images. certifi supplies Requests trust roots to the auditor; pip-audit SafeFileCache writes use atomic replacement rather than CacheControl lock acquisition. Version findings do not demonstrate an application exploit.",
+      "ownership": "Black/pypdf remain development-only; ReportLab/Pillow remain optional PDF dependencies. filelock stays in the independent security-tool cohort. certifi is constrained separately in runtime and the isolated auditor, while dev/PDF inherit runtime. The auditor must not mutate the API interpreter. aiohttp3.14.5 remains owned once by runtime.",
+      "reachability": "Black is unused by active Ruff gates and its optional Alembic hook is commented. pypdf reads generated résumé bytes in tests. PDF output uses escaped public text and packaged fonts with no caller images. certifi supplies HTTPX runtime and Requests/auditor trust roots; pip-audit SafeFileCache writes use atomic replacement rather than CacheControl lock acquisition. Version findings do not demonstrate an application exploit.",
       "minimum_owner": "_SECURITY_MINIMUMS in tests/architecture/test_dependency_security_floors.py; tests/architecture/test_python_profile_security.py exercises real synchronized downgrades and the security-tool manifest/bootstrap include.",
       "reference_sources": [
         "https://pypi.org/pypi/black/26.10.1/json",
@@ -1274,10 +1274,26 @@
       "validation": "Fresh normal wheel[dev], wheel[pdf], wheel[dev,pdf] and isolated auditor installations; complete installed published-graph audits, manifest audits, pip check, API lint/format/types/tests, source-free CLI PDF output, actual PDF text/concurrency controls and direct image/cache/lock/CA behavior checks.",
       "scope": "Configured Python3.12 Linux only. Historical failed reports remain evidence; local Python checks do not imply frontend, native hosted CI, code-scanning, deployment or whole-repository acceptance. No advisory suppressions or transitive major overrides."
     },
+    "python_runtime_ca_security": {
+      "issue": "https://github.com/googa27/main_website/issues/263",
+      "selected_version": "2026.10.23",
+      "ownership": "apps/api/requirements.txt and project.dependencies own the same exact certifi pin. dev/PDF requirements include runtime exactly once; their extras must not redeclare it. The security-tool manifest remains separately constrained and isolated.",
+      "minimum_owner": "_SECURITY_MINIMUMS runtime/security certifi entries in tests/architecture/test_dependency_security_floors.py agree on2026.10.18; conflicting shared minima fail instead of overwriting one another.",
+      "observed_failure": "Actual main2c0e40b3ac2f0a9dc351e336c2f4a70f4e2f0e8d native OSV2.7.0 full scan run41246036896/job124670202423 selected certifi2026.7.22 in runtime/dev/PDF requirements. Nine raw SARIF records represent six package/source instances: three duplicated certifi instances plus three retained minimatch instances. SARIF upload/processing succeeded; this is a real permitted-selection finding, not a scanner transport failure or demonstrated deployed exploit.",
+      "constraint_reason": "Requests2.34.2 permits certifi>=2023.5.7 and runtime HTTPX0.28.1 has no certifi minimum. A fresh pip install choosing2026.10.23 does not constrain other valid resolver selections. The explicit runtime pin removes2026.7.22 from the supported graph without replacing the maintained clients or altering TLS defaults.",
+      "advisory": "https://github.com/advisories/GHSA-6q48-6c7w-9gw2; alias PYSEC-2026-4320; first patched2026.10.18. Upstream recommends2026.10.19+ after restoring unaffected emSign roots; selected2026.10.23 satisfies both.",
+      "artifact_evidence": "https://pypi.org/pypi/certifi/2026.10.23/json; https://raw.githubusercontent.com/certifi/python-certifi/2026.10.23/certifi/cacert.pem; Python>=3.7, MPL-2.0. Existing transitive library becomes an explicit security constraint, with no custom trust filtering or new runtime algorithm.",
+      "fitness_tests": [
+        "tests/architecture/test_certifi_runtime_policy.py",
+        "apps/api/tests/test_dependency_consumers.py"
+      ],
+      "verification_scope": "Literal patched/affected boundaries, synchronized downgrade/removal, shared-minimum consistency and optional-override refusal; fresh normal/dev/PDF installed graph audits; actual packaged PEM fingerprint exclusion; real HTTPX context loading with hostname/chain verification; full unsuppressed OSV scanning. Certifi bundle contents are distinct from interpreter/system trust roots and explicit environment CA overrides. Retained minimatch findings remain separately assessed. No clean whole-repository or deployed TLS claim."
+    },
     "python_dependency_consumers": {
       "owner": "apps/api/tests/test_dependency_consumers.py",
       "idna": "Actual ContactCreate/EmailStr and email-validator normalize Unicode and reject invalid/noncanonical labels; runtime HTTPX Request preparation verifies wire hosts without sending. Entirely ASCII HTTPX hosts bypass IDNA, so the noncanonical HTTPX negative includes a Unicode label.",
       "mako": "Actual installed Alembic generic template and repository script.py.mako generate a temporary revision; metadata, upgrade/downgrade content and Python syntax are asserted. No database, env.py, autogeneration or post-write hooks. Mako distribution owns no top-level tools payload.",
+      "certifi": "Actual packaged PEM excludes the SHA256-identified compromised emSign ECC Root CA - G3; runtime HTTPX AsyncClient loads that bundle through the real SSL factory with hostname and certificate verification enabled, without external I/O. Host/interpreter trust and explicit CA overrides remain separately owned.",
       "isolation": "External socket/DNS calls are refused in IDNA/Alembic consumer tests; aiohttp controls use literal loopback; temporary paths are pytest-owned; minimum acceptance does not imply hosted or deployed behavior.",
       "typing": "test_dependency_consumers explicitly requires typed definitions and resolved imports in Mypy; its actual module name is top-level.",
       "aiohttp": {

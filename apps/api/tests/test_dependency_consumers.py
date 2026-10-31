@@ -1,11 +1,15 @@
-"""Real IDNA and Alembic consumers, using public inputs and no external I/O."""
+"""Real IDNA, CA and Alembic consumers without external I/O."""
 
 import ast
+import re
 import socket
+import ssl
+from hashlib import sha256
 from importlib.metadata import distribution
 from importlib.resources import files
 from pathlib import Path
 
+import certifi
 import httpx
 import idna
 import pytest
@@ -83,6 +87,53 @@ def test_idna_distinguishes_canonical_alabel_from_ambiguous_punycode() -> None:
     assert idna.encode("xn--bbk.de") == b"xn--bbk.de"
     with pytest.raises(idna.IDNAError):
         idna.decode("xn---bbk.de")
+
+
+def test_certifi_bundle_excludes_the_compromised_emsign_root() -> None:
+    # GHSA-6q48-6c7w-9gw2 identifies emSign ECC Root CA - G3. Decode the
+    # actual packaged PEM with stdlib SSL, independently of version metadata.
+    certificates = re.findall(
+        r"-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----",
+        certifi.contents(),
+        re.DOTALL,
+    )
+    fingerprints = {
+        sha256(ssl.PEM_cert_to_DER_cert(pem)).hexdigest() for pem in certificates
+    }
+    assert len(fingerprints) >= 100
+    assert (
+        "86a1ecba089c4a8d3bbe2734c612ba341d813e043cf9e8a862cd5c57a36bbe6b"
+        not in fingerprints
+    )
+
+
+@pytest.mark.asyncio
+async def test_runtime_httpx_loads_certifi_and_keeps_tls_verification(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    real_context = ssl.create_default_context
+    contexts: list[tuple[str | None, ssl.SSLContext]] = []
+
+    def capture_context(
+        *,
+        cafile: str | None = None,
+        capath: str | None = None,
+        cadata: str | bytes | None = None,
+    ) -> ssl.SSLContext:
+        context = real_context(cafile=cafile, capath=capath, cadata=cadata)
+        contexts.append((cafile, context))
+        return context
+
+    monkeypatch.setattr(ssl, "create_default_context", capture_context)
+    # Exercise the client's normal certifi route independently of host proxy/CA
+    # overrides, without opening a socket or changing the application's defaults.
+    async with httpx.AsyncClient(trust_env=False):
+        pass
+    assert contexts
+    for cafile, context in contexts:
+        assert cafile is not None and Path(cafile).samefile(certifi.where())
+        assert context.verify_mode == ssl.CERT_REQUIRED
+        assert context.check_hostname
 
 
 @pytest.mark.parametrize("template_owner", ["installed_alembic", "repository"])

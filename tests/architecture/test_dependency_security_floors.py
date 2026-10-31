@@ -24,24 +24,34 @@ _SECURITY_MINIMUMS = {
         "anyio": "4.14.2",
         "aiohttp": "3.14.4",
     },
-    "dev": {"pygments": "2.20.0", "httpx2": "2.12.0"},
+    "dev": {
+        "pygments": "2.20.0",
+        "httpx2": "2.12.0",
+        "black": "26.10.1",
+        "pypdf": "6.21.4",
+    },
+    "pdf": {"pillow": "13.0.0"},
+    "security": {"certifi": "2026.10.18", "filelock": "4.2.1"},
 }
 
 
-def _requirements_lines(text: str, *, include_runtime: bool = False) -> list[str]:
+def _requirements_lines(
+    text: str, *, include_runtime: bool = False, include_file: str | None = None
+) -> list[str]:
     declarations = []
     includes = 0
+    expected_include = "requirements.txt" if include_runtime else include_file
     for line in text.splitlines():
         line = re.split(r"\s+#", line, maxsplit=1)[0].strip()
         if not line or line.startswith("#"):
             continue
-        if line == "-r requirements.txt" and include_runtime:
+        if expected_include is not None and line == f"-r {expected_include}":
             includes += 1
             continue
         assert not line.startswith("-"), f"Unsupported requirement directive: {line}"
         declarations.append(line)
-    assert includes == int(include_runtime), (
-        "Optional profile must include runtime exactly once"
+    assert includes == int(expected_include is not None), (
+        "Profile must include its owned requirements file exactly once"
     )
     return declarations
 
@@ -119,6 +129,12 @@ def test_python_security_floors_are_synchronized_across_manifests() -> None:
             f"Missing protected {owner} metadata"
         )
         assert manifest == metadata, f"Full {owner} manifest parity differs"
+    runtime_names = _declarations_by_name(runtime).keys()
+    for owner in ("dev", "pdf"):
+        optional_names = _declarations_by_name(project["optional-dependencies"][owner])
+        assert runtime_names.isdisjoint(optional_names), (
+            f"Optional {owner} dependencies must not be declared in runtime"
+        )
 
 
 def _selected_alembic_stack() -> tuple[str, dict[str, str]]:
@@ -244,6 +260,7 @@ def manifests(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     for owner, declarations in (
         ("runtime", project["dependencies"]),
         ("dev", project["optional-dependencies"]["dev"]),
+        ("pdf", project["optional-dependencies"]["pdf"]),
     ):
         for declaration in declarations:
             requirement = Requirement(declaration)
@@ -259,7 +276,7 @@ def manifests(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
 def _replace_declaration(
     manifests: Path, original: str, replacement: str, owner: str = "runtime"
 ) -> None:
-    filename = "requirements.txt" if owner == "runtime" else "requirements-dev.txt"
+    filename = "requirements.txt" if owner == "runtime" else f"requirements-{owner}.txt"
     path = manifests / filename
     assert original in path.read_text()
     path.write_text(path.read_text().replace(original, replacement))

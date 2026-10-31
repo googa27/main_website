@@ -403,7 +403,7 @@
       "optional_dependency": "portfolio-api[pdf] owns ReportLab; core JSON Resume projection must work without it",
       "schema_sha256": "a07eedd3d86ac5bb61d72e136d788269e35baf42c35391e15d0be39b3dc5a4bd",
       "cli": "portfolio-cv --capabilities; portfolio-cv --format jsonresume; portfolio-cv --format pdf --output ./resume.pdf",
-      "pdf_security_constraint": "pillow==12.3.0",
+      "pdf_security_constraint": "pillow==13.0.0",
       "pdf_concurrency": {
         "issue": "https://github.com/googa27/main_website/issues/147",
         "owner": "app.services.cv.pdf",
@@ -513,7 +513,7 @@
       "version": "0.35.5",
       "minimum_rsvg": "2.63.2",
       "parents": [
-        "next@16.3.8(@babel/core@7.29.7)(@types/node@24.19.1)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)"
+        "next@16.4.1(@babel/core@7.29.7)(@types/node@24.19.1)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)"
       ],
       "optional_dependencies": {
         "@img/sharp-darwin-arm64": "0.35.5",
@@ -583,30 +583,30 @@
       "verification_boundary": "The exported rsvg version is package metadata. GNU Linux x64 controls separately hash the installed native binding, shared libvips and version file against published tarball bytes and require the two binaries to appear in the real consumer process mappings. Literal SVG pixels, resize, PNG roundtrip, malformed input and explicit pixel bounds exercise the public Sharp export resolved through the actual Next parent. Other platform assets are locked but not executed here. These controls are not a use-after-free exploit reproducer, deployed image endpoint, Windows proof or scientific evidence. The static frontend keeps its existing unoptimized image boundary."
     },
     "next_security_policy": {
-      "owner": "https://github.com/googa27/main_website/issues/196",
-      "version": "16.3.8",
-      "minimum_version": "16.3.8",
+      "owner": "https://github.com/googa27/main_website/issues/263",
+      "version": "16.4.1",
+      "minimum_version": "16.4.1",
       "optional_compilers": {
-        "@next/swc-darwin-x64": "16.3.8",
-        "@next/swc-darwin-arm64": "16.3.8",
-        "@next/swc-linux-x64-gnu": "16.3.8",
-        "@next/swc-linux-x64-musl": "16.3.8",
-        "@next/swc-win32-x64-msvc": "16.3.8",
-        "@next/swc-linux-arm64-gnu": "16.3.8",
-        "@next/swc-linux-arm64-musl": "16.3.8",
-        "@next/swc-win32-arm64-msvc": "16.3.8"
+        "@next/swc-darwin-x64": "16.4.1",
+        "@next/swc-darwin-arm64": "16.4.1",
+        "@next/swc-linux-x64-gnu": "16.4.1",
+        "@next/swc-linux-x64-musl": "16.4.1",
+        "@next/swc-win32-x64-msvc": "16.4.1",
+        "@next/swc-linux-arm64-gnu": "16.4.1",
+        "@next/swc-linux-arm64-musl": "16.4.1",
+        "@next/swc-win32-arm64-msvc": "16.4.1"
       },
       "published_assets": {
-        "next_manifest": "6da8fc4823b66b8f2906d150002618e3f3e0d2446ebf3823b2a2f7efe73a46a4",
-        "GNU_manifest": "dca7a240d53c8edd8833ad465f85d304d307637159ec6243da6190d02cd969fe",
-        "GNU_binary": "89fbdf990c4f0fdcf95c56463a026bbbc405e0b0970e6a0d8d12d50b773d97cd"
+        "next_manifest": "546222266ef4402af870e96f03964570038e8498f4a4f7cb6dcf591f08cb07ec",
+        "GNU_manifest": "70dad815a95e292c99d4623718646f4e708e8299f2373738df5ab8fe921335c9",
+        "GNU_binary": "522db6ddbf906d80e88aa37624519ea7a97d4bdee988c51e46cb5640fa0435cb"
       },
       "published_integrities": {
-        "next": "sha512-U7QEZaTini6wKrb8A8hqLLqYQyCetegKjCpJOyxk642vWoMoU1x5PyZCJFvgYgiptA8xc5j/9xYlZFO7w9Sjmw==",
-        "eslint-config-next": "sha512-81vovwMe6NGnoFsl0KUJWzlS+y239i3fdsxs49gSEX3pDQW2cuKy+fxUPXNkQqqx6OCPheYPtBlSufc9aZ0k+w==",
-        "@next/eslint-plugin-next": "sha512-eCR9RcLTZrVS+K3+VOhi0xMdUUGNuriCHHhU1ZoABC/QQ/Gp0OWbLKQxV2/9DkmihYdYRcQWFmZXW8M1AMUXYw==",
-        "@next/env": "sha512-Al9zqHVV7TJv0eFuOU4U7Lvv74PTih4Ch63sk2xCIpSTkE3udFnaOcnzP2lQVymiL7yS9Cj2iClUXlR3EQ5sEw==",
-        "@next/swc-linux-x64-gnu": "sha512-lbqOuz3RPRcv+o9msNsJw5x4+Y1ZwPTs6vmL6DCf7i0fZfvng/F59wyeDwqHIvV0mK//RBy/jJkZ+nCKsSMXjQ=="
+        "next": "sha512-uc657V62E34fOI6W5NtG9IzwsPcms0Z60grz2MJGtglgD+pTFnNt4Yw2PzaU622tfX4vhrDgLZzicE2YlhI20Q==",
+        "eslint-config-next": "sha512-6AsojbCfRdpWkP6BIUnMBv3MH4OvtfmH9p4hSfLh8ZgsW7nfhu7DpUMNBB7leisDyyMz+YYxTc+NAdBOQfovlA==",
+        "@next/eslint-plugin-next": "sha512-2io6M+wAqe7nT5mt2gEVy6FOzye2DmwhjaYCpSvHfrIKL11SXNTwSARxpPHJacRmfgSBSDnNmnEXSp0DaJ23BQ==",
+        "@next/env": "sha512-5sUUrrSvs/2/2LnLoesybMGx12EtPB46fdZ6RhAw0XDGSPxU2LFyQBB7yuEiOFFJPKmBY6+q2jTr1/AMbnp0/g==",
+        "@next/swc-linux-x64-gnu": "sha512-Istng1hMGp9TGO4lUqeKLd70MPN/OOkucVTP2Nmj+gLkwBgmPqUw8CJYBCC7nbl/B/23bBCcjCI5Hsh6hazC1A=="
       },
       "advisories": [
         "GHSA-39w2-rjm5-chcv",
@@ -615,13 +615,17 @@
         "GHSA-cjq9-62q9-8jv4",
         "GHSA-f87g-xv8r-7p7x",
         "GHSA-mcj8-r9mp-w47p",
-        "GHSA-vcvr-r3jv-pc5j"
+        "GHSA-vcvr-r3jv-pc5j",
+        "GHSA-2464-fhr4-w9xw",
+        "GHSA-673q-mjm6-r5xr",
+        "GHSA-p3m5-59mp-jv5r"
       ],
       "references": [
         "https://github.com/vercel/next.js/releases/tag/v16.3.8",
         "https://nextjs.org/docs/app/api-reference/config/next-config-js/output",
         "https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins",
-        "https://nodejs.org/download/release/v24.19.0/docs/api/child_process.html"
+        "https://nodejs.org/download/release/v24.19.0/docs/api/child_process.html",
+        "https://github.com/vercel/next.js/releases/tag/v16.4.1"
       ],
       "consumer_command": "node --test tests/node/next-security.test.mjs tests/node/next-process-ownership.test.mjs",
       "fitness_tests": [
@@ -633,7 +637,8 @@
       "verification_owners": {
         "bounded_process_cleanup": "https://github.com/googa27/main_website/issues/210",
         "executed_policy_bindings": "https://github.com/googa27/main_website/issues/211",
-        "maintained_origin_controls": "https://github.com/googa27/main_website/issues/196"
+        "maintained_origin_controls": "https://github.com/googa27/main_website/issues/196",
+        "current_frontend_cohort": "https://github.com/googa27/main_website/issues/263"
       }
     },
     "api_telemetry_policy": {
@@ -669,6 +674,66 @@
         "fixture_isolation": "Clear uppercase/lowercase proxy settings; disable only LinkedIn credential logger during import and restore before requests; fail other stderr.",
         "wheel_identity": "Both normal and SDK profiles require exactly one existing built API wheel; fail zero or ambiguous outputs."
       }
+    },
+    "frontend_security_cohort": {
+      "owner": "https://github.com/googa27/main_website/issues/263",
+      "reviewed": "2026-10-31",
+      "next": "16.4.1",
+      "eslint_config_next": "16.4.1",
+      "zod": "4.6.6",
+      "zod_selector": "zod@>=4.0.0 <4.6.6",
+      "selection": "Next/config 16.4.1 published 2026-10-14; Zod 4.6.6 published 2026-10-11. MIT, existing package identities and supported parent ranges. Both exceed the seven-day cooldown. Managed Node 24.19.0, pnpm 10.34.5, strict peers and TypeScript ESLint 8.72.0 remain selected.",
+      "zod_boundary": "Resolved through eslint-plugin-react-hooks 7.1.1. The repair checks existing upper bounds before collection elements; no universal cap for unconstrained arrays is claimed. Array/set/map callbacks and ordinary values are exercised.",
+      "minimatch_disposition": {
+        "advisory": "GHSA-g3hv-75wg-m249",
+        "audit_status": "retained-unsuppressed",
+        "versions": [
+          "3.1.5",
+          "10.2.5",
+          "10.2.6"
+        ],
+        "decision": "Current consumers do not enable the described amplification. Version 3.1.5 lacks the optimization mechanism; 10.x defaults to 1 and reviewed callers use only dot/flipNegate. This is an exact-cohort reachability disposition, not a patched-version claim. Audit retains 3 affected package instances.",
+        "compatibility": "No parent accepts 11. Global major forcing breaks callable 3.x APIs and violates 3.x/10.x ranges. Version 11.0.1 published 2026-10-27 is inside seven-day policy; no cooldown exception is made.",
+        "caller_files": [
+          {
+            "file": "eslint@10.10.0_jiti@2.7.0/node_modules/eslint/lib/eslint/eslint-helpers.js",
+            "sha256": "4a1d745b6b7e1972ba59d2402ce488e90309825c8f3bb4d973a59d8dee511ebd",
+            "minimatch": "10.2.5"
+          },
+          {
+            "file": "@eslint+config-array@0.23.5/node_modules/@eslint/config-array/dist/cjs/index.cjs",
+            "sha256": "615889758115b8254f0c5ae4761ab659a98c4b4cc16da0f06215b9107ba49675",
+            "minimatch": "10.2.6"
+          },
+          {
+            "file": "@typescript-eslint+typescript-estree@8.72.0_typescript@5.9.3/node_modules/@typescript-eslint/typescript-estree/dist/useProgramFromProjectService.js",
+            "sha256": "01187bd4d1369992441a8d416f31531640ac6b6d021a7035e59ce47e017b482f",
+            "minimatch": "10.2.6"
+          }
+        ],
+        "reopen_trigger": "Any package/caller/option drift, optimizationLevel>=2 exposure, runtime glob consumer, supported patched parent/backport, or revised advisory mechanism requires review. Exact caller byte drift fails the required gate.",
+        "source_references": [
+          "https://github.com/advisories/GHSA-g3hv-75wg-m249",
+          "https://github.com/isaacs/minimatch/commit/77a0f5c"
+        ],
+        "consumers": {
+          "@eslint/config-array@0.21.2": "3.1.5",
+          "@eslint/config-array@0.23.5": "10.2.6",
+          "@eslint/eslintrc@3.3.6": "3.1.5",
+          "@typescript-eslint/typescript-estree@8.72.0": "10.2.6",
+          "eslint-plugin-import@2.32.0": "3.1.5",
+          "eslint-plugin-jsx-a11y@6.10.2": "3.1.5",
+          "eslint-plugin-react@7.37.5": "3.1.5",
+          "eslint@10.10.0": "10.2.5",
+          "eslint@9.39.5": "3.1.5"
+        }
+      },
+      "consumer_command": "node --test tests/node/frontend-security-cohort.test.mjs",
+      "fitness_tests": [
+        "tests/architecture/test_frontend_security_cohort.py",
+        "tests/node/frontend-security-cohort.test.mjs"
+      ],
+      "deployment_boundary": "Static export and unoptimized images; no Server Actions/use-cache functions. Dependency floors/tests do not prove deployment or application exploit. Unsuppressed audit/native CI/resulting-main are separate evidence."
     }
   },
   "source_layout": {
@@ -1145,6 +1210,16 @@
       "scope": "Local SQLite and in-process HTTP route compatibility only; no live PostgreSQL, provider, deployment or production-availability claim."
     },
     "ci_workflow": ".github/workflows/ci.yml",
+    "osv_scanning": {
+      "owner": "https://github.com/googa27/main_website/issues/263",
+      "upstream_revision": "b1d267aea5211fa648d9d442fa64b90dbdcbdd36",
+      "release": "v2.7.0",
+      "contract": "Use maintained upstream recursive PR-difference and push full-scan workflows with export-results=false, fail-on-vuln=true and upload-sarif=true. Complete PR JSON scans and SARIF remain upstream artifacts; full-scan SARIF remains an artifact and code-scanning upload. Do not serialize complete scans into GitHub job outputs.",
+      "failure_semantics": "Reporter findings fail the job. Upstream scan-completion guards reject a failed scan that produced no nonempty JSON, before reporting; output limits, missing scans and upload failures are not clean-audit evidence.",
+      "fitness_test": "tests/architecture/test_osv_workflow_contract.py; exact upstream export/scan-completion shell replay with preserved native large artifacts and reporter positive/negative controls described in docs/OSV_SCANNING.md.",
+      "evidence": "https://github.com/google/osv-scanner-action/pull/130; https://github.com/google/osv-scanner-action/releases/tag/v2.7.0; https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idoutputs",
+      "scope": "Scanner workflow repair. The historical PR258 job failed output evaluation after scanning; its PR-difference SARIF is not a clean full-repository audit or exact-head hosted acceptance. Retain independent dependency-cohort findings and verify hosted results on the resulting candidate."
+    },
     "frontend_workspace_ci": {
       "owner": "https://github.com/googa27/main_website/issues/227",
       "workflow": ".github/workflows/ci.yml quality-checks",
@@ -1168,6 +1243,36 @@
       "include_policy": "Each dev/PDF requirements file must include exactly one -r requirements.txt, without recursive expansion; comments and blank lines are supported. Optional profiles cannot add an independent aiohttp override.",
       "oracles": "Actual selected manifests; copied exact-minimum fixtures; literal upstream Mako 1.4.1 refusal and 1.4.2/1.4.3 acceptance independent of the policy map; synchronized newer IDNA/Mako pins; each below-floor case; missing/duplicate declarations; full parity; malformed forms; explicit runtime and development include controls. Literal upstream aiohttp 3.14.3 refusal and 3.14.4/3.14.5 acceptance, synchronized aiohttp downgrade/newer-pin controls and PDF runtime-include/override controls cover the existing PR #257 repair.",
       "ci_setup": "CI test job installs requirements-architecture.txt plus pytest before tests/architecture; all Python dependency audits remain required."
+    },
+    "python_optional_profile_security": {
+      "issue": "https://github.com/googa27/main_website/issues/263",
+      "existing_proposals": [
+        "PR255 Black26.10.1 is preserved as an ancestor",
+        "PR256 pypdf6.20.0 is preserved as an ancestor; remaining advisories require6.21.4"
+      ],
+      "selected_versions": {
+        "black": "26.10.1",
+        "pypdf": "6.21.4",
+        "reportlab": "5.0.1",
+        "pillow": "13.0.0",
+        "certifi": "2026.10.23",
+        "filelock": "4.2.1"
+      },
+      "compatibility": "Python3.12 is supported by every selected release. ReportLab5.0.1 declares Pillow>=9.0.0 with no upper bound; Pillow13 requires Python>=3.11. Actual normal resolution/pip check and PDF generation/parsing remain required; metadata compatibility alone is insufficient.",
+      "ownership": "Black/pypdf remain development-only; ReportLab/Pillow remain optional PDF dependencies. certifi/filelock remain in the independent security-tool cohort, which must not mutate the API interpreter. aiohttp3.14.5 remains owned once by runtime.",
+      "reachability": "Black is unused by active Ruff gates and its optional Alembic hook is commented. pypdf reads generated résumé bytes in tests. PDF output uses escaped public text and packaged fonts with no caller images. certifi supplies Requests trust roots to the auditor; pip-audit SafeFileCache writes use atomic replacement rather than CacheControl lock acquisition. Version findings do not demonstrate an application exploit.",
+      "minimum_owner": "_SECURITY_MINIMUMS in tests/architecture/test_dependency_security_floors.py; tests/architecture/test_python_profile_security.py exercises real synchronized downgrades and the security-tool manifest/bootstrap include.",
+      "reference_sources": [
+        "https://pypi.org/pypi/black/26.10.1/json",
+        "https://pypi.org/pypi/pypdf/6.21.4/json",
+        "https://pypi.org/pypi/reportlab/5.0.1/json",
+        "https://pypi.org/pypi/pillow/13.0.0/json",
+        "https://pypi.org/pypi/certifi/2026.10.23/json",
+        "https://pypi.org/pypi/filelock/4.2.1/json"
+      ],
+      "license_review": "Black/filelock MIT; pypdf/ReportLab BSD; Pillow MIT-CMU; certifi MPL-2.0. Official release metadata and downloaded wheel hashes identify the reviewed artifacts.",
+      "validation": "Fresh normal wheel[dev], wheel[pdf], wheel[dev,pdf] and isolated auditor installations; complete installed published-graph audits, manifest audits, pip check, API lint/format/types/tests, source-free CLI PDF output, actual PDF text/concurrency controls and direct image/cache/lock/CA behavior checks.",
+      "scope": "Configured Python3.12 Linux only. Historical failed reports remain evidence; local Python checks do not imply frontend, native hosted CI, code-scanning, deployment or whole-repository acceptance. No advisory suppressions or transitive major overrides."
     },
     "python_dependency_consumers": {
       "owner": "apps/api/tests/test_dependency_consumers.py",

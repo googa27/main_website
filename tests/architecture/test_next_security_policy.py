@@ -8,7 +8,7 @@ import pytest
 import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
-SELECTOR = "next@>=16.0.0 <16.3.8"
+SELECTOR = "next@>=16.0.0 <16.4.1"
 CONSUMER = "node --test tests/node/next-security.test.mjs tests/node/next-process-ownership.test.mjs"
 
 
@@ -32,7 +32,7 @@ def _version(value: str) -> tuple[int, ...]:
 def _assert_policy(package: dict, web: dict, lock: dict, policy: dict) -> None:
     selected = package["pnpm"]["overrides"].get(SELECTOR)
     assert selected is not None, "Patched Next override absent"
-    assert _version(selected) >= (16, 3, 8), "Unpatched Next selection"
+    assert _version(selected) >= (16, 4, 1), "Unpatched Next selection"
     assert lock["overrides"].get(SELECTOR) == selected, "Next manifest/lock mismatch"
     assert policy.get("version") == selected, "Unreviewed Next selection"
     assert policy.get("minimum_version") == selected, "Next minimum floor mismatch"
@@ -98,9 +98,9 @@ def test_current_next_path_is_patched_coupled_and_exercised() -> None:
 
 def test_synchronized_vulnerable_next_selection_is_refused() -> None:
     package, web, lock, policy = copy.deepcopy(_current())
-    package["pnpm"]["overrides"][SELECTOR] = "16.3.5"
-    lock["overrides"][SELECTOR] = "16.3.5"
-    policy["version"] = "16.3.5"
+    package["pnpm"]["overrides"][SELECTOR] = "16.4.0"
+    lock["overrides"][SELECTOR] = "16.4.0"
+    policy["version"] = "16.4.0"
     with pytest.raises(AssertionError, match="Unpatched Next selection"):
         _assert_policy(package, web, lock, policy)
 
@@ -114,12 +114,12 @@ def test_parallel_vulnerable_next_package_is_refused() -> None:
 
 def test_uncoupled_lint_config_is_refused() -> None:
     package, web, lock, policy = copy.deepcopy(_current())
-    web["devDependencies"]["eslint-config-next"] = "16.3.5"
+    web["devDependencies"]["eslint-config-next"] = "16.4.0"
     with pytest.raises(AssertionError, match="Uncoupled Next/config declaration"):
         _assert_policy(package, web, lock, policy)
 
 
-@pytest.mark.parametrize("replacement", ["16.3.5", None])
+@pytest.mark.parametrize("replacement", ["16.4.0", None])
 def test_changed_native_snapshot_is_refused(replacement: str | None) -> None:
     package, web, lock, policy = copy.deepcopy(_current())
     key = next(name for name in lock["snapshots"] if name.startswith("next@"))
@@ -142,7 +142,7 @@ def test_lookalike_or_removed_real_consumer_gate_is_refused(replacement: str) ->
         _assert_policy(package, web, lock, policy)
 
 
-@pytest.mark.parametrize("replacement", ["16.3.5", "16.3.9", None])
+@pytest.mark.parametrize("replacement", ["16.4.0", "16.3.9", None])
 def test_changed_minimum_version_is_refused(replacement: str | None) -> None:
     package, web, lock, policy = copy.deepcopy(_current())
     policy["minimum_version"] = replacement

@@ -27,18 +27,18 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-pdf = ["reportlab==5.0.1", "pillow==12.3.0"]
+pdf = ["reportlab==5.0.1", "pillow==13.0.0"]
 dev = [
     "opentelemetry-sdk==1.45.1",
     "opentelemetry-exporter-otlp-proto-http==1.45.1",
     "pytest==9.1.1",
     "pytest-asyncio==1.4.0",
     "httpx2==2.13.1",
-    "black==26.5.1",
+    "black==26.10.1",
     "ruff==0.16.10",
     "Pygments==2.21.0",
     "mypy==2.4.0",
-    "pypdf==6.19.0",
+    "pypdf==6.21.4",
 ]
 
 [project.scripts]

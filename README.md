@@ -320,20 +320,30 @@ Install the declared governance dependencies with `python -m pip install -r requ
 
 ## Paired TypeScript ESLint updates
 
-The shared config declares and resolves plugin/parser 8.71.0 together, following
-[the upstream same-version release contract](https://typescript-eslint.io/users/versioning/).
-The existing Dependabot group and seven-day cooldown remain enabled. A grouped
-PR can contain only a parser update when the plugin candidate fails resolution;
-treat that as an incomplete pair, even if its current checks pass.
+The shared config consumes the upstream `typescript-eslint` package's public
+`parser` and `plugin` exports. This is one dependency declaration: its published
+manifest owns exact same-version parser/plugin dependencies, following
+[the upstream release contract](https://typescript-eslint.io/users/versioning/).
+The reviewed cohort is 8.72.0, published October 19, 2026. Release 8.72.1 was
+published October 26 and was still inside the seven-day cooldown at review.
+Managed Node 24.19.0, TypeScript 5 and the existing ESLint majors stay selected.
 
-Select both with the exact atomic command in `dependency_update_policy.typescript_eslint_cohort`
+Earlier Dependabot groups could resolve the plugin first against the old parser,
+then create an incomplete parser-only PR after the plugin failed strict peers.
+The `typescript-eslint` group now targets the single umbrella declaration; the
+existing React group, weekly schedules, cooldown, security updates and major-only
+holds remain enabled. PR #258's parser-only head is historical proposal evidence,
+not a valid replacement for this atomic package migration.
+
+Use the exact update command in `dependency_update_policy.typescript_eslint_cohort`
 in `docs/ARCHITECTURE.yaml`, then run the frozen install, dependency policy,
-architecture tests, lint, typecheck and build. The policy checks the shared
-importer's installed public package manifests as well as declarations; the
-architecture suite checks the actual lock and parser peer identity. A future
-cohort needs reviewed metadata and the same gates. Preserve strict peer checks,
-security updates and semver-major holds. Local selection and passing gates do
-not prove a successful hosted updater rerun.
+architecture tests, lint, typecheck and build. The policy verifies the umbrella's
+public installed manifest and its actual same-version parser/plugin manifests;
+Node controls exercise shared TypeScript/JSX parsing and rule diagnostics. The
+architecture suite checks the actual lock's component and parser peer identities.
+Do not add independently updated scoped declarations back to the shared config.
+Local checks do not prove an actual complete hosted updater recovery or weekly
+trigger provenance; issue #136 remains subject to those separate observations.
 
 A reused installation can retain pending root (`.`) entries after lock-only
 selection. The lifecycle policy rejects these too. If the pending list contains

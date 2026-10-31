@@ -95,6 +95,7 @@ def test_node_and_pnpm_runtimes_are_exact_and_managed() -> None:
         " && pnpm run check:formatter-contract"
         " && node --test tests/node/lint-staged-contract.test.mjs"
         " && node --test tests/node/turbo-contract.test.mjs"
+        " && node --test tests/node/typescript-eslint-contract.test.mjs"
     )
     assert package["scripts"]["check:formatter-contract"] == (
         "node --test tests/node/prettier-math.test.mjs"
@@ -161,7 +162,12 @@ def test_dependency_policy_checker_validates_reviewed_bytes_and_pnpm_state() -> 
         ("oxide_entry", "@tailwindcss/oxide index.js SHA-256"),
         ("oxide_hook", "unreviewed postinstall lifecycle script"),
         ("oxide_binding_lock", "@tailwindcss/oxide-linux-x64-gnu lock versions"),
-        ("cohort_declaration", "@typescript-eslint/parser declaration must match"),
+        ("cohort_declaration", "typescript-eslint declaration must match"),
+        ("cohort_partial_declaration", "@typescript-eslint/parser must be owned"),
+        (
+            "cohort_dependency",
+            "@typescript-eslint/parser installed identity must match",
+        ),
         ("cohort_version", "@typescript-eslint/parser installed identity must match"),
         (
             "cohort_name",
@@ -176,6 +182,16 @@ def test_dependency_checker_refuses_changed_install_paths(
     """Synthetic layout checks guards; it never imports an installer or binding."""
     node = shutil.which("node")
     assert node is not None, "Node is required for the executable lifecycle contract"
+    # pnpm's managed Node shim injects the real workspace's NODE_PATH. Execute
+    # the selected runtime directly so missing synthetic packages cannot fall
+    # back to the real installation through that shim.
+    node = subprocess.run(
+        [node, "-p", "process.execPath"],
+        capture_output=True,
+        text=True,
+        check=True,
+        timeout=15,
+    ).stdout.strip()
 
     def put(relative: str, text: str) -> Path:
         path = tmp_path / relative
@@ -256,7 +272,7 @@ def test_dependency_checker_refuses_changed_install_paths(
         json.dumps(_json(f"{cohort['importer']}/package.json")),
     )
     installed_cohort = {}
-    for name in update_policy["coupled_typescript_eslint_group"]:
+    for name in [cohort["package"], *cohort["components"]]:
         installed_cohort[name] = put(
             f"{cohort['importer']}/node_modules/{name}/package.json",
             json.dumps(
@@ -264,6 +280,9 @@ def test_dependency_checker_refuses_changed_install_paths(
                     "name": name,
                     "version": cohort["version"],
                     "exports": {"./package.json": "./package.json"},
+                    "dependencies": {
+                        member: cohort["version"] for member in cohort["components"]
+                    },
                 }
             ),
         )
@@ -296,6 +315,7 @@ def test_dependency_checker_refuses_changed_install_paths(
         "npm_execpath": str(stub),
         "npm_config_user_agent": "pnpm/10.34.5 ",
     }
+    env.pop("NODE_PATH", None)
 
     def run() -> subprocess.CompletedProcess[str]:
         return subprocess.run(
@@ -313,8 +333,17 @@ def test_dependency_checker_refuses_changed_install_paths(
     assert "dependency build policy OK" in baseline.stdout
     if mutation == "cohort_declaration":
         manifest = json.loads(importer.read_text())
+        manifest["devDependencies"][cohort["package"]] = "^8.70.0"
+        importer.write_text(json.dumps(manifest))
+    elif mutation == "cohort_partial_declaration":
+        manifest = json.loads(importer.read_text())
         manifest["devDependencies"]["@typescript-eslint/parser"] = "^8.70.0"
         importer.write_text(json.dumps(manifest))
+    elif mutation == "cohort_dependency":
+        target = installed_cohort[cohort["package"]]
+        manifest = json.loads(target.read_text())
+        manifest["dependencies"]["@typescript-eslint/parser"] = "^8.70.0"
+        target.write_text(json.dumps(manifest))
     elif mutation in {"cohort_version", "cohort_name", "cohort_missing"}:
         name = (
             "@typescript-eslint/eslint-plugin"
@@ -422,10 +451,7 @@ def test_dependabot_owns_the_root_workspace_and_groups_react_updates() -> None:
     ]
     parser_group = npm["groups"]["typescript-eslint"]
     assert parser_group == {"patterns": policy["coupled_typescript_eslint_group"]}
-    assert set(parser_group["patterns"]) == {
-        "@typescript-eslint/eslint-plugin",
-        "@typescript-eslint/parser",
-    }
+    assert parser_group["patterns"] == ["typescript-eslint"]
 
     react_groups = [
         group

@@ -145,7 +145,7 @@
       "security_updates": "enabled; semver-type major holds do not apply to security-only updates",
       "typescript_compatibility": {
         "decision": "retain TypeScript 5",
-        "reason": "The locked TypeScript-ESLint 8.71.0 peer range is >=4.8.4 <6.1.0 and TypeScript 7.0 lacks the stable programmatic API required by tooling consumers.",
+        "reason": "The locked TypeScript-ESLint 8.72.0 peer range is >=4.8.4 <6.1.0 and TypeScript 7.0 lacks the stable programmatic API required by tooling consumers.",
         "revisit_when": "Actual compiler API consumers support the candidate, peer ranges agree, and lint, typecheck and build all pass."
       },
       "node_compatibility": {
@@ -154,8 +154,7 @@
         "revisit_when": "The node_runtime_policy removal trigger is satisfied and the managed install, lifecycle policy, lint, typecheck and build pass."
       },
       "coupled_typescript_eslint_group": [
-        "@typescript-eslint/eslint-plugin",
-        "@typescript-eslint/parser"
+        "typescript-eslint"
       ],
       "version_update_major_holds": [
         "eslint",
@@ -168,17 +167,24 @@
         "revisit_when": "All consuming plugin peer ranges admit the candidate and strict frozen install, lint, typecheck and build pass."
       },
       "typescript_eslint_cohort": {
-        "version": "8.71.0",
-        "manifest_range": "^8.71.0",
+        "version": "8.72.0",
+        "manifest_range": "^8.72.0",
         "importer": "packages/config",
-        "issue": "https://github.com/googa27/main_website/issues/212",
+        "issue": "https://github.com/googa27/main_website/issues/136",
         "upstream_same_version_policy": "https://typescript-eslint.io/users/versioning/",
         "registry_manifests": [
-          "https://registry.npmjs.org/@typescript-eslint/eslint-plugin/8.71.0",
-          "https://registry.npmjs.org/@typescript-eslint/parser/8.71.0"
+          "https://registry.npmjs.org/typescript-eslint/8.72.0",
+          "https://registry.npmjs.org/@typescript-eslint/eslint-plugin/8.72.0",
+          "https://registry.npmjs.org/@typescript-eslint/parser/8.72.0"
         ],
-        "update_command": "pnpm --filter @repo/config update @typescript-eslint/eslint-plugin@8.71.0 @typescript-eslint/parser@8.71.0 --lockfile-only --config.minimum-release-age=10080 --config.strict-peer-dependencies=true",
-        "boundary": "Local atomic selection and source/installed fitness checks. Existing hosted individual candidate resolution failed; no hosted updater recovery is inferred."
+        "update_command": "pnpm --filter @repo/config update typescript-eslint@8.72.0 --lockfile-only --config.minimum-release-age=10080 --config.strict-peer-dependencies=true",
+        "boundary": "The maintained upstream umbrella is the single update declaration and owns exact same-version parser/plugin dependencies. Public parser/plugin exports preserve shared ESLint configuration. Local checks do not prove hosted updater recovery.",
+        "package": "typescript-eslint",
+        "components": [
+          "@typescript-eslint/eslint-plugin",
+          "@typescript-eslint/parser"
+        ],
+        "selection_evidence": "8.72.0 published 2026-10-19; latest 8.72.1 published 2026-10-26 remains inside the seven-day cooldown at the 2026-10-31 review. MIT; Node ^18.18.0 || ^20.9.0 || >=21.1.0; ESLint ^8.57 || ^9 || ^10; TypeScript >=4.8.4 <6.1.0. Existing managed Node24 and TypeScript5 remain selected."
       },
       "prettier": {
         "version": "3.9.8",

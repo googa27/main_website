@@ -120,6 +120,7 @@ function fixture(
     ignored = false,
     filename = ".env.local",
     passthrough = false,
+    transport = false,
   } = {},
 ) {
   const cwd = mkdtempSync(join(tmpdir(), "portfolio-turbo-"));
@@ -166,7 +167,14 @@ function fixture(
     $schema: repositoryConfig.$schema,
     globalDependencies: repositoryConfig.globalDependencies,
     ...(passthrough ? { globalPassThroughEnv: ["SDKROOT"] } : {}),
-    tasks: { build: { outputs: [] } },
+    tasks: {
+      build: {
+        outputs: [],
+        ...(transport
+          ? { passThroughEnv: repositoryConfig.tasks.build.passThroughEnv }
+          : {}),
+      },
+    },
   };
   try {
     mkdirSync(join(cwd, "apps/probe"), { recursive: true });
@@ -201,7 +209,9 @@ function fixture(
     );
     writeFileSync(
       join(cwd, "apps/probe/task.mjs"),
-      "console.log(JSON.stringify({SDKROOT: process.env.SDKROOT ?? null}));\n",
+      transport
+        ? "console.log(JSON.stringify({HTTP_PROXY:process.env.HTTP_PROXY ?? null,APP_SECRET:process.env.APP_SECRET ?? null,SDKROOT:process.env.SDKROOT ?? null}));\n"
+        : "console.log(JSON.stringify({SDKROOT: process.env.SDKROOT ?? null}));\n",
     );
     write("VERCEL_OIDC_TOKEN=first\nOTHER=keep\n");
     git("init", "-q");
@@ -375,4 +385,46 @@ test("SDKROOT forwarding requires explicit repository passthrough configuration"
       },
       { passthrough },
     );
+});
+
+test("only explicit build transport names pass strict mode without changing cache keys", () => {
+  assert.deepEqual(repositoryConfig.tasks.build.passThroughEnv, [
+    "HTTP_PROXY",
+    "HTTPS_PROXY",
+    "ALL_PROXY",
+    "NO_PROXY",
+    "http_proxy",
+    "https_proxy",
+    "all_proxy",
+    "no_proxy",
+    "SSL_CERT_FILE",
+    "NODE_EXTRA_CA_CERTS",
+  ]);
+  fixture(
+    (f) => {
+      f.env.HTTP_PROXY = "http://synthetic-proxy.invalid:1234";
+      f.env.APP_SECRET = "PUBLIC_SYNTHETIC_EXCLUDED";
+      f.env.SDKROOT = "/synthetic/excluded-sdk";
+      const first = f.dry().hash;
+      const output = f.invoke(process.execPath, [
+        cli,
+        "run",
+        "build",
+        "--env-mode=strict",
+        "--no-daemon",
+      ]);
+      assert.ok(
+        output.includes(
+          JSON.stringify({
+            HTTP_PROXY: f.env.HTTP_PROXY,
+            APP_SECRET: null,
+            SDKROOT: null,
+          }),
+        ),
+      );
+      f.env.HTTP_PROXY = "http://other-synthetic-proxy.invalid:4321";
+      assert.equal(f.dry().hash, first);
+    },
+    { transport: true },
+  );
 });

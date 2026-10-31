@@ -1,5 +1,28 @@
 import { readFileSync } from "node:fs";
 
+// A sandbox can inherit procfs from a different PID namespace. Have the actual
+// Node child report its mounted-procfs identity before loading the unchanged CLI.
+const identityProgram = `
+import {readFileSync,readlinkSync} from 'node:fs';
+if (process.platform === 'linux') {
+  const stat = readFileSync('/proc/self/stat', 'utf8');
+  const start = stat.slice(stat.lastIndexOf(') ') + 2).split(' ')[19];
+  process.stdout.write('OWNED_PROC ' + JSON.stringify({pid:process.pid,proc:readlinkSync('/proc/self'),start}) + '\\n');
+}`;
+export const ownedNodeIdentityArgs = [
+  "--import",
+  "data:text/javascript," + encodeURIComponent(identityProgram),
+];
+
+export function ownedProcessStillLive(identity) {
+  const current = readLiveProcessFile("/proc/" + identity.proc + "/stat");
+  return (
+    current !== undefined &&
+    current.slice(current.lastIndexOf(") ") + 2).split(" ")[19] ===
+      identity.start
+  );
+}
+
 export function observeOwnedProcess(
   child,
   { maxOutputBytes = 1024 * 1024 } = {},
@@ -41,6 +64,13 @@ export function observeOwnedProcess(
   return {
     get output() {
       return retained.toString("utf8", 0, retainedBytes);
+    },
+    get procIdentity() {
+      for (const match of this.output.matchAll(/^OWNED_PROC (.+)\n/gm)) {
+        const identity = JSON.parse(match[1]);
+        if (identity.pid === child.pid) return identity;
+      }
+      return undefined;
     },
     get outputBoundExceeded() {
       return outputBoundExceeded;

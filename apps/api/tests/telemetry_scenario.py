@@ -24,7 +24,7 @@ args = parser.parse_args()
 if args.source:
     sys.path.insert(0, str(args.source))
 for key in list(os.environ):
-    if key.startswith("OTEL_"):
+    if key.startswith(("OTEL_", "FASTAPI_OTEL_")):
         del os.environ[key]
 os.environ.update(
     DATABASE_URL="sqlite://",
@@ -157,6 +157,10 @@ if args.mode != "normal":
         )
         os.environ["OTEL_EXPORTER_OTLP_PROTOCOL"] = "http/protobuf"
         os.environ["OTEL_EXPORTER_OTLP_TIMEOUT"] = "1"
+        # Since FastAPI 0.143, exporter auto-configuration is opt-in. Exercise
+        # that real path in the positive control and verify the owned app's
+        # explicit auto_configure=False defeats this environment setting.
+        os.environ["FASTAPI_OTEL_AUTO_CONFIGURE"] = "true"
         for signal in ["TRACES", "METRICS", "LOGS"]:
             os.environ[f"OTEL_{signal}_EXPORTER"] = "otlp"
 else:
@@ -168,6 +172,7 @@ else:
     # Explicit environment settings must remain inert in the normal profile too.
     os.environ["OTEL_EXPORTER_OTLP_ENDPOINT"] = "http://127.0.0.1:9"
     os.environ["OTEL_EXPORTER_OTLP_PROTOCOL"] = "http/protobuf"
+    os.environ["FASTAPI_OTEL_AUTO_CONFIGURE"] = "true"
 
 original_connect = socket.socket.connect
 original_connect_ex = socket.socket.connect_ex
@@ -351,10 +356,10 @@ finally:
     if providers:
         from fastapi.telemetry import _runtime
 
-        # FastAPI 0.142.2 has no public close API for environment-owned components.
+        # FastAPI 0.162.0 has no public close API for environment-owned components.
         # This pinned test-only adapter closes them before the loopback collector;
         # the real SDK observations above remain the independent policy oracle.
-        assert version("fastapi") == "0.142.2"
+        assert version("fastapi") == "0.162.0"
         _runtime._shutdown()
         for provider in providers:
             provider.shutdown()

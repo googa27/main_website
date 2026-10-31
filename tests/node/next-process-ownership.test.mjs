@@ -1,12 +1,13 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { once } from "node:events";
-import { existsSync, mkdtempSync, rmdirSync } from "node:fs";
+import { mkdtempSync, rmdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import {
   observeOwnedProcess,
+  ownedNodeIdentityArgs,
+  ownedProcessStillLive,
   recordOwnedChildren,
 } from "./next-process-ownership.mjs";
 
@@ -14,17 +15,28 @@ test(
   "a naturally exited real parent does not mask verification cleanup",
   { skip: process.platform !== "linux" },
   async () => {
-    const child = spawn(process.execPath, ["-e", "process.exit(0)"], {
-      stdio: "ignore",
-    });
-    const [code, signal] = await once(child, "exit");
+    const child = spawn(
+      process.execPath,
+      [...ownedNodeIdentityArgs, "-e", "process.exit(0)"],
+      { stdio: ["ignore", "pipe", "pipe"] },
+    );
+    const observation = observeOwnedProcess(child);
+    const { code, signal } = await observation.exited;
     assert.equal(code, 0);
     assert.equal(signal, null);
-    assert.equal(existsSync("/proc/" + child.pid), false);
+    assert.ok(observation.procIdentity, "Actual child procfs identity absent");
+    assert.equal(ownedProcessStillLive(observation.procIdentity), false);
     const observed = new Map();
-    assert.doesNotThrow(() => recordOwnedChildren(child.pid, observed));
+    assert.doesNotThrow(() =>
+      recordOwnedChildren(observation.procIdentity.proc, observed),
+    );
     assert.equal(observed.size, 0);
-    console.log("Real parent naturally exited", child.pid, code, signal);
+    console.log(
+      "Real parent naturally exited",
+      observation.procIdentity,
+      code,
+      signal,
+    );
   },
 );
 
@@ -34,6 +46,7 @@ test("output flooding fails inside the controlled flow and still closes the real
   const child = spawn(
     process.execPath,
     [
+      ...ownedNodeIdentityArgs,
       "-e",
       "process.stdout.write(Buffer.alloc(2 * 1024 * 1024, 'x')); setInterval(() => {}, 1000);",
     ],
@@ -50,7 +63,18 @@ test("output flooding fails inside the controlled flow and still closes the real
       )
         await pause();
       assert.equal(observation.outputBoundExceeded, true);
-      assert.equal(observation.output, "x".repeat(128));
+      if (process.platform === "linux") {
+        assert.ok(
+          observation.procIdentity,
+          "Actual flood child identity absent",
+        );
+        const prefix =
+          "OWNED_PROC " + JSON.stringify(observation.procIdentity) + "\n";
+        assert.equal(
+          observation.output,
+          prefix + "x".repeat(128 - prefix.length),
+        );
+      } else assert.equal(observation.output, "x".repeat(128));
       throw new Error("controlled startup bound failure");
     } finally {
       if (observation.result === undefined) child.kill("SIGTERM");
@@ -65,7 +89,7 @@ test("output flooding fails inside the controlled flow and still closes the real
       assert.equal(result.signal, "SIGTERM");
       assert.equal(observation.error, undefined);
       if (process.platform === "linux")
-        assert.equal(existsSync("/proc/" + child.pid), false);
+        assert.equal(ownedProcessStillLive(observation.procIdentity), false);
       console.log(
         "Real output-bound fixture closed",
         child.pid,
@@ -99,3 +123,39 @@ test("a missing executable is observed without an unhandled rejection or invente
     rmdirSync(directory);
   }
 });
+
+test(
+  "the actual live procfs identity is distinguished from a reused PID",
+  { skip: process.platform !== "linux" },
+  async () => {
+    const child = spawn(
+      process.execPath,
+      [...ownedNodeIdentityArgs, "-e", "setInterval(() => {}, 1000)"],
+      { stdio: ["ignore", "pipe", "pipe"] },
+    );
+    const observation = observeOwnedProcess(child);
+    try {
+      const deadline = Date.now() + 5000;
+      while (
+        !observation.procIdentity &&
+        !observation.closed &&
+        Date.now() < deadline
+      )
+        await pause();
+      assert.ok(observation.procIdentity, "Actual live child identity absent");
+      assert.equal(ownedProcessStillLive(observation.procIdentity), true);
+      assert.equal(
+        ownedProcessStillLive({
+          ...observation.procIdentity,
+          start: String(BigInt(observation.procIdentity.start) + 1n),
+        }),
+        false,
+      );
+    } finally {
+      if (observation.result === undefined) child.kill("SIGTERM");
+      const { signal } = await observation.exited;
+      assert.equal(signal, "SIGTERM");
+      assert.equal(ownedProcessStillLive(observation.procIdentity), false);
+    }
+  },
+);

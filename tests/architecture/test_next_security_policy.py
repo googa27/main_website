@@ -30,12 +30,18 @@ def _version(value: str) -> tuple[int, ...]:
 
 
 def _assert_policy(package: dict, web: dict, lock: dict, policy: dict) -> None:
-    selected = package["pnpm"]["overrides"].get(SELECTOR)
-    assert selected is not None, "Patched Next override absent"
-    assert _version(selected) >= (16, 4, 1), "Unpatched Next selection"
-    assert lock["overrides"].get(SELECTOR) == selected, "Next manifest/lock mismatch"
-    assert policy.get("version") == selected, "Unreviewed Next selection"
-    assert policy.get("minimum_version") == selected, "Next minimum floor mismatch"
+    floor = package["pnpm"]["overrides"].get(SELECTOR)
+    assert floor is not None, "Patched Next override absent"
+    assert _version(floor) >= (16, 4, 1), "Unpatched Next selection"
+    assert lock["overrides"].get(SELECTOR) == floor, "Next manifest/lock mismatch"
+    # Advisory minimum and selected maintained patch have separate ownership.
+    # Keeping the old floor must not prohibit a reviewed newer direct cohort.
+    assert policy.get("minimum_version") == floor == "16.4.1", (
+        "Next minimum floor mismatch"
+    )
+    selected = policy.get("version")
+    assert isinstance(selected, str), "Unreviewed Next selection"
+    assert _version(selected) >= _version(floor), "Unpatched Next selection"
     assert policy.get("consumer_command") == CONSUMER, (
         "Documented Next consumer mismatch"
     )
@@ -101,6 +107,14 @@ def test_synchronized_vulnerable_next_selection_is_refused() -> None:
     package["pnpm"]["overrides"][SELECTOR] = "16.4.0"
     lock["overrides"][SELECTOR] = "16.4.0"
     policy["version"] = "16.4.0"
+    with pytest.raises(AssertionError, match="Unpatched Next selection"):
+        _assert_policy(package, web, lock, policy)
+
+
+def test_direct_vulnerable_selection_cannot_hide_behind_secure_override() -> None:
+    package, web, lock, policy = copy.deepcopy(_current())
+    policy["version"] = "16.4.0"
+    web["dependencies"]["next"] = "16.4.0"
     with pytest.raises(AssertionError, match="Unpatched Next selection"):
         _assert_policy(package, web, lock, policy)
 

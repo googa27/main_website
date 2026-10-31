@@ -28,8 +28,8 @@ const runtimePolicy = architecture.architecture.node_runtime_policy;
 const lock = readText("pnpm-lock.yaml");
 const workspace = readText("pnpm-workspace.yaml");
 
-// The upstream release contract coordinates these packages by one version.
-// Dependabot grouping can still yield a partial candidate: verify what is used.
+// The upstream umbrella owns exact same-version parser/plugin dependencies.
+// Keep one update declaration, then verify the actual installed component pair.
 const updatePolicy = architecture.architecture.dependency_update_policy;
 const cohort = updatePolicy.typescript_eslint_cohort;
 try {
@@ -38,16 +38,37 @@ try {
   const importerRequire = createRequire(
     resolve(root, cohort.importer, "package.json"),
   );
-  for (const name of updatePolicy.coupled_typescript_eslint_group) {
-    if (importerManifest.devDependencies[name] !== cohort.manifest_range) {
-      fail(
-        `${name} declaration must match reviewed cohort ${cohort.manifest_range}`,
-      );
-    }
-    const installed = JSON.parse(
-      readFileSync(importerRequire.resolve(`${name}/package.json`), "utf8"),
+  if (
+    importerManifest.devDependencies[cohort.package] !== cohort.manifest_range
+  ) {
+    fail(
+      `${cohort.package} declaration must match reviewed cohort ${cohort.manifest_range}`,
     );
-    if (installed.name !== name || installed.version !== cohort.version) {
+  }
+  for (const name of cohort.components) {
+    if (Object.hasOwn(importerManifest.devDependencies, name)) {
+      fail(`${name} must be owned by the atomic ${cohort.package} dependency`);
+    }
+  }
+  const umbrellaManifest = importerRequire.resolve(
+    `${cohort.package}/package.json`,
+  );
+  const umbrella = JSON.parse(readFileSync(umbrellaManifest, "utf8"));
+  if (umbrella.name !== cohort.package || umbrella.version !== cohort.version) {
+    fail(
+      `${cohort.package} installed identity must match reviewed cohort ${cohort.version}`,
+    );
+  }
+  const componentRequire = createRequire(umbrellaManifest);
+  for (const name of cohort.components) {
+    const installed = JSON.parse(
+      readFileSync(componentRequire.resolve(`${name}/package.json`), "utf8"),
+    );
+    if (
+      umbrella.dependencies[name] !== cohort.version ||
+      installed.name !== name ||
+      installed.version !== cohort.version
+    ) {
       fail(
         `${name} installed identity must match reviewed cohort ${cohort.version}`,
       );

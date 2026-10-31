@@ -15,8 +15,7 @@ updates:
           - "@types/react-dom"
       typescript-eslint:
         patterns:
-          - "@typescript-eslint/eslint-plugin"
-          - "@typescript-eslint/parser"
+          - "typescript-eslint"
     # Semver-major holds do not filter security-only jobs.
     # ESLint/TypeScript need peer/API gates; Node types need the documented
     # Tailwind warning-removal and managed Node 26 migration gates.

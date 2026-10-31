@@ -19,13 +19,13 @@ const webRequire = createRequire(resolve(web, "package.json"));
 const manifestPath = webRequire.resolve("next/package.json");
 const nextRequire = createRequire(manifestPath);
 
-test("the real Next consumer excludes all seven owned vulnerable releases", () => {
+test("the real Next consumer excludes both owned vulnerable cohorts", () => {
   const [major, minor, patch] = nextRequire("./package.json")
     .version.split(".")
     .map(Number);
   assert.ok(
-    major > 16 || (major === 16 && (minor > 3 || (minor === 3 && patch >= 8))),
-    "Next must include the maintained 16.3.8 security repair cohort",
+    major > 16 || (major === 16 && (minor > 4 || (minor === 4 && patch >= 1))),
+    "Next must include the maintained 16.4.1 security repair cohort",
   );
 });
 

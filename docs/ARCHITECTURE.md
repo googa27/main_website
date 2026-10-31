@@ -679,3 +679,56 @@ The maintained implementation normalizes one unambiguous literal `VERCEL_OIDC_TO
 [Upstream14356](https://github.com/vercel/turborepo/pull/14356) owns this normalization; the repository does not implement a dotenv parser. [Upstream14353](https://github.com/vercel/turborepo/pull/14353) adds SDKROOT passthrough only to Turborepo's own `turbo.json`. It does not make SDKROOT automatic in the published CLI or this repository. The native controls verify strict omission by default and explicit passthrough in a synthetic fixture; production environment policy stays unchanged. [Release2.11.7](https://github.com/vercel/turborepo/releases/tag/v2.11.7) is the selected release.
 
 The current acceptance scope is Linux x64. Other locked platform packages are identity metadata, not executed cross-platform evidence. The local two-package native oracle is separate from the full frontend/API installation and resulting-default gates.
+
+
+## Atomic TypeScript ESLint update ownership (issue #136)
+
+The shared config uses the maintained `typescript-eslint` umbrella package and
+its public `parser` / `plugin` exports. One dependency update now selects both
+exact same-version components in the upstream manifest. This replaces independent
+scoped declarations whose grouped service updates repeatedly failed plugin-first
+peer resolution. The role and exported flat ESLint config remain unchanged.
+The existing lifecycle gate checks the installed umbrella and component manifests,
+rejects independently added scoped declarations, and runs actual TypeScript/JSX
+parsing and rule diagnostics. Architecture controls bind the lock and parser peer.
+
+The selected 8.72.0 release was published October 19, 2026 and exceeds the existing
+seven-day cooldown; October 26 release 8.72.1 was excluded at review. Official
+registry manifests identify MIT licensing, compatible managed Node 24 and
+TypeScript 5 / ESLint 9–10 peer ranges. The alternative paired bootstrap still
+leaves two updater candidates; a custom dependency resolver is unnecessary.
+Weekly root discovery, React grouping, strict peers, security updates and major
+holds remain in place. Actual complete Dependabot service recovery and scheduler
+origin still require fresh observations after integration; local gates do not
+retroactively change failed jobs or dispose of PR #258 or original PR heads.
+
+Primary contracts: [public exports](https://typescript-eslint.io/packages/typescript-eslint/),
+[version policy](https://typescript-eslint.io/users/versioning/), and
+[8.72.0 manifest](https://registry.npmjs.org/typescript-eslint/8.72.0).
+
+## aiohttp patch from existing PR #257
+
+Both API runtime manifests select aiohttp 3.14.5, preserving the useful dependency
+change from [PR #257](https://github.com/googa27/main_website/pull/257). The normal,
+development and PDF profiles inherit this runtime pin. The existing packaging
+policy owns the independent security minimum and rejects 3.14.3; literal upstream
+boundary controls accept 3.14.4 and 3.14.5. The policy now checks PDF manifest parity
+and its single runtime include too, preventing a profile-specific override.
+
+The eight advisories recorded in the machine contract all identify 3.14.4 as the
+first patched release. The maintained [3.14.5 package metadata](https://pypi.org/pypi/aiohttp/3.14.5/json)
+reports Python >=3.10 and Apache-2.0 AND MIT licensing. The
+[changelog](https://docs.aiohttp.org/en/stable/changes.html) describes the fixes;
+the newer yarl minimum and widened multidict range require fresh resolver checks.
+This source uses aiohttp only for outgoing Ollama JSON requests, while the API
+server uses FastAPI, Starlette and Uvicorn. No application transport, DTO or
+fallback semantics change. Actual ClientSession requests against the maintained
+loopback TestServer verify both POST and GET success/error behavior without a
+live provider. Server-side aiohttp exploitability is not inferred.
+
+The original published TypeScript candidate and original PR #257 commit remain
+ancestors of the combined successor. Fresh normal-wheel artifact checks and its
+strict unsuppressed installed-graph audit remain separate from development/PDF
+requirements audits. Historical native quality failure is retained; passing local
+checks does not establish fresh hosted CI, updater recovery, deployment security
+or closure of the unrelated frontend advisory owner #263.

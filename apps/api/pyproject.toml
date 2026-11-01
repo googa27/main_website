@@ -28,7 +28,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-pdf = ["reportlab==5.0.1", "pillow==13.0.0"]
+pdf = ["reportlab==5.1.0", "pillow==13.0.0"]
 dev = [
     "opentelemetry-sdk==1.45.1",
     "opentelemetry-exporter-otlp-proto-http==1.45.1",

@@ -5,19 +5,53 @@ import re
 import socket
 import ssl
 from hashlib import sha256
+from http.cookiejar import DefaultCookiePolicy
 from importlib.metadata import distribution
 from importlib.resources import files
 from pathlib import Path
 
 import certifi
 import httpx
+import httpx2
 import idna
 import pytest
 from alembic.script import ScriptDirectory
 from email_validator import EmailNotValidError, validate_email
 from pydantic import ValidationError
+from starlette.applications import Starlette
+from starlette.requests import Request
+from starlette.responses import PlainTextResponse
+from starlette.routing import Route
+from starlette.testclient import TestClient
 
 from app.schemas.contact import ContactCreate
+
+
+@pytest.mark.parametrize("block_cookies", [False, True])
+def test_testclient_preserves_cookie_policy_and_domain_path_order(
+    block_cookies: bool,
+) -> None:
+    async def echo_cookie(request: Request) -> PlainTextResponse:
+        return PlainTextResponse(request.headers.get("cookie", ""))
+
+    app = Starlette(routes=[Route("/{path:path}", echo_cookie)])
+    with TestClient(app, base_url="https://sub.example.org") as client:
+        assert isinstance(client, httpx2.Client)
+        # Insert the child before its parent: release 2.16's public ordering
+        # contract is domain specificity, not insertion order; paths win first.
+        client.cookies.set("scope", "child", domain="sub.example.org")
+        client.cookies.set("scope", "parent", domain=".example.org")
+        client.cookies.set("deep", "child", domain="sub.example.org", path="/deep")
+        client.cookies.set("unrelated", "refused", domain="elsewhere.example")
+        if block_cookies:
+            client.cookies.jar.set_policy(
+                DefaultCookiePolicy(blocked_domains=(".example.org", "sub.example.org"))
+            )
+        response = client.get("/deep/probe")
+    assert response.status_code == 200
+    assert response.text == (
+        "" if block_cookies else "deep=child; scope=parent; scope=child"
+    )
 
 
 @pytest.fixture(autouse=True)

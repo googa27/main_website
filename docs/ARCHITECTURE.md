@@ -57,7 +57,7 @@ rendered-style and assistive-technology results must be recorded separately.
 
 - **UTC timestamps:** `apps/api/app/core/time.py::utc_now` is the single clock factory for generated API timestamps. It returns aware UTC values; ORM timestamp columns declare `DateTime(timezone=True)`.
 - **Legacy data:** the repository has Alembic scaffolding but no revision baseline. `UTCDateTime` therefore interprets existing naive timestamps as UTC and restores aware UTC values after database reads rather than claiming an unexecuted production migration. PostgreSQL preserves timezone semantics directly; SQLite may discard offsets internally, but the application boundary restores them before consumers or serializers observe the value.
-- **HTTP ownership:** `httpx` 0.28.1 remains the runtime client used by the GitHub and LinkedIn adapters. `httpx2` is development-only and backs Starlette/FastAPI `TestClient`. Selected HTTPX2 2.13.1 is the Pydantic-maintained BSD-3-Clause distribution ([source and release](https://github.com/pydantic/httpx2/releases/tag/v2.13.1), [package metadata](https://pypi.org/project/httpx2/2.13.1/)); it selects exact HTTPcore2 2.13.1. Starlette 1.7.0 [explicitly selects HTTPX2](https://github.com/Kludex/starlette/blob/1.7.0/starlette/testclient.py#L29-L48) and warns on the canonical HTTPX fallback. The selected release corrects file-upload lengths for the remaining bytes after the current cursor. The independent HTTPX2 >=2.12.0 security minimum and strict backend/deprecation checks remain unchanged. This continues the development-only transport repair tracked in [#106](https://github.com/googa27/main_website/issues/106); runtime HTTP ownership is unchanged. In-process TestClient checks do not verify live proxy/TLS/HTTP2 or network WebSocket behavior.
+- **HTTP ownership:** `httpx` 0.28.1 remains the runtime client used by the GitHub and LinkedIn adapters. `httpx2` is development-only and backs Starlette/FastAPI `TestClient`. Selected HTTPX2 2.16.0 is the Pydantic-maintained BSD-3-Clause distribution ([source and release](https://github.com/pydantic/httpx2/releases/tag/v2.16.0), [package metadata](https://pypi.org/project/httpx2/2.16.0/)); it selects exact HTTPcore2 2.16.0. Starlette 1.10.0 [explicitly selects HTTPX2](https://github.com/Kludex/starlette/blob/1.10.0/starlette/testclient.py#L29-L48) and warns on the canonical HTTPX fallback. The selected release preserves custom outgoing CookiePolicy objects and applies least-to-most-specific cookie domains with longest paths first. Public in-process cookie controls exercise the TestClient transport; file-upload controls remain. The independent HTTPX2 >=2.12.0 security minimum and strict backend/deprecation checks remain unchanged. This continues the development-only transport repair tracked in [#106](https://github.com/googa27/main_website/issues/106); runtime HTTP ownership is unchanged. In-process TestClient checks do not verify live proxy/TLS/HTTP2 or network WebSocket behavior.
 - **Fail-closed verification:** API tests promote Python and Starlette deprecations to errors. `apps/api/tests/test_datetime_contracts.py` forbids `datetime.utcnow`, verifies timezone-aware ORM declarations and CV defaults, and proves TestClient selected HTTPX2 rather than its deprecated HTTPX fallback.
 
 This split avoids a risky application-wide HTTP-client migration while removing the deprecation path actually exercised by tests.
@@ -151,7 +151,7 @@ keep issue #136 open until that actual workflow succeeds.
 and its [regression](https://github.com/dependabot/dependabot-core/blob/6634a4a4b6e203f3afcd302052839d290e6e61bf/common/spec/dependabot/config/ignore_condition_spec.rb#L336-L342)
 record the distinction between update-type and explicit version filters.
 
-Web and UI resolve one reviewed React cohort: React and React DOM 19.3.0,
+Web and UI resolve one reviewed React cohort: React and React DOM 19.3.1,
 `@types/react` 19.3.0, and `@types/react-dom` 19.3.0. The architecture
 regression reads both manifests and the parsed root lock, so a broad declaration
 range cannot silently leave either importer on older React types. The cohort
@@ -330,7 +330,7 @@ The same runtime manifests explicitly constrain certifi to 2026.10.23; dev/PDF i
 
 `test_certifi_runtime_policy.py` enforces the runtime minimum, parity, inheritance and agreement with the auditor's shared minimum. Consumer tests inspect actual bundled certificate fingerprints and construct a real HTTPX SSL context with verification enabled, while refusing external network calls. They distinguish the packaged CA bundle from roots already loaded by the interpreter, system trust and deliberate environment overrides; they do not claim deployed TLS or environment-wide revocation. Preserve the original full-scan failure and all residual minimatch records when checking the successor.
 
-The same owner uses actual installed Alembic generic and repository revision templates to generate temporary revisions and verify metadata, upgrade/downgrade content and Python syntax, without database access, env.py, autogeneration or post-write hooks. The structured selected-version map in the machine contract owns the current Alembic, Mako and SQLAlchemy pins, and the manifest-parity test checks that map. [Alembic release metadata](https://pypi.org/pypi/alembic/1.20.0/json) states the SQLAlchemy minimum for the selected release; task evidence checked installed distribution metadata and RECORD. This compatibility statement is not a separate architecture gate. `apps/api/tests/test_dependency_consumers.py` verifies that the Mako distribution does not own the stray top-level tools package reported in the linked Mako changelog. Policy controls normalize owned copies to minimum pins independently of selected versions; actual repository parity remains a separate test. The machine-readable selected sentence names the three packages without version digits; only its structured version map is checked against both runtime manifests. Alembic is not assigned a security minimum because no advisory floor is claimed. Primary behavioral references are the [IDNA history](https://raw.githubusercontent.com/kjd/idna/v3.20/HISTORY.md), [Mako changelog](https://raw.githubusercontent.com/sqlalchemy/mako/rel_1_4_3/doc/build/changelog.rst), and [Alembic release notes](https://github.com/sqlalchemy/alembic/releases/tag/rel_1_20_0). These controls do not establish live provider, DNS, database or deployment behavior.
+The same owner uses actual installed Alembic generic and repository revision templates to generate temporary revisions and verify metadata, upgrade/downgrade content and Python syntax, without database access, env.py, autogeneration or post-write hooks. The structured selected-version map in the machine contract owns the current Alembic, Mako and SQLAlchemy pins, and the manifest-parity test checks that map. [Alembic release metadata](https://pypi.org/pypi/alembic/1.20.1/json) states the SQLAlchemy minimum for the selected release; task evidence checked installed distribution metadata and RECORD. This compatibility statement is not a separate architecture gate. `apps/api/tests/test_dependency_consumers.py` verifies that the Mako distribution does not own the stray top-level tools package reported in the linked Mako changelog. Policy controls normalize owned copies to minimum pins independently of selected versions; actual repository parity remains a separate test. The machine-readable selected sentence names the three packages without version digits; only its structured version map is checked against both runtime manifests. Alembic is not assigned a security minimum because no advisory floor is claimed. Primary behavioral references are the [IDNA history](https://raw.githubusercontent.com/kjd/idna/v3.20/HISTORY.md), [Mako changelog](https://raw.githubusercontent.com/sqlalchemy/mako/rel_1_4_3/doc/build/changelog.rst), and [Alembic release notes](https://github.com/sqlalchemy/alembic/releases/tag/rel_1_20_1). These controls do not establish live provider, DNS, database or deployment behavior.
 
 AnyIO 4.15.1 is explicitly constrained in both runtime manifests as an existing
 transitive async dependency; dev/PDF requirements inherit the base declaration.
@@ -587,9 +587,9 @@ production telemetry, public-network delivery, deployment or scientific results.
 
 The fixture observes real SDK exports and provider calls instead of private
 FastAPI state. The environment positive control has one test-only private
-adapter: FastAPI 0.142.2 exposes no public close method for the components it
+adapter: FastAPI 0.162.0 exposes no public close method for the components it
 adds to existing providers, so the fixture calls its pinned `_runtime._shutdown`
-before closing the collector. An exact version assertion makes dependency
+before closing the collector. Review of the old and selected upstream runtime files found only an auto-configuration docstring change; executable cleanup is unchanged. An exact version assertion makes dependency
 upgrades fail pending review of this cleanup adapter; it never changes runtime
 application ownership. Only the unrelated LinkedIn credential logger is
 disabled during fixture import and restored before requests. All other stderr
@@ -736,3 +736,25 @@ strict unsuppressed installed-graph audit remain separate from development/PDF
 requirements audits. Historical native quality failure is retained; passing local
 checks does not establish fresh hosted CI, updater recovery, deployment security
 or closure of the unrelated frontend advisory owner #263.
+
+## Remaining October dependency cohort
+
+The [bounded proposal assessment](DEPENDENCY_COHORT_2026_10.md) records original
+heads, selected maintained versions, the Prettier content hold, native dependency
+boundaries and the distinction between full updater resolution and a proven
+weekly scheduled trigger. The canonical exact contracts above remain executable.
+
+The build task explicitly passes standard proxy/no-proxy names and its necessary
+CA-file paths through Turbo strict mode; no application-secret patterns or loose
+mode are added. [Maintained Turbo semantics](https://turborepo.dev/docs/reference/configuration#passthroughenv)
+exclude pass-through values from cache keys. These settings select verified
+transport, not application content; use a forced build to verify transport
+changes. The declared production build still fetches the actual Google font,
+without mocked assets or disabled TLS verification.
+
+Owned Next process tests use the actual child-reported mounted-procfs PID and
+start time, alongside the real Node child exit/close status. Namespace-relative
+spawn PIDs are never assumed to address an inherited procfs mount. The developer
+fixture requires successful expected application HTML inside its original
+45-second startup deadline; MCP/lookalike/foreign-origin probes retain their
+10-second bounds and explicit response/body limits.

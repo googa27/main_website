@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { spawn } from "node:child_process";
-import { existsSync, readFileSync, realpathSync } from "node:fs";
+import { readFileSync, realpathSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, resolve } from "node:path";
 import test from "node:test";
@@ -9,6 +9,8 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import {
   observeOwnedProcess,
+  ownedNodeIdentityArgs,
+  ownedProcessStillLive,
   readLiveProcessFile,
   recordOwnedChildren,
 } from "./next-process-ownership.mjs";
@@ -85,6 +87,7 @@ test("the actual developer MCP route admits local clients and refuses foreign or
   const child = spawn(
     process.execPath,
     [
+      ...ownedNodeIdentityArgs,
       webRequire.resolve("next/dist/bin/next"),
       "dev",
       "--turbopack",
@@ -111,7 +114,12 @@ test("the actual developer MCP route admits local clients and refuses foreign or
   const pause = () =>
     new Promise((resolvePause) => setTimeout(resolvePause, 50));
   const observedChildren = new Map();
-  const trackChildren = () => recordOwnedChildren(child.pid, observedChildren);
+  const trackChildren = () => {
+    if (process.platform !== "linux") return;
+    assert.ok(observation.procIdentity, "Actual CLI procfs identity absent");
+    recordOwnedChildren(observation.procIdentity.proc, observedChildren);
+  };
+  let lastRequest;
   try {
     const deadline = Date.now() + 45000; // Startup guard, never a security-performance oracle.
     while (!/Ready in/.test(observation.output)) {
@@ -133,11 +141,40 @@ test("the actual developer MCP route admits local clients and refuses foreign or
     const port = output.match(/Local:\s+http:\/\/[^:\s]+:(\d+)/)?.[1];
     assert.ok(port, "Actual loopback listener was not reported: " + output);
     const origin = "http://127.0.0.1:" + port;
+    const boundedBody = async (response) => {
+      assert.ok(response.body, "Owned HTTP response body absent");
+      const reader = response.body.getReader();
+      const chunks = [];
+      let size = 0;
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        size += value.byteLength;
+        assert.ok(
+          size <= 1024 * 1024,
+          "Owned HTTP response exceeded byte bound",
+        );
+        chunks.push(Buffer.from(value));
+      }
+      return Buffer.concat(chunks).toString("utf8");
+    };
+    // CLI readiness precedes the first Turbopack compilation. Require healthy
+    // actual application content within the original single startup deadline.
+    const ready = await fetch(origin + "/", {
+      signal: AbortSignal.timeout(Math.max(1, deadline - Date.now())),
+    });
+    assert.equal(ready.status, 200, "Developer application startup failed");
+    assert.match(ready.headers.get("content-type") ?? "", /text\/html/);
+    assert.match(
+      await boundedBody(ready),
+      /From mathematical formulation to useful software/,
+    );
     const request = async (
       requestOrigin,
       path = "/_next/mcp",
       method = "initialize",
     ) => {
+      lastRequest = { path, requestOrigin, method };
       const response = await fetch(origin + path, {
         method: "POST",
         headers: {
@@ -163,7 +200,7 @@ test("the actual developer MCP route admits local clients and refuses foreign or
         }),
         signal: AbortSignal.timeout(10000),
       });
-      return { status: response.status, body: await response.text() };
+      return { status: response.status, body: await boundedBody(response) };
     };
     for (const lookalike of ["/_next/mcp-extra", "/_next/mcp/extra"]) {
       const wrongRoute = await request(origin, lookalike);
@@ -191,6 +228,9 @@ test("the actual developer MCP route admits local clients and refuses foreign or
         assert.doesNotMatch(denied.body, /"serverInfo"/);
       }
     }
+  } catch (error) {
+    console.error("Owned Next failure", lastRequest, observation.output);
+    throw error;
   } finally {
     if (observation.result === undefined) {
       trackChildren();
@@ -205,7 +245,7 @@ test("the actual developer MCP route admits local clients and refuses foreign or
     const result = await observation.exited;
     if (process.platform === "linux" && Number.isInteger(child.pid)) {
       assert.equal(
-        existsSync("/proc/" + child.pid),
+        ownedProcessStillLive(observation.procIdentity),
         false,
         "Owned CLI remains live",
       );

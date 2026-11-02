@@ -55,7 +55,7 @@ def test_pdf_stays_optional_and_profile_audit_includes_it():
     project = tomllib.loads((ROOT / "apps/api/pyproject.toml").read_text())["project"]
     assert not any(item.startswith("reportlab") for item in project["dependencies"])
     assert project["optional-dependencies"]["pdf"] == [
-        "reportlab==5.0.1",
+        "reportlab==5.1.0",
         "pillow==13.0.0",
     ]
     assert "pillow==13.0.0" in (ROOT / "apps/api/requirements-pdf.txt").read_text()

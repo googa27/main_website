@@ -80,7 +80,7 @@ def test_synchronized_insecure_profile_downgrades_fail(
 
 
 @pytest.mark.parametrize(
-    "pin", ["black==26.10.1", "pypdf==6.21.4", "pillow==13.0.0", "reportlab==5.0.1"]
+    "pin", ["black==26.10.1", "pypdf==6.21.4", "pillow==13.0.0", "reportlab==5.1.0"]
 )
 def test_optional_packages_cannot_be_duplicated_into_runtime(manifests: Path, pin: str):
     check_api_profiles()

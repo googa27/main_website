@@ -425,7 +425,7 @@
       "pdf_concurrency": {
         "issue": "https://github.com/googa27/main_website/issues/147",
         "owner": "app.services.cv.pdf",
-        "shared_state": "ReportLab 5.0.1 registered TTFont face parser cursor is shared across document-specific subset states.",
+        "shared_state": "ReportLab 5.1.0 registered TTFont face parser cursor is shared across document-specific subset states.",
         "serialization": "One process-local context-managed lock covers optional imports, font registration, paragraph work and final document build; exception paths release the lock.",
         "async_boundary": "CVService.render_public_pdf keeps rendering and lock waiting in its existing asyncio.to_thread worker.",
         "throughput": "One PDF render at a time per process; no cross-process coordination or unbounded per-request font registration.",
@@ -1273,19 +1273,19 @@
       "selected_versions": {
         "black": "26.10.1",
         "pypdf": "6.21.4",
-        "reportlab": "5.0.1",
+        "reportlab": "5.1.0",
         "pillow": "13.0.0",
         "certifi": "2026.10.23",
         "filelock": "4.2.1"
       },
-      "compatibility": "Python3.12 is supported by every selected release. ReportLab5.0.1 declares Pillow>=9.0.0 with no upper bound; Pillow13 requires Python>=3.11. Actual normal resolution/pip check and PDF generation/parsing remain required; metadata compatibility alone is insufficient.",
+      "compatibility": "Python3.12 is supported by every selected release. ReportLab5.1.0 declares Python>=3.9,<4 and Pillow>=9.0.0 with no upper bound; Pillow13 requires Python>=3.11. Actual normal resolution/pip check and PDF generation/parsing remain required; metadata compatibility alone is insufficient.",
       "ownership": "Black/pypdf remain development-only; ReportLab/Pillow remain optional PDF dependencies. filelock stays in the independent security-tool cohort. certifi is constrained separately in runtime and the isolated auditor, while dev/PDF inherit runtime. The auditor must not mutate the API interpreter. aiohttp3.14.5 remains owned once by runtime.",
       "reachability": "Black is unused by active Ruff gates and its optional Alembic hook is commented. pypdf reads generated résumé bytes in tests. PDF output uses escaped public text and packaged fonts with no caller images. certifi supplies HTTPX runtime and Requests/auditor trust roots; pip-audit SafeFileCache writes use atomic replacement rather than CacheControl lock acquisition. Version findings do not demonstrate an application exploit.",
       "minimum_owner": "_SECURITY_MINIMUMS in tests/architecture/test_dependency_security_floors.py; tests/architecture/test_python_profile_security.py exercises real synchronized downgrades and the security-tool manifest/bootstrap include.",
       "reference_sources": [
         "https://pypi.org/pypi/black/26.10.1/json",
         "https://pypi.org/pypi/pypdf/6.21.4/json",
-        "https://pypi.org/pypi/reportlab/5.0.1/json",
+        "https://pypi.org/pypi/reportlab/5.1.0/json",
         "https://pypi.org/pypi/pillow/13.0.0/json",
         "https://pypi.org/pypi/certifi/2026.10.23/json",
         "https://pypi.org/pypi/filelock/4.2.1/json"

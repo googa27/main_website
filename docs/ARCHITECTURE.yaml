@@ -1029,7 +1029,7 @@
         ],
         "selected_versions": {
           "python-dotenv": "1.2.4",
-          "pydantic-settings": "2.15.0"
+          "pydantic-settings": "2.16.1"
         },
         "alternatives": [
           "Handwritten dotenv parser or interpolation rules",
@@ -1039,9 +1039,9 @@
         "adapter_boundary": "SettingsConfigDict(env_file='.env') remains the application boundary; maintained python-dotenv owns parsing and CLI interpolation. Existing contact authorization still owns token length and constant-time comparison.",
         "custom_code_reason": "Only synthetic executable consumer laws and normal-wheel release checks are custom. No parser, token-policy change or provider adapter is added.",
         "maintenance_evidence": "https://github.com/theskumar/python-dotenv/releases/tag/v1.2.4",
-        "api_stability_evidence": "https://github.com/pydantic/pydantic-settings/blob/v2.15.0/pydantic_settings/sources/providers/dotenv.py",
+        "api_stability_evidence": "https://github.com/pydantic/pydantic-settings/blob/v2.16.1/pydantic_settings/sources/providers/dotenv.py",
         "license_evidence": "https://github.com/theskumar/python-dotenv/blob/v1.2.4/LICENSE",
-        "api_license_evidence": "Published python-dotenv1.2.4 is BSD-3-Clause and pydantic-settings2.15.0 is MIT; both require Python >=3.10. The selected settings release requires python-dotenv>=0.21.0 and pydantic>=2.7.0, covered by the runtime selections. See https://pypi.org/pypi/python-dotenv/1.2.4/json and https://pypi.org/pypi/pydantic-settings/2.15.0/json. API package MIT metadata is separate from any repository-root license.",
+        "api_license_evidence": "Published python-dotenv1.2.4 is BSD-3-Clause and requires Python>=3.10; pydantic-settings2.16.1 is MIT and requires Python>=3.11. The selected settings release requires python-dotenv>=1.2.2 and pydantic>=2.7.0, covered by the runtime selections and application Python>=3.12 floor. See https://pypi.org/pypi/python-dotenv/1.2.4/json and https://pypi.org/pypi/pydantic-settings/2.16.1/json; the exact tagged pyproject is https://github.com/pydantic/pydantic-settings/blob/v2.16.1/pyproject.toml. API package MIT metadata is separate from any repository-root license.",
         "oracle_or_reference_tests": [
           "apps/api/tests/test_dotenv_release_contract.py",
           "apps/api/tests/test_dotenv_settings_contract.py",

@@ -233,11 +233,11 @@
         "acceptance": "Current reviewed head and independently actual base, complete configured Python3.12 source/dev/normal-wheel/frontend/audit/provider gates and actual resulting-default verification. Local minimal pure-wheel oracle alone is not acceptance."
       },
       "turbo": {
-        "version": "2.11.7",
-        "manifest_range": "^2.11.7",
-        "wrapper_integrity": "sha512-RhXHbqfvY6o3xt/zSHCwSNwLrZlXiqHzewi4eAj9PtZ1T1CqgMJ2yIDb7SKPTG9IikTm925mfzL6hldQVdyNWw==",
-        "wrapper_sha256": "dd000efaa64f567f0986a84d363bbe7cf95a831010f6f6dbfd21770c89a8523d",
-        "native_linux_x64_sha256": "04245f51c406f7e6ac1b5037dd77cb272ad9faafbb95380eff8020b8475fb59d",
+        "version": "2.11.10",
+        "manifest_range": "^2.11.10",
+        "wrapper_integrity": "sha512-3GJYwig8ygEI89oaOZdduJX8/aw6O9eRPYHoIt6T3FZl9hkKjiyIspufJoVgqXihPoJu8M5CSV0DlZvzfohBCw==",
+        "wrapper_sha256": "6cf417655a0d9791781554f986435e71dc4a3d1e9d0c1fc7db0b2679550af946",
+        "native_linux_x64_sha256": "67a5ccd624ecc38bd84ba70cc23a23a4ba215700361cf22d2907c761457e6ab6",
         "gate": "node --test tests/node/turbo-contract.test.mjs",
         "fitness_test": "tests/node/turbo-contract.test.mjs",
         "owner": "https://github.com/googa27/main_website/issues/251",
@@ -246,7 +246,7 @@
         "native_resolution": "Required gate resolves exact installed optional native package before invoking wrapper; missing package/version drift or TURBO_BINARY_PATH override refuses. Upstream direct-wrapper npm repair remains outside acceptance.",
         "cache_semantics": "Only unambiguous literal VERCEL_OIDC_TOKEN rotation in exactly .env.local is normalized; other content/filenames or ambiguous/binary/multiline/oversized input retains conservative invalidation. Raw Git/worktree bytes unchanged.",
         "references": [
-          "https://github.com/vercel/turborepo/releases/tag/v2.11.7",
+          "https://github.com/vercel/turborepo/releases/tag/v2.11.10",
           "https://github.com/vercel/turborepo/pull/14353",
           "https://github.com/vercel/turborepo/pull/14356"
         ],

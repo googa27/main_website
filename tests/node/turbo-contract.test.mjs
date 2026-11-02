@@ -45,7 +45,7 @@ const nativeBinary = nativeRequire.resolve(
 );
 assert.equal(
   readJson(nativePackage).version,
-  "2.11.7",
+  "2.11.10",
   "native package must be the reviewed version",
 );
 

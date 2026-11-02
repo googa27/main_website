@@ -976,7 +976,7 @@
         "selected_versions": {
           "mako": "1.4.3",
           "alembic": "1.20.1",
-          "sqlalchemy": "2.1.4"
+          "sqlalchemy": "2.1.6"
         },
         "alternatives": [
           "Handwritten revision template rendering",

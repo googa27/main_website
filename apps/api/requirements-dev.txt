@@ -4,7 +4,7 @@ pytest-asyncio==1.4.0
 httpx2==2.16.0
 black==26.10.1
 ruff==0.17.2
-mypy==2.4.0
+mypy==2.4.1
 Pygments==2.21.0
 pypdf==6.21.4
 opentelemetry-sdk==1.45.1

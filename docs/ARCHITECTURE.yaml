@@ -219,7 +219,7 @@
         "scope": "Real synthetic Git/index and installed CLI/ESLint/Prettier controls. Original staged, tracked draft and untracked bytes are asserted; a failing task must restore them. The unprotected native invocation is only a negative-control fixture. No arbitrary task, Windows, concurrent real-worktree, deployed or scientific acceptance."
       },
       "mypy": {
-        "selected": "2.4.0",
+        "selected": "2.4.1",
         "scope": "Optional API development profile only; excluded from normal API runtime.",
         "parser_choice": "native_parser = True in the existing mypy.ini; all prior module exclusions and strict consumer checks remain.",
         "source_policy": "Reject type comments attached to synchronous/asynchronous for/with nodes in API app/tests/alembic/scripts and top-level modules. Use explicit variable annotations before the statement. Assignment/function type comments and type-ignore directives remain allowed.",

@@ -56,7 +56,7 @@ def _assert_cohort(package: dict, lock: dict, policy: dict) -> None:
         if "minimatch" in snapshot.get("dependencies", {})
     }
     assert actual_consumers == disposition["consumers"], "Unreviewed glob consumer"
-    assert len(disposition["caller_files"]) == 3
+    assert len(disposition["caller_files"]) == 4
     assert all(len(entry["sha256"]) == 64 for entry in disposition["caller_files"])
 
 

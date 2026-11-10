@@ -701,7 +701,7 @@
       "eslint_config_next": "16.4.3",
       "zod": "4.6.6",
       "zod_selector": "zod@>=4.0.0 <4.6.6",
-      "selection": "Next/config 16.4.3 published 2026-10-23; Zod 4.6.6 published 2026-10-11. MIT, existing package identities and supported parent ranges. Both exceed the seven-day cooldown. Managed Node 24.19.0, pnpm 10.34.5, strict peers and TypeScript ESLint 8.72.1 remain selected.",
+      "selection": "Next/config 16.4.3 published 2026-10-23; Zod 4.6.6 published 2026-10-11. MIT, existing package identities and supported parent ranges. Both exceed the seven-day cooldown. Managed Node 24.19.0, pnpm 10.34.5, strict peers and TypeScript ESLint 8.72.0 remain selected.",
       "zod_boundary": "Resolved through eslint-plugin-react-hooks 7.1.1. The repair checks existing upper bounds before collection elements; no universal cap for unconstrained arrays is claimed. Array/set/map callbacks and ordinary values are exercised.",
       "minimatch_disposition": {
         "advisory": "GHSA-g3hv-75wg-m249",
@@ -725,7 +725,7 @@
             "minimatch": "10.2.6"
           },
           {
-            "file": "@typescript-eslint+typescript-estree@8.72.1_typescript@5.9.3/node_modules/@typescript-eslint/typescript-estree/dist/useProgramFromProjectService.js",
+            "file": "@typescript-eslint+typescript-estree@8.72.0_typescript@5.9.3/node_modules/@typescript-eslint/typescript-estree/dist/useProgramFromProjectService.js",
             "sha256": "01187bd4d1369992441a8d416f31531640ac6b6d021a7035e59ce47e017b482f",
             "minimatch": "10.2.6"
           }
@@ -739,7 +739,7 @@
           "@eslint/config-array@0.21.2": "3.1.5",
           "@eslint/config-array@0.23.5": "10.2.6",
           "@eslint/eslintrc@3.3.6": "3.1.5",
-          "@typescript-eslint/typescript-estree@8.72.1": "10.2.6",
+          "@typescript-eslint/typescript-estree@8.72.0": "10.2.6",
           "eslint-plugin-import@2.32.0": "3.1.5",
           "eslint-plugin-jsx-a11y@6.10.2": "3.1.5",
           "eslint-plugin-react@7.37.5": "3.1.5",

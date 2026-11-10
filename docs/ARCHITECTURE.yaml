@@ -145,7 +145,7 @@
       "security_updates": "enabled; semver-type major holds do not apply to security-only updates",
       "typescript_compatibility": {
         "decision": "retain TypeScript 5",
-        "reason": "The locked TypeScript-ESLint 8.72.0 peer range is >=4.8.4 <6.1.0 and TypeScript 7.0 lacks the stable programmatic API required by tooling consumers.",
+        "reason": "The locked TypeScript-ESLint 8.72.1 peer range is >=4.8.4 <6.1.0 and TypeScript 7.0 lacks the stable programmatic API required by tooling consumers.",
         "revisit_when": "Actual compiler API consumers support the candidate, peer ranges agree, and lint, typecheck and build all pass."
       },
       "node_compatibility": {
@@ -167,24 +167,24 @@
         "revisit_when": "All consuming plugin peer ranges admit the candidate and strict frozen install, lint, typecheck and build pass."
       },
       "typescript_eslint_cohort": {
-        "version": "8.72.0",
-        "manifest_range": "^8.72.0",
+        "version": "8.72.1",
+        "manifest_range": "^8.72.1",
         "importer": "packages/config",
         "issue": "https://github.com/googa27/main_website/issues/136",
         "upstream_same_version_policy": "https://typescript-eslint.io/users/versioning/",
         "registry_manifests": [
-          "https://registry.npmjs.org/typescript-eslint/8.72.0",
-          "https://registry.npmjs.org/@typescript-eslint/eslint-plugin/8.72.0",
-          "https://registry.npmjs.org/@typescript-eslint/parser/8.72.0"
+          "https://registry.npmjs.org/typescript-eslint/8.72.1",
+          "https://registry.npmjs.org/@typescript-eslint/eslint-plugin/8.72.1",
+          "https://registry.npmjs.org/@typescript-eslint/parser/8.72.1"
         ],
-        "update_command": "pnpm --filter @repo/config update typescript-eslint@8.72.0 --lockfile-only --config.minimum-release-age=10080 --config.strict-peer-dependencies=true",
+        "update_command": "pnpm --filter @repo/config update typescript-eslint@8.72.1 --lockfile-only --config.minimum-release-age=10080 --config.strict-peer-dependencies=true",
         "boundary": "The maintained upstream umbrella is the single update declaration and owns exact same-version parser/plugin dependencies. Public parser/plugin exports preserve shared ESLint configuration. Local checks do not prove hosted updater recovery.",
         "package": "typescript-eslint",
         "components": [
           "@typescript-eslint/eslint-plugin",
           "@typescript-eslint/parser"
         ],
-        "selection_evidence": "8.72.0 published 2026-10-19; latest 8.72.1 published 2026-10-26 remains inside the seven-day cooldown at the 2026-10-31 review. MIT; Node ^18.18.0 || ^20.9.0 || >=21.1.0; ESLint ^8.57 || ^9 || ^10; TypeScript >=4.8.4 <6.1.0. Existing managed Node24 and TypeScript5 remain selected."
+        "selection_evidence": "8.72.1 published 2026-10-26; reviewed 2026-11-10 after the seven-day cooldown. Primary registry manifests confirm MIT; Node ^18.18.0 || ^20.9.0 || >=21.1.0; ESLint ^8.57 || ^9 || ^10; TypeScript >=4.8.4 <6.1.0; exact same-version umbrella component dependencies and no install lifecycle hooks. Existing managed Node24 and TypeScript5 remain selected. Native frozen install, lifecycle, lint, typecheck, build and contract gates must still pass."
       },
       "prettier": {
         "version": "3.9.8",
@@ -696,7 +696,7 @@
     },
     "frontend_security_cohort": {
       "owner": "https://github.com/googa27/main_website/issues/263",
-      "reviewed": "2026-10-31",
+      "reviewed": "2026-11-10",
       "next": "16.4.3",
       "eslint_config_next": "16.4.3",
       "zod": "4.6.6",
@@ -712,7 +712,7 @@
           "10.2.6"
         ],
         "decision": "Current consumers do not enable the described amplification. Version 3.1.5 lacks the optimization mechanism; 10.x defaults to 1 and reviewed callers use only dot/flipNegate. This is an exact-cohort reachability disposition, not a patched-version claim. Audit retains 3 affected package instances.",
-        "compatibility": "No parent accepts 11. Global major forcing breaks callable 3.x APIs and violates 3.x/10.x ranges. Version 11.0.1 published 2026-10-27 is inside seven-day policy; no cooldown exception is made.",
+        "compatibility": "No selected parent accepts 11. Global major forcing breaks callable 3.x APIs and violates 3.x/10.x ranges. Version 11.0.1 published 2026-10-27 was inside the seven-day policy at the original 2026-10-31 review; unsupported consuming ranges still prevent a major override.",
         "caller_files": [
           {
             "file": "eslint@10.10.0_jiti@2.7.0/node_modules/eslint/lib/eslint/eslint-helpers.js",
@@ -728,8 +728,14 @@
             "file": "@typescript-eslint+typescript-estree@8.72.0_typescript@5.9.3/node_modules/@typescript-eslint/typescript-estree/dist/useProgramFromProjectService.js",
             "sha256": "01187bd4d1369992441a8d416f31531640ac6b6d021a7035e59ce47e017b482f",
             "minimatch": "10.2.6"
+          },
+          {
+            "file": "@typescript-eslint+typescript-estree@8.72.1_typescript@5.9.3/node_modules/@typescript-eslint/typescript-estree/dist/useProgramFromProjectService.js",
+            "sha256": "01187bd4d1369992441a8d416f31531640ac6b6d021a7035e59ce47e017b482f",
+            "minimatch": "10.2.6"
           }
         ],
+        "additional_caller_review": "On 2026-11-10 the published 8.72.1 typescript-estree tarball integrity was verified against primary registry metadata. Its useProgramFromProjectService.js is byte-identical to the retained 8.72.0 caller (SHA-256 01187bd4d1369992441a8d416f31531640ac6b6d021a7035e59ce47e017b482f). Both installed copies remain gated; no new minimatch version, option or suppressed finding is introduced.",
         "reopen_trigger": "Any package/caller/option drift, optimizationLevel>=2 exposure, runtime glob consumer, supported patched parent/backport, or revised advisory mechanism requires review. Exact caller byte drift fails the required gate.",
         "source_references": [
           "https://github.com/advisories/GHSA-g3hv-75wg-m249",
@@ -740,6 +746,7 @@
           "@eslint/config-array@0.23.5": "10.2.6",
           "@eslint/eslintrc@3.3.6": "3.1.5",
           "@typescript-eslint/typescript-estree@8.72.0": "10.2.6",
+          "@typescript-eslint/typescript-estree@8.72.1": "10.2.6",
           "eslint-plugin-import@2.32.0": "3.1.5",
           "eslint-plugin-jsx-a11y@6.10.2": "3.1.5",
           "eslint-plugin-react@7.37.5": "3.1.5",

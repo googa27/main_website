@@ -668,13 +668,13 @@
       "test_dependencies": {
         "owner": "apps/api/pyproject.toml dev and requirements-dev.txt",
         "selected": {
-          "opentelemetry-sdk": "1.45.1",
+          "opentelemetry-sdk": "1.45.2",
           "opentelemetry-exporter-otlp-proto-http": "1.45.1"
         },
         "license": "Apache-2.0",
         "boundary": "Development acceptance only; normal wheel has no SDK or exporter.",
         "reference": [
-          "https://pypi.org/pypi/opentelemetry-sdk/1.45.1/json",
+          "https://pypi.org/pypi/opentelemetry-sdk/1.45.2/json",
           "https://pypi.org/pypi/opentelemetry-exporter-otlp-proto-http/1.45.1/json"
         ]
       },

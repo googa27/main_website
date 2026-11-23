@@ -356,10 +356,10 @@ finally:
     if providers:
         from fastapi.telemetry import _runtime
 
-        # FastAPI 0.162.0 has no public close API for environment-owned components.
+        # FastAPI 0.162.2 has no public close API for environment-owned components.
         # This pinned test-only adapter closes them before the loopback collector;
         # the real SDK observations above remain the independent policy oracle.
-        assert version("fastapi") == "0.162.0"
+        assert version("fastapi") == "0.162.2"
         _runtime._shutdown()
         for provider in providers:
             provider.shutdown()

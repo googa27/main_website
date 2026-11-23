@@ -570,7 +570,7 @@ another component. A future opt-in needs a separate classified-data, redaction,
 destination and lifecycle contract.
 
 The development profile pins OpenTelemetry SDK and HTTP/protobuf exporters
-1.45.1 only for acceptance controls; normal API installation does not add them.
+1.45.2 only for acceptance controls; normal API installation does not add them.
 The four source controls use real SDK providers, in-memory exports, actual ASGI
 lifespan messages and a local protobuf collector. Deliberately enabled FastAPI
 controls prove that the harness detects spans, logs, metrics and exporter
@@ -587,7 +587,7 @@ production telemetry, public-network delivery, deployment or scientific results.
 
 The fixture observes real SDK exports and provider calls instead of private
 FastAPI state. The environment positive control has one test-only private
-adapter: FastAPI 0.162.0 exposes no public close method for the components it
+adapter: FastAPI 0.162.2 exposes no public close method for the components it
 adds to existing providers, so the fixture calls its pinned `_runtime._shutdown`
 before closing the collector. Review of the old and selected upstream runtime files found only an auto-configuration docstring change; executable cleanup is unchanged. An exact version assertion makes dependency
 upgrades fail pending review of this cleanup adapter; it never changes runtime

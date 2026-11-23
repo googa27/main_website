@@ -91,16 +91,16 @@
       },
       "reviewed_no_lifecycle_packages": {
         "@tailwindcss/oxide": {
-          "version": "4.3.3",
-          "manifest_sha256": "d57385a0a2f680b35a488f9a9816490a6580cc7a989a430e3e426b4c24af212e",
+          "version": "4.3.5",
+          "manifest_sha256": "367d97370c4ce4e4c7ebb2720a2fd17e6da1ef53ab270220cc8a82e4bddcbc13",
           "entrypoint": "index.js",
-          "entrypoint_sha256": "311f226094e81c0e8d85c6ec02b453b1c0e1239999ae65e78a0d5e02bc005db5",
+          "entrypoint_sha256": "93fdcae044e0ca4ec4ff846c815f0eca9616c483f44601053fd42e51c9eb2e01",
           "required_native_binding": "@tailwindcss/oxide-linux-x64-gnu"
         }
       },
       "rationale": {
-        "@tailwindcss/oxide": "Version 4.3.3 removes the previous registry-download postinstall. Its published manifest and loader are pinned, install hooks must remain absent, and all optional native bindings must resolve to the same locked version. Native loading and the build matrix remain acceptance gates.",
-        "unrs-resolver": "The reviewed wrapper invokes napi-postinstall, which can invoke npm or download a missing native binding; keep it denied. Version 1.12.2 restricts the runtime install fallback to WebContainer. A frozen install, direct native binding load, lint and production build are required before accepting this cohort."
+        "@tailwindcss/oxide": "The published 4.3.5 manifest and loader were independently checked. Install hooks must remain absent, and all optional native bindings must resolve to the same locked version. Native loading and the build matrix remain acceptance gates.",
+        "unrs-resolver": "The reviewed wrapper invokes napi-postinstall, which can invoke npm or download a missing native binding; keep it denied. Version 1.12.2 restricts the runtime install fallback to WebContainer. A frozen install, direct native binding load, lint and production build are required before accepting this cohort. Next/config 16.4.6 re-resolution otherwise selects unrs-resolver 1.13.0. Parent-specific pins within the published resolver and support package ranges preserve the reviewed 1.12.2 and 0.3.4 loader path."
       },
       "verification_command": "pnpm run check:dependency-build-policy",
       "policy_source": "https://pnpm.io/settings#ignoredbuiltdependencies"
@@ -145,7 +145,7 @@
       "security_updates": "enabled; semver-type major holds do not apply to security-only updates",
       "typescript_compatibility": {
         "decision": "retain TypeScript 5",
-        "reason": "The locked TypeScript-ESLint 8.72.1 peer range is >=4.8.4 <6.1.0 and TypeScript 7.0 lacks the stable programmatic API required by tooling consumers.",
+        "reason": "The locked TypeScript-ESLint 8.72.2 peer range is >=4.8.4 <6.1.0 and TypeScript 7.0 lacks the stable programmatic API required by tooling consumers.",
         "revisit_when": "Actual compiler API consumers support the candidate, peer ranges agree, and lint, typecheck and build all pass."
       },
       "node_compatibility": {
@@ -167,24 +167,24 @@
         "revisit_when": "All consuming plugin peer ranges admit the candidate and strict frozen install, lint, typecheck and build pass."
       },
       "typescript_eslint_cohort": {
-        "version": "8.72.1",
-        "manifest_range": "^8.72.1",
+        "version": "8.72.2",
+        "manifest_range": "^8.72.2",
         "importer": "packages/config",
         "issue": "https://github.com/googa27/main_website/issues/136",
         "upstream_same_version_policy": "https://typescript-eslint.io/users/versioning/",
         "registry_manifests": [
-          "https://registry.npmjs.org/typescript-eslint/8.72.1",
-          "https://registry.npmjs.org/@typescript-eslint/eslint-plugin/8.72.1",
-          "https://registry.npmjs.org/@typescript-eslint/parser/8.72.1"
+          "https://registry.npmjs.org/typescript-eslint/8.72.2",
+          "https://registry.npmjs.org/@typescript-eslint/eslint-plugin/8.72.2",
+          "https://registry.npmjs.org/@typescript-eslint/parser/8.72.2"
         ],
-        "update_command": "pnpm --filter @repo/config update typescript-eslint@8.72.1 --lockfile-only --config.minimum-release-age=10080 --config.strict-peer-dependencies=true",
+        "update_command": "pnpm --filter @repo/config update typescript-eslint@8.72.2 --lockfile-only --config.minimum-release-age=10080 --config.strict-peer-dependencies=true",
         "boundary": "The maintained upstream umbrella is the single update declaration and owns exact same-version parser/plugin dependencies. Public parser/plugin exports preserve shared ESLint configuration. Local checks do not prove hosted updater recovery.",
         "package": "typescript-eslint",
         "components": [
           "@typescript-eslint/eslint-plugin",
           "@typescript-eslint/parser"
         ],
-        "selection_evidence": "8.72.1 published 2026-10-26; reviewed 2026-11-10 after the seven-day cooldown. Primary registry manifests confirm MIT; Node ^18.18.0 || ^20.9.0 || >=21.1.0; ESLint ^8.57 || ^9 || ^10; TypeScript >=4.8.4 <6.1.0; exact same-version umbrella component dependencies and no install lifecycle hooks. Existing managed Node24 and TypeScript5 remain selected. Native frozen install, lifecycle, lint, typecheck, build and contract gates must still pass."
+        "selection_evidence": "8.72.2 was published 2026-11-09 and meets the seven-day cooldown. Primary package metadata confirms MIT, Node ^18.18.0 || ^20.9.0 || >=21.1.0, ESLint ^8.57 || ^9 || ^10, TypeScript >=4.8.4 <6.1.0, exact same-version umbrella dependencies and no install lifecycle hooks. Keep the managed Node 24 and TypeScript 5 selections. Frozen install, lifecycle, lint, typecheck, build and contract gates remain required."
       },
       "prettier": {
         "version": "3.9.8",
@@ -468,12 +468,13 @@
       "owner": "https://github.com/googa27/main_website/issues/194",
       "brace_versions": [
         "1.1.21",
-        "5.0.12"
+        "5.0.12",
+        "5.0.13"
       ],
       "minimatch_versions": [
         "3.1.5",
-        "10.2.5",
-        "10.2.6"
+        "10.2.6",
+        "11.0.8"
       ],
       "selection_boundary": "Exact reviewed installed cohort, enforced with PyYAML-parsed package and snapshot sections; other cohorts require maintained parent review and consumer coverage. The retained unused v2 override targets 2.1.7; no v2 or v3 installed consumer acceptance is claimed.",
       "consumer_command": "pnpm run check:dependency-build-policy",
@@ -485,15 +486,16 @@
       "owner": "https://github.com/googa27/main_website/issues/198",
       "version": "1.2.2",
       "parents": [
+        "@tailwindcss/node@4.3.5",
         "postcss@8.5.23",
-        "@tailwindcss/node@4.3.3"
+        "postcss@8.5.33"
       ],
       "consumer_command": "pnpm run check:dependency-build-policy",
       "consumer_owner": "tests/node/source-map-offsets.test.mjs",
       "upstream_advisory": "https://github.com/7rulnik/source-map-js/issues/76",
       "maintained_patch": "https://github.com/7rulnik/source-map-js/commit/cf7658058ceeaa8619d5ae0ec90be6905209d016",
       "maintained_release": "https://github.com/7rulnik/source-map-js/commit/0a1d334fd1e55a47df97fcd60a7915d46df3b08a",
-      "behavioral_oracles": "Real resolved dependencies of both locked parents: literal generator/consumer/SourceNode round trips and indexed generated-line offsets. Admitted large section lines preserve generated code with padding bounded by actual content. The maintained release refuses invalid, unsafe or excessive offsets and accumulated nested line offsets. A test-only public add-method circuit breaker bounds the vulnerable-version reproduction, without production monkeypatching or timing claims. A version-specific correctness patch preserves zero-based section boundaries and applies column offsets only to the section-relative first line. Exact starts, reverse lookup, iteration, nested and adjacent sections, SourceNode round trips and actual PostCSS previous-map composition have literal and independent consumer controls. This is not exhaustive ECMA-426 conformance. Reverse lookup reuses the maintained Basic binary search and source resolution through a shared internal matched-coordinate helper implemented by both Basic and Indexed consumers. It preserves null results and chooses the globally closest original position according to GLB/LUB across all sections, including nested children. Equal original positions preserve the existing first-section tie convention. Original coordinates travel with candidates; no ambiguous generated-to-original round trip or serialized flattening is used. Explicit flat-map literals and unindexed TraceMap independently cover unmatched originals, repeated sources, sourceRoot aliases and nested first/later-line offsets; known AnyMap limitations are not accepted as expected product outputs.",
+      "behavioral_oracles": "Real resolved dependencies of each locked parent: literal generator/consumer/SourceNode round trips and indexed generated-line offsets. Admitted large section lines preserve generated code with padding bounded by actual content. The maintained release refuses invalid, unsafe or excessive offsets and accumulated nested line offsets. A test-only public add-method circuit breaker bounds the vulnerable-version reproduction, without production monkeypatching or timing claims. A version-specific correctness patch preserves zero-based section boundaries and applies column offsets only to the section-relative first line. Exact starts, reverse lookup, iteration, nested and adjacent sections, SourceNode round trips and actual PostCSS previous-map composition have literal and independent consumer controls. This is not exhaustive ECMA-426 conformance. Reverse lookup reuses the maintained Basic binary search and source resolution through a shared internal matched-coordinate helper implemented by both Basic and Indexed consumers. It preserves null results and chooses the globally closest original position according to GLB/LUB across all sections, including nested children. Equal original positions preserve the existing first-section tie convention. Original coordinates travel with candidates; no ambiguous generated-to-original round trip or serialized flattening is used. Explicit flat-map literals and unindexed TraceMap independently cover unmatched originals, repeated sources, sourceRoot aliases and nested first/later-line offsets; known AnyMap limitations are not accepted as expected product outputs.",
       "scope": "Local installed PostCSS/Tailwind toolchain only. Package presence and synthetic controls do not prove untrusted live input, exploitation, deployment or a scientific result.",
       "correctness_patch": {
         "owner": "https://github.com/googa27/main_website/issues/204",
@@ -531,7 +533,7 @@
       "version": "0.35.5",
       "minimum_rsvg": "2.63.2",
       "parents": [
-        "next@16.4.3(@babel/core@7.29.7)(@types/node@24.19.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)"
+        "next@16.4.6(@babel/core@7.29.13)(@types/node@24.19.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)"
       ],
       "optional_dependencies": {
         "@img/sharp-darwin-arm64": "0.35.5",
@@ -602,29 +604,29 @@
     },
     "next_security_policy": {
       "owner": "https://github.com/googa27/main_website/issues/263",
-      "version": "16.4.3",
-      "minimum_version": "16.4.1",
+      "version": "16.4.6",
+      "minimum_version": "16.4.5",
       "optional_compilers": {
-        "@next/swc-darwin-x64": "16.4.3",
-        "@next/swc-darwin-arm64": "16.4.3",
-        "@next/swc-linux-x64-gnu": "16.4.3",
-        "@next/swc-linux-x64-musl": "16.4.3",
-        "@next/swc-win32-x64-msvc": "16.4.3",
-        "@next/swc-linux-arm64-gnu": "16.4.3",
-        "@next/swc-linux-arm64-musl": "16.4.3",
-        "@next/swc-win32-arm64-msvc": "16.4.3"
+        "@next/swc-darwin-x64": "16.4.6",
+        "@next/swc-darwin-arm64": "16.4.6",
+        "@next/swc-linux-x64-gnu": "16.4.6",
+        "@next/swc-linux-x64-musl": "16.4.6",
+        "@next/swc-win32-x64-msvc": "16.4.6",
+        "@next/swc-linux-arm64-gnu": "16.4.6",
+        "@next/swc-linux-arm64-musl": "16.4.6",
+        "@next/swc-win32-arm64-msvc": "16.4.6"
       },
       "published_assets": {
-        "next_manifest": "b67bad7944d603b27dd2d2719b57203fd3b3e5c147b2efa6dea5ceb135274caf",
-        "GNU_manifest": "a6bc1604bc3ac9a8f121d9830d9cae65025244dafdd5bef103b022f9c398ee17",
-        "GNU_binary": "50baeb2789ffb46d981e880643c6e1f50c5d296c765c2db7ed7957ca949b2b38"
+        "next_manifest": "ed29e68845a44d4cd30518dd0df0554fcf6f6ada99b81f4e8798d26dc6964f82",
+        "GNU_manifest": "805341bb66c5db12e19ab2113a7d54039053db0d39685d862640ae845fb16dba",
+        "GNU_binary": "7af1dc4c46f19dccf485964112ad89f20fc5573c9992d8444bf489783b2abe76"
       },
       "published_integrities": {
-        "next": "sha512-OqxKTGi9u80FydydsMNYNjnuje9Au+kvHlt2GZ//ftdpDHm1dxKqAaENoOOTX5wKzn+9vaKUNIfZeyZUuLhCnA==",
-        "eslint-config-next": "sha512-j9IqBma6abp800frdUURaizYMgXOK+jNGyq6CsYcM9AxpSJs5D/TgMNGeAmRUilZvA7g9V1Tr71gNg9/SVTuMQ==",
-        "@next/eslint-plugin-next": "sha512-oxuC06wt/71h6ACYCV9GbKOfnf5a7VlRe/p80YHTut15TNgDEmynDnaq8t/xhy5rlvk7dhItIPs6H3rvIM4kyw==",
-        "@next/env": "sha512-a7tz1QCcWWkwC/rPJcPMJk/UNRu9CFhDd3OHYE5hddbJrs8BqRTalxI6GlKCWEGzRLHN+S/B7a4PAHCtm25aBQ==",
-        "@next/swc-linux-x64-gnu": "sha512-QymWvfUwDEC5/lpJOsxX5VAbyoR2D13+2Jsjz4be7gT4LPqEgdpkeLIR/HFfCLgKzoMhpJbp6I/JnogyNZHcaA=="
+        "next": "sha512-QZJiYhaZLJMo2KpkQGQIwvmd79WVsAWeYIU554a8d7zArS3si/IRy3lBNV/rtYhE70oLwdLYhPAXLPx8HwcwtA==",
+        "eslint-config-next": "sha512-IBGGrVf9E6pL0NGL0hmeicVGeSyv1VEzIWq6IecDqkw+YFByhEtDJS9u1r6s6a1VxK6rssh69KyNFQUgfaacqw==",
+        "@next/eslint-plugin-next": "sha512-HdqERVOafOD8JaUSAkwf9aSu/1rsHlkN8C5GcXYBH3C/z1MxBhZFxB5rz/xqMMRiIj7r9tIv8OCLQ9JWUxCvWA==",
+        "@next/env": "sha512-SunBjJ6t+oBtecS3dTjdVuMhUogP5wD/vrGL5EVuQYM1iS4O5ilL51HkiJ3sPjMzRHiCChvr4dbaSJbR7F3lxA==",
+        "@next/swc-linux-x64-gnu": "sha512-oOpbNa8XOW1qCGd9VvzC4fbkkRxEls7/WI6tz+YHC0xRA7KpV1U7DrAnCPjzVyOk/karzWEepCOcTIDmwK8FwQ=="
       },
       "advisories": [
         "GHSA-39w2-rjm5-chcv",
@@ -636,7 +638,14 @@
         "GHSA-vcvr-r3jv-pc5j",
         "GHSA-2464-fhr4-w9xw",
         "GHSA-673q-mjm6-r5xr",
-        "GHSA-p3m5-59mp-jv5r"
+        "GHSA-p3m5-59mp-jv5r",
+        "GHSA-7qx7-33qx-rqx2",
+        "GHSA-f3mh-rxg3-f5g2",
+        "GHSA-mfr8-8qww-v76h",
+        "GHSA-pc58-hwjq-p385",
+        "GHSA-rhh4-g77r-r9qj",
+        "GHSA-vc7v-qv4w-wrv8",
+        "GHSA-vvgp-ww4w-46vf"
       ],
       "references": [
         "https://github.com/vercel/next.js/releases/tag/v16.3.8",
@@ -644,7 +653,15 @@
         "https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins",
         "https://nodejs.org/download/release/v24.19.0/docs/api/child_process.html",
         "https://github.com/vercel/next.js/releases/tag/v16.4.1",
-        "https://github.com/vercel/next.js/releases/tag/v16.4.3"
+        "https://github.com/vercel/next.js/releases/tag/v16.4.3",
+        "https://github.com/vercel/next.js/releases/tag/v16.4.6",
+        "https://github.com/advisories/GHSA-7qx7-33qx-rqx2",
+        "https://github.com/advisories/GHSA-f3mh-rxg3-f5g2",
+        "https://github.com/advisories/GHSA-mfr8-8qww-v76h",
+        "https://github.com/advisories/GHSA-pc58-hwjq-p385",
+        "https://github.com/advisories/GHSA-rhh4-g77r-r9qj",
+        "https://github.com/advisories/GHSA-vc7v-qv4w-wrv8",
+        "https://github.com/advisories/GHSA-vvgp-ww4w-46vf"
       ],
       "consumer_command": "node --test tests/node/next-security.test.mjs tests/node/next-process-ownership.test.mjs",
       "fitness_tests": [
@@ -696,63 +713,57 @@
     },
     "frontend_security_cohort": {
       "owner": "https://github.com/googa27/main_website/issues/263",
-      "reviewed": "2026-11-10",
-      "next": "16.4.3",
-      "eslint_config_next": "16.4.3",
+      "reviewed": "2026-11-23",
+      "next": "16.4.6",
+      "eslint_config_next": "16.4.6",
       "zod": "4.6.6",
       "zod_selector": "zod@>=4.0.0 <4.6.6",
-      "selection": "Next/config 16.4.3 published 2026-10-23; Zod 4.6.6 published 2026-10-11. MIT, existing package identities and supported parent ranges. Both exceed the seven-day cooldown. Managed Node 24.19.0, pnpm 10.34.5, strict peers and TypeScript ESLint 8.72.0 remain selected.",
+      "selection": "Next/config 16.4.6 were published 2026-11-09 and Zod 4.6.6 was published 2026-10-11. The existing package identities and supported parent ranges meet the seven-day cooldown. Managed Node 24.19.0, pnpm 10.34.5 and strict peers remain selected.",
       "zod_boundary": "Resolved through eslint-plugin-react-hooks 7.1.1. The repair checks existing upper bounds before collection elements; no universal cap for unconstrained arrays is claimed. Array/set/map callbacks and ordinary values are exercised.",
       "minimatch_disposition": {
         "advisory": "GHSA-g3hv-75wg-m249",
         "audit_status": "retained-unsuppressed",
         "versions": [
           "3.1.5",
-          "10.2.5",
-          "10.2.6"
+          "10.2.6",
+          "11.0.8"
         ],
-        "decision": "Current consumers do not enable the described amplification. Version 3.1.5 lacks the optimization mechanism; 10.x defaults to 1 and reviewed callers use only dot/flipNegate. This is an exact-cohort reachability disposition, not a patched-version claim. Audit retains 3 affected package instances.",
-        "compatibility": "No selected parent accepts 11. Global major forcing breaks callable 3.x APIs and violates 3.x/10.x ranges. Version 11.0.1 published 2026-10-27 was inside the seven-day policy at the original 2026-10-31 review; unsupported consuming ranges still prevent a major override.",
+        "decision": "The advisory now applies to >=7.0.0 and <11.0.1. The supported ESLint 10.15.0 and config-array 0.23.6 upgrades resolve to 11.0.8 through their published ^11.0.5 ranges. The sole affected lock version, 10.2.6, remains under typescript-estree 8.72.2. Its reviewed consumer uses default preprocessing. The finding remains unsuppressed.",
+        "compatibility": "Web/config retain ESLint 9 for published plugin peers. The UI retains ESLint 10. TypeScript ESLint 8.73.0 declares minimatch ^11.0.1 through its exact ESTree cohort and reaches the seven-day cooldown on 2026-11-23 at 17:07:26 UTC. The 3.1.5 consumers are outside this advisory and retain their existing APIs.",
         "caller_files": [
           {
-            "file": "eslint@10.10.0_jiti@2.7.0/node_modules/eslint/lib/eslint/eslint-helpers.js",
-            "sha256": "4a1d745b6b7e1972ba59d2402ce488e90309825c8f3bb4d973a59d8dee511ebd",
-            "minimatch": "10.2.5"
-          },
-          {
-            "file": "@eslint+config-array@0.23.5/node_modules/@eslint/config-array/dist/cjs/index.cjs",
-            "sha256": "615889758115b8254f0c5ae4761ab659a98c4b4cc16da0f06215b9107ba49675",
-            "minimatch": "10.2.6"
-          },
-          {
-            "file": "@typescript-eslint+typescript-estree@8.72.0_typescript@5.9.3/node_modules/@typescript-eslint/typescript-estree/dist/useProgramFromProjectService.js",
-            "sha256": "01187bd4d1369992441a8d416f31531640ac6b6d021a7035e59ce47e017b482f",
-            "minimatch": "10.2.6"
-          },
-          {
-            "file": "@typescript-eslint+typescript-estree@8.72.1_typescript@5.9.3/node_modules/@typescript-eslint/typescript-estree/dist/useProgramFromProjectService.js",
+            "package": "@typescript-eslint/typescript-estree@8.72.2",
+            "file": "@typescript-eslint+typescript-estree@8.72.2_typescript@5.9.3/node_modules/@typescript-eslint/typescript-estree/dist/useProgramFromProjectService.js",
             "sha256": "01187bd4d1369992441a8d416f31531640ac6b6d021a7035e59ce47e017b482f",
             "minimatch": "10.2.6"
           }
         ],
-        "additional_caller_review": "On 2026-11-10 the published 8.72.1 typescript-estree tarball integrity was verified against primary registry metadata. Its useProgramFromProjectService.js is byte-identical to the retained 8.72.0 caller (SHA-256 01187bd4d1369992441a8d416f31531640ac6b6d021a7035e59ce47e017b482f). Both installed copies remain gated; no new minimatch version, option or suppressed finding is introduced.",
+        "additional_caller_review": "The published 8.72.2 ESTree caller matches the byte hash reviewed for 8.72.0 and 8.72.1. Its real installed hash, resolved minimatch version and consumer options remain gated.",
         "reopen_trigger": "Any package/caller/option drift, optimizationLevel>=2 exposure, runtime glob consumer, supported patched parent/backport, or revised advisory mechanism requires review. Exact caller byte drift fails the required gate.",
         "source_references": [
           "https://github.com/advisories/GHSA-g3hv-75wg-m249",
-          "https://github.com/isaacs/minimatch/commit/77a0f5c"
+          "https://github.com/isaacs/minimatch/commit/77a0f5c",
+          "https://registry.npmjs.org/eslint/10.15.0",
+          "https://registry.npmjs.org/@eslint/config-array/0.23.6",
+          "https://registry.npmjs.org/minimatch/11.0.8",
+          "https://registry.npmjs.org/@typescript-eslint/typescript-estree/8.72.2",
+          "https://registry.npmjs.org/@typescript-eslint/typescript-estree/8.73.0"
         ],
         "consumers": {
           "@eslint/config-array@0.21.2": "3.1.5",
-          "@eslint/config-array@0.23.5": "10.2.6",
+          "@eslint/config-array@0.23.6": "11.0.8",
           "@eslint/eslintrc@3.3.6": "3.1.5",
-          "@typescript-eslint/typescript-estree@8.72.0": "10.2.6",
-          "@typescript-eslint/typescript-estree@8.72.1": "10.2.6",
+          "@typescript-eslint/typescript-estree@8.72.2": "10.2.6",
           "eslint-plugin-import@2.32.0": "3.1.5",
           "eslint-plugin-jsx-a11y@6.10.2": "3.1.5",
           "eslint-plugin-react@7.37.5": "3.1.5",
-          "eslint@10.10.0": "10.2.5",
+          "eslint@10.15.0": "11.0.8",
           "eslint@9.39.5": "3.1.5"
-        }
+        },
+        "affected_versions": [
+          "10.2.6"
+        ],
+        "bundled_next_scope": "Next 16.4.6 publishes the same bundled @vercel/nft index (SHA-256 e436d398b2263fb87a2d8ee3d9dab8db2544c684ba9bc1c0d4ab4e67acbab207) as 16.4.3. The located importers are under dist/build and dist/esm/build. Bundled build tracing uses separate matcher bytes and remains outside the lockfile advisory count."
       },
       "consumer_command": "node --test tests/node/frontend-security-cohort.test.mjs",
       "fitness_tests": [

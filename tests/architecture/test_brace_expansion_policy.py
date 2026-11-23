@@ -19,6 +19,7 @@ def _assert_policy(package: dict, lock: dict, policy: dict) -> None:
     assert set(policy["brace_versions"]) == {
         PATCHED_OVERRIDES["brace-expansion@<2.0.0"],
         PATCHED_OVERRIDES["brace-expansion@>=4.0.0 <5.0.12"],
+        "5.0.13",
     }, "Unreviewed brace-expansion architecture selection"
     overrides = {
         name: version

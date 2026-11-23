@@ -79,7 +79,10 @@ test("reviewed minimatch callers retain their default preprocessing boundary", (
   }
 });
 
-for (const version of ["3.1.5", "10.2.5", "10.2.6"]) {
+for (const version of [
+  "3.1.5",
+  ...policy.minimatch_disposition.affected_versions,
+]) {
   test(`minimatch ${version} default and actual caller options avoid amplification`, () => {
     const require = createRequire(
       resolve(
@@ -123,3 +126,17 @@ for (const version of ["3.1.5", "10.2.5", "10.2.6"]) {
     }
   });
 }
+
+test("the installed ESLint UI consumers resolve patched minimatch", () => {
+  const uiRequire = createRequire(resolve(root, "packages/ui/package.json"));
+  const eslintRequire = createRequire(uiRequire.resolve("eslint/package.json"));
+  const configArrayRequire = createRequire(
+    eslintRequire.resolve("@eslint/config-array"),
+  );
+  for (const consumer of [eslintRequire, configArrayRequire]) {
+    assert.equal(consumer("minimatch/package.json").version, "11.0.8");
+    const { minimatch } = consumer("minimatch");
+    assert.equal(minimatch("src/main.js", "**/*.js"), true);
+    assert.equal(minimatch("src/main.ts", "**/*.js"), false);
+  }
+});

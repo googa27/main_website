@@ -40,8 +40,10 @@ def _assert_cohort(package: dict, lock: dict, policy: dict) -> None:
     disposition = policy["minimatch_disposition"]
     assert disposition["audit_status"] == "retained-unsuppressed"
     assert disposition["advisory"] == "GHSA-g3hv-75wg-m249"
-    versions = {"3.1.5", "10.2.5", "10.2.6"}
+    versions = {"3.1.5", "10.2.6", "11.0.8"}
     assert set(disposition["versions"]) == versions
+    affected_versions = {"10.2.6"}
+    assert set(disposition["affected_versions"]) == affected_versions
     assert {
         key.removeprefix("minimatch@")
         for key in lock["packages"]
@@ -56,7 +58,15 @@ def _assert_cohort(package: dict, lock: dict, policy: dict) -> None:
         if "minimatch" in snapshot.get("dependencies", {})
     }
     assert actual_consumers == disposition["consumers"], "Unreviewed glob consumer"
-    assert len(disposition["caller_files"]) == 4
+    affected_consumers = {
+        name: version
+        for name, version in actual_consumers.items()
+        if version in affected_versions
+    }
+    assert {
+        entry["package"]: entry["minimatch"]
+        for entry in disposition["caller_files"]
+    } == affected_consumers, "An affected glob consumer needs caller review"
     assert all(len(entry["sha256"]) == 64 for entry in disposition["caller_files"])
 
 

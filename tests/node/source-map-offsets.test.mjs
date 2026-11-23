@@ -34,18 +34,21 @@ const map = (line, column = 0) => ({
   ],
 });
 
-// These are both actual locked parents. Resolve their dependency rather than
-// installing a separate test copy or importing an unrelated root package.
-for (const [parent, directory] of [
-  ["postcss", "postcss@8.5.23/node_modules/postcss"],
-  [
-    "@tailwindcss/node",
-    "@tailwindcss+node@4.3.3/node_modules/@tailwindcss/node",
-  ],
-]) {
-  const require = createRequire(
-    resolve(root, "node_modules/.pnpm", directory, "package.json"),
+// Resolve the patched dependency from each installed source-map parent.
+const parents = policy.parents.map((identifier) => {
+  const name = identifier.slice(0, identifier.lastIndexOf("@"));
+  const packageManifest = resolve(
+    root,
+    "node_modules/.pnpm",
+    identifier.replace("/", "+"),
+    "node_modules",
+    name,
+    "package.json",
   );
+  return [identifier, packageManifest];
+});
+for (const [parent, packageManifest] of parents) {
+  const require = createRequire(packageManifest);
   const {
     SourceMapConsumer,
     SourceMapGenerator,
@@ -537,18 +540,7 @@ test("PostCSS composes a real previous indexed map at its exact section start", 
 {
   const trace = reference;
 
-  for (const [parent, path] of [
-    [
-      "postcss",
-      root +
-        "/node_modules/.pnpm/postcss@8.5.23/node_modules/postcss/package.json",
-    ],
-    [
-      "@tailwindcss/node",
-      root +
-        "/node_modules/.pnpm/@tailwindcss+node@4.3.3/node_modules/@tailwindcss/node/package.json",
-    ],
-  ]) {
+  for (const [parent, path] of parents) {
     const { SourceMapConsumer: C, SourceMapGenerator: G } =
       createRequire(path)("source-map-js");
     const basic = (ol, oc = 0) => {

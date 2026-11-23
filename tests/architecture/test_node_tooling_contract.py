@@ -63,10 +63,10 @@ EXPECTED_DENIED_BUILDS = {
 
 EXPECTED_NO_LIFECYCLE = {
     "@tailwindcss/oxide": {
-        "version": "4.3.3",
-        "manifest_sha256": "d57385a0a2f680b35a488f9a9816490a6580cc7a989a430e3e426b4c24af212e",
+        "version": "4.3.5",
+        "manifest_sha256": "367d97370c4ce4e4c7ebb2720a2fd17e6da1ef53ab270220cc8a82e4bddcbc13",
         "entrypoint": "index.js",
-        "entrypoint_sha256": "311f226094e81c0e8d85c6ec02b453b1c0e1239999ae65e78a0d5e02bc005db5",
+        "entrypoint_sha256": "93fdcae044e0ca4ec4ff846c815f0eca9616c483f44601053fd42e51c9eb2e01",
         "required_native_binding": "@tailwindcss/oxide-linux-x64-gnu",
     }
 }
@@ -206,15 +206,15 @@ def test_dependency_checker_refuses_changed_install_paths(
     host = "node_modules/.pnpm/unrs-resolver@1.12.2/node_modules/unrs-resolver"
     support = "node_modules/.pnpm/napi-postinstall@0.3.4/node_modules/napi-postinstall"
     oxide = (
-        "node_modules/.pnpm/@tailwindcss+oxide@4.3.3/node_modules/@tailwindcss/oxide"
+        "node_modules/.pnpm/@tailwindcss+oxide@4.3.5/node_modules/@tailwindcss/oxide"
     )
     oxide_manifest = put(
         f"{oxide}/package.json",
         json.dumps(
             {
                 "name": "@tailwindcss/oxide",
-                "version": "4.3.3",
-                "optionalDependencies": {"@tailwindcss/oxide-linux-x64-gnu": "4.3.3"},
+                "version": "4.3.5",
+                "optionalDependencies": {"@tailwindcss/oxide-linux-x64-gnu": "4.3.5"},
             }
         ),
     )
@@ -259,7 +259,7 @@ def test_dependency_checker_refuses_changed_install_paths(
         "reviewed_no_lifecycle_packages"
     ] = {
         "@tailwindcss/oxide": {
-            "version": "4.3.3",
+            "version": "4.3.5",
             "manifest_sha256": digest(oxide_manifest),
             "entrypoint": "index.js",
             "entrypoint_sha256": digest(oxide_entry),
@@ -292,8 +292,8 @@ def test_dependency_checker_refuses_changed_install_paths(
     lock = put(
         "pnpm-lock.yaml",
         "  unrs-resolver@1.12.2:\n  napi-postinstall@0.3.4:\n"
-        "  '@tailwindcss/oxide@4.3.3':\n"
-        "  '@tailwindcss/oxide-linux-x64-gnu@4.3.3':\n",
+        "  '@tailwindcss/oxide@4.3.5':\n"
+        "  '@tailwindcss/oxide-linux-x64-gnu@4.3.5':\n",
     )
     state = put(
         "node_modules/.modules.yaml",
@@ -365,7 +365,7 @@ def test_dependency_checker_refuses_changed_install_paths(
     elif mutation == "oxide_binding_lock":
         lock.write_text(
             lock.read_text().replace(
-                "oxide-linux-x64-gnu@4.3.3", "oxide-linux-x64-gnu@4.3.4"
+                "oxide-linux-x64-gnu@4.3.5", "oxide-linux-x64-gnu@4.3.4"
             )
         )
     elif mutation == "oxide_entry":
@@ -375,9 +375,9 @@ def test_dependency_checker_refuses_changed_install_paths(
             json.dumps(
                 {
                     "name": "@tailwindcss/oxide",
-                    "version": "4.3.3",
+                    "version": "4.3.5",
                     "optionalDependencies": {
-                        "@tailwindcss/oxide-linux-x64-gnu": "4.3.3"
+                        "@tailwindcss/oxide-linux-x64-gnu": "4.3.5"
                     },
                     "scripts": {"postinstall": "node download.js"},
                 }

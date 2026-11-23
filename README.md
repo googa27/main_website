@@ -324,8 +324,8 @@ The shared config consumes the upstream `typescript-eslint` package's public
 `parser` and `plugin` exports. This is one dependency declaration: its published
 manifest owns exact same-version parser/plugin dependencies, following
 [the upstream release contract](https://typescript-eslint.io/users/versioning/).
-The reviewed cohort is 8.72.0, published October 19, 2026. Release 8.72.1 was
-published October 26 and was still inside the seven-day cooldown at review.
+The reviewed cohort is 8.72.2, published November 9, 2026. It meets the
+seven-day cooldown.
 Managed Node 24.19.0, TypeScript 5 and the existing ESLint majors stay selected.
 
 Earlier Dependabot groups could resolve the plugin first against the old parser,
